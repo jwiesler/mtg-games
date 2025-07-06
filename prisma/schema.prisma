@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Deck {
+  id           Int @id @default(autoincrement())
+  name         String
+  commander    String
+  description  String
+  owner        User @relation(fields: [ownerId], references: [id])
+  ownerId      Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  plays        DeckPlay[]
+}
+
+model Game {
+  id    Int @id @default(autoincrement())
+  when  DateTime @default(now())
+  plays DeckPlay[]
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  plays DeckPlay[]
+  decks Deck[]
+}
+
+model DeckPlay {
+  id       Int @id @default(autoincrement())
+
+  player   User @relation(fields: [playerId], references: [id])
+  playerId Int
+
+  deck     Deck @relation(fields: [deckId], references: [id])
+  deckId   Int
+
+  game     Game @relation(fields: [gameId], references: [id])
+  gameId   Int
+
+  place    Int
+}
