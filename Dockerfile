@@ -14,7 +14,7 @@ COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 COPY --from=development-dependencies-env /app/app /app/app
 COPY . /app/
 WORKDIR /app
-RUN npm run prisma generate
+RUN npm run prisma-generate
 RUN npm run build
 
 FROM node:20-alpine
