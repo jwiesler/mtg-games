@@ -22,5 +22,6 @@ COPY ./package.json package-lock.json /app/
 COPY --from=development-dependencies-env /app/app /app/app
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
+RUN chown 2000:2000 /app
 WORKDIR /app
 CMD ["npm", "run", "start"]

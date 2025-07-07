@@ -8,14 +8,7 @@ import {
 } from "react-router";
 import prisma from "~/db.server";
 import { API } from "~/scryfall";
-import {
-  Button,
-  Card,
-  CardContent,
-  Grid,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Button, Card, CardContent, Stack } from "@mui/material";
 import Item from "@mui/material/Stack";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
@@ -26,19 +19,22 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   if (Number.isNaN(id)) {
     throw new Response("Not Found", { status: 404 });
   }
-  const deck = await prisma.deck.findUnique({ where: { id: id } });
+  const deck = await prisma.deck.findUnique({
+    where: { id: id },
+    select: {
+      name: true,
+      description: true,
+      commander: true,
+      owner: true,
+    },
+  });
   if (deck == null) {
     throw new Response("Not Found", { status: 404 });
-  }
-  const owner = await prisma.user.findUnique({ where: { id: deck.ownerId } });
-  if (owner == null) {
-    throw new Response("Owner not found", { status: 500 });
   }
   const users = await prisma.user.findMany();
   const card = await API.card(deck.commander);
   return {
     deck,
-    owner,
     card,
     users,
   };
@@ -74,7 +70,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 export default function Deck() {
-  const { deck, owner, card, users } = useLoaderData<typeof loader>();
+  const { deck, card, users } = useLoaderData<typeof loader>();
   const image =
     card == null
       ? "https://cards.scryfall.io/border_crop/front/7/0/70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b.jpg?1559591549"
@@ -87,11 +83,7 @@ export default function Deck() {
             <img src={image} height={"500px"}></img>
           </Item>
           <Item flexGrow={1}>
-            <EditDeck
-              deck={{ ...deck, owner: owner.name }}
-              users={users.map(u => u.name)}
-              clearOnSave={false}
-            />
+            <EditDeck deck={deck} users={users} clearOnSave={false} />
             <Form method="delete" onSubmit={() => redirect("/")}>
               <Stack spacing={2}>
                 <Button type="submit" color="error">

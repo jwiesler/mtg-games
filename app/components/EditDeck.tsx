@@ -1,8 +1,15 @@
 import { Autocomplete, Button, Stack, TextField } from "@mui/material";
 import React from "react";
 import { Form } from "react-router";
-import type { Deck } from "~/types";
 import { UserInput } from "./UserInput";
+import type { Deck as DbDeck, User } from "~/generated/prisma/client";
+
+interface Deck {
+  name: string;
+  description: string;
+  commander: string;
+  owner: User;
+}
 
 export function EditDeck({
   deck,
@@ -12,13 +19,15 @@ export function EditDeck({
 }: {
   deck: Deck;
   action?: string;
-  users: string[];
+  users: User[];
   clearOnSave: boolean;
 }) {
-  const [name, setName] = React.useState(deck.name);
-  const [owner, setOwner] = React.useState(deck.owner);
-  const [description, setDescription] = React.useState(deck.description);
-  const [commander, setCommander] = React.useState(deck.commander);
+  const [name, setName] = React.useState<string>(deck.name);
+  const [owner, setOwner] = React.useState<User>(deck.owner);
+  const [description, setDescription] = React.useState<string>(
+    deck.description,
+  );
+  const [commander, setCommander] = React.useState<string>(deck.commander);
   React.useEffect(() => {
     setName(deck.name);
     setOwner(deck.owner);
@@ -30,14 +39,13 @@ export function EditDeck({
       return;
     }
     setName("");
-    setOwner("");
+    setOwner(users[0]);
     setDescription("");
     setCommander("");
   };
   return (
     <Form action={action} method="post" onSubmit={clear}>
       <Stack spacing={2}>
-        <input name="form-id" hidden defaultValue="edit-deck" />
         <TextField
           name="name"
           label="Name"
@@ -53,9 +61,9 @@ export function EditDeck({
           required={true}
         />
         <UserInput
-          options={users}
           value={owner}
-          onInputChange={(_, value) => setOwner(value)}
+          users={users}
+          onInputChange={value => setOwner(value)}
           name="owner"
           label="Besitzer"
           required={true}

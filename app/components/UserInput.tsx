@@ -3,23 +3,20 @@ import {
   TextField,
   type AutocompleteInputChangeReason,
 } from "@mui/material";
+import type { User } from "~/generated/prisma/client";
 
 export interface UserInputProps {
-  value: string;
-  options: string[];
+  value: User;
+  users: User[];
   name: string;
   label: string;
   required: boolean;
-  onInputChange: (
-    event: React.SyntheticEvent,
-    value: string,
-    reason: AutocompleteInputChangeReason,
-  ) => void;
+  onInputChange: (user: User) => void;
 }
 
 export function UserInput({
   value,
-  options,
+  users,
   name,
   label,
   required,
@@ -27,11 +24,12 @@ export function UserInput({
 }: UserInputProps) {
   return (
     <Autocomplete
-      freeSolo
       disableClearable
-      options={options}
+      options={users}
+      getOptionLabel={o => o.name}
+      getOptionKey={o => o.id}
       value={value}
-      onInputChange={onInputChange}
+      onChange={(_, v) => onInputChange(v)}
       renderInput={params => (
         <TextField
           {...params}

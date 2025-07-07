@@ -13,6 +13,7 @@ import prisma from "~/db.server";
 import { DeckSchema } from "~/types";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { DeckTable } from "~/components/DeckTable";
+import type { User } from "~/generated/prisma/client";
 
 export const loader = async () => {
   return {
@@ -23,31 +24,26 @@ export const loader = async () => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const body = await request.formData();
-  const form = body.get("form-id");
-  if (form === "edit-deck") {
-    const s = DeckSchema.safeParse(Object.fromEntries(body));
-    if (!s.success) {
-      throw new Response("Bad request", { status: 400 });
-    }
-    const data = s.data;
-    let user = await prisma.user.findFirst({ where: { name: data.owner } });
-    if (user == null) {
-      user = await prisma.user.create({ data: { name: data.owner } });
-    }
-    await prisma.deck.create({
-      data: {
-        name: data.name,
-        commander: data.commander,
-        description: data.description,
-        ownerId: user.id,
-      },
-    });
-  } else {
-    throw new Response("Not found", { status: 404 });
+  const s = DeckSchema.safeParse(Object.fromEntries(body));
+  if (!s.success) {
+    throw new Response("Bad request", { status: 400 });
   }
+  const data = s.data;
+  let user = await prisma.user.findFirst({ where: { name: data.owner } });
+  if (user == null) {
+    user = await prisma.user.create({ data: { name: data.owner } });
+  }
+  await prisma.deck.create({
+    data: {
+      name: data.name,
+      commander: data.commander,
+      description: data.description,
+      ownerId: user.id,
+    },
+  });
 };
 
-function CreateDeck({ users }: { users: string[] }) {
+function CreateDeck({ users }: { users: User[] }) {
   const [expanded, setExpanded] = React.useState(false);
   return (
     <Accordion
@@ -64,7 +60,7 @@ function CreateDeck({ users }: { users: string[] }) {
       </AccordionSummary>
       <AccordionDetails>
         <EditDeck
-          deck={{ name: "", owner: "", description: "", commander: "" }}
+          deck={{ name: "", owner: users[0], description: "", commander: "" }}
           users={users}
           clearOnSave={true}
         ></EditDeck>
@@ -90,7 +86,7 @@ export default function Decks() {
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
           Decks
         </Typography>
-        <CreateDeck users={users.map(u => u.name)} />
+        <CreateDeck users={users} />
         <DeckTable decks={decks} usersMap={usersMap} />
       </Box>
     </Container>

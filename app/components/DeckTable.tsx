@@ -21,7 +21,6 @@ export function DeckTable({
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
       <Table
         sx={{ minWidth: 650 }}
-        aria-label="simple table"
         stickyHeader={true}
       >
         <TableHead>
@@ -34,7 +33,7 @@ export function DeckTable({
         <TableBody>
           {decks.map((deck, index) => (
             <TableRow
-              key={deck.name}
+              key={deck.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
