@@ -41,5 +41,8 @@
     "typescript-eslint": "^8.35.1",
     "vite": "latest",
     "vite-tsconfig-paths": "latest"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.9.5"
   }
 }
