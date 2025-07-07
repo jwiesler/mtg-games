@@ -34,11 +34,13 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   if (owner == null) {
     throw new Response("Owner not found", { status: 500 });
   }
+  const users = await prisma.user.findMany();
   const card = await API.card(deck.commander);
   return {
     deck,
     owner,
     card,
+    users,
   };
 };
 
@@ -72,7 +74,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 export default function Deck() {
-  const { deck, owner, card } = useLoaderData<typeof loader>();
+  const { deck, owner, card, users } = useLoaderData<typeof loader>();
   const image =
     card == null
       ? "https://cards.scryfall.io/border_crop/front/7/0/70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b.jpg?1559591549"
@@ -85,7 +87,11 @@ export default function Deck() {
             <img src={image} height={"500px"}></img>
           </Item>
           <Item flexGrow={1}>
-            <EditDeck deck={{ ...deck, owner: owner.name }} />
+            <EditDeck
+              deck={{ ...deck, owner: owner.name }}
+              users={users.map(u => u.name)}
+              clearOnSave={false}
+            />
             <Form method="delete" onSubmit={() => redirect("/")}>
               <Stack spacing={2}>
                 <Button type="submit" color="error">

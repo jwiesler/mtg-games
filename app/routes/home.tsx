@@ -69,7 +69,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
-function CreateDeck() {
+function CreateDeck({ users }: { users: string[] }) {
   const [expanded, setExpanded] = React.useState(false);
   return (
     <Accordion
@@ -87,6 +87,8 @@ function CreateDeck() {
       <AccordionDetails>
         <EditDeck
           deck={{ name: "", owner: "", description: "", commander: "" }}
+          users={users}
+          clearOnSave={true}
         ></EditDeck>
       </AccordionDetails>
     </Accordion>
@@ -110,7 +112,7 @@ export default function Home() {
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
           Decks
         </Typography>
-        <CreateDeck />
+        <CreateDeck users={users.map(u => u.name)} />
         <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
           <Table
             sx={{ minWidth: 650 }}

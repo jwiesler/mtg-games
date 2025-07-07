@@ -1,9 +1,20 @@
-import { Button, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Stack, TextField } from "@mui/material";
 import React from "react";
 import { Form } from "react-router";
 import type { Deck } from "~/types";
+import { UserInput } from "./UserInput";
 
-export function EditDeck({ deck, action }: { deck: Deck; action?: string }) {
+export function EditDeck({
+  deck,
+  action,
+  users,
+  clearOnSave,
+}: {
+  deck: Deck;
+  action?: string;
+  users: string[];
+  clearOnSave: boolean;
+}) {
   const [name, setName] = React.useState(deck.name);
   const [owner, setOwner] = React.useState(deck.owner);
   const [description, setDescription] = React.useState(deck.description);
@@ -15,10 +26,13 @@ export function EditDeck({ deck, action }: { deck: Deck; action?: string }) {
     setCommander(deck.commander);
   }, []);
   const clear = () => {
-    // setName("");
-    // setOwner("");
-    // setDescription("");
-    // setCommander("");
+    if (!clearOnSave) {
+      return;
+    }
+    setName("");
+    setOwner("");
+    setDescription("");
+    setCommander("");
   };
   return (
     <Form action={action} method="post" onSubmit={clear}>
@@ -38,11 +52,12 @@ export function EditDeck({ deck, action }: { deck: Deck; action?: string }) {
           onChange={e => setCommander(e.target.value)}
           required={true}
         />
-        <TextField
+        <UserInput
+          options={users}
+          value={owner}
+          onInputChange={(_, value) => setOwner(value)}
           name="owner"
           label="Besitzer"
-          value={owner}
-          onChange={e => setOwner(e.target.value)}
           required={true}
         />
         <TextField
