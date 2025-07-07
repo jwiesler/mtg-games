@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  BrowserRouter,
   isRouteErrorResponse,
   Link,
   Links,
@@ -104,9 +105,11 @@ export default function App() {
     );
   }
   return (
-    <AppTheme>
-      <Outlet />
-    </AppTheme>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
+      <AppTheme>
+        <Outlet />
+      </AppTheme>
+    </BrowserRouter>
   );
 }
 
