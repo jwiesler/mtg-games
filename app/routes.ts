@@ -8,5 +8,4 @@ console.log("Using base name", baseName);
 export default [
   route(`${baseName}`, "routes/home.tsx"),
   route(`${baseName}/deck/:id`, "routes/deck.tsx"),
-  route(`${baseName}/decks`, "routes/decks.tsx"),
 ] satisfies RouteConfig;
