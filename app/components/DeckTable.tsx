@@ -41,7 +41,7 @@ export function DeckTable({
                 {index + 1}
               </TableCell>
               <TableCell>
-                <Link href={`/deck/${deck.id}`}>{deck.name}</Link>
+                <Link href={`/decks/${deck.id}`}>{deck.name}</Link>
               </TableCell>
               <TableCell>{usersMap[deck.ownerId]}</TableCell>
             </TableRow>

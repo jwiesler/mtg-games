@@ -1,11 +1,7 @@
-import { type RouteConfig, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
-let baseName = process.env.BASE_NAME ?? "";
-if (!baseName.startsWith("/")) {
-  baseName = "/" + baseName;
-}
-console.log("Using base name", baseName);
 export default [
-  route(`${baseName}`, "routes/home.tsx"),
-  route(`${baseName}/deck/:id`, "routes/deck.tsx"),
+  index("routes/home.tsx"),
+  route("/decks/:id", "routes/deck.tsx"),
+  route("/decks", "routes/decks.tsx"),
 ] satisfies RouteConfig;
