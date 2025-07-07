@@ -1,0 +1,17 @@
+name: Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run format-check
+      - run: npm run lint
