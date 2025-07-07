@@ -9,7 +9,8 @@
     "typecheck": "react-router typegen && tsc",
     "format": "prettier --write .",
     "format-check": "prettier --check .",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prisma-generate": "prisma generate"
   },
   "dependencies": {
     "@emotion/cache": "latest",
