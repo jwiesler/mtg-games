@@ -1,8 +1,8 @@
-import { Autocomplete, Button, Stack, TextField } from "@mui/material";
+import { Button, Stack, TextField } from "@mui/material";
 import React from "react";
 import { Form } from "react-router";
-import { UserInput } from "./UserInput";
-import type { Deck as DbDeck, User } from "~/generated/prisma/client";
+import { IdInput } from "./IdInput";
+import type { User } from "~/generated/prisma/client";
 
 interface Deck {
   name: string;
@@ -60,11 +60,13 @@ export function EditDeck({
           onChange={e => setCommander(e.target.value)}
           required={true}
         />
-        <UserInput
+        <IdInput
           value={owner}
-          users={users}
+          options={users}
           onInputChange={value => setOwner(value)}
+          getOptionLabel={value => value.name}
           name="owner"
+          idName="ownerId"
           label="Besitzer"
           required={true}
         />

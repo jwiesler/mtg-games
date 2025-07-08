@@ -19,10 +19,7 @@ export function DeckTable({
 }) {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-      <Table
-        sx={{ minWidth: 650 }}
-        stickyHeader={true}
-      >
+      <Table sx={{ minWidth: 650 }} stickyHeader={true}>
         <TableHead>
           <TableRow>
             <TableCell width={"3em"}>#</TableCell>

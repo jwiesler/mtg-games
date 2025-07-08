@@ -14,14 +14,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Form, useLoaderData, type ActionFunctionArgs } from "react-router";
-import { EditDeck } from "~/components/EditDeck";
 import prisma from "~/db.server";
-import { DeckSchema } from "~/types";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { DeckTable } from "~/components/DeckTable";
-import type { User } from "~/generated/prisma/client";
 
 export const loader = async () => {
   return {

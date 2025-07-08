@@ -29,16 +29,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     throw new Response("Bad request", { status: 400 });
   }
   const data = s.data;
-  let user = await prisma.user.findFirst({ where: { name: data.owner } });
-  if (user == null) {
-    user = await prisma.user.create({ data: { name: data.owner } });
-  }
   await prisma.deck.create({
     data: {
       name: data.name,
       commander: data.commander,
       description: data.description,
-      ownerId: user.id,
+      ownerId: data.ownerId,
     },
   });
 };
