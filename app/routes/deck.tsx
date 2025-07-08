@@ -63,7 +63,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     });
   } else if (request.method === "DELETE") {
     await prisma.deck.delete({ where: { id: Number(params.id) } });
-    return redirect("/");
+    return redirect("/decks");
   } else {
     throw new Response("Not found", { status: 404 });
   }
