@@ -46,7 +46,7 @@ model DeckPlay {
   deck     Deck @relation(fields: [deckId], references: [id])
   deckId   Int
 
-  game     Game @relation(fields: [gameId], references: [id])
+  game     Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId   Int
 
   place    Int

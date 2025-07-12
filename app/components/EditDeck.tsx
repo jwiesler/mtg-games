@@ -1,4 +1,4 @@
-import { Button, Stack, TextField } from "@mui/material";
+import { Button, Grid, TextField } from "@mui/material";
 import React from "react";
 import { Form } from "react-router";
 import { IdInput } from "./IdInput";
@@ -45,42 +45,52 @@ export function EditDeck({
   };
   return (
     <Form action={action} method="post" onSubmit={clear}>
-      <Stack spacing={2}>
-        <TextField
-          name="name"
-          label="Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          required={true}
-        />
-        <TextField
-          name="commander"
-          label="Commander"
-          value={commander}
-          onChange={e => setCommander(e.target.value)}
-          required={true}
-        />
-        <IdInput
-          value={owner}
-          options={users}
-          onInputChange={value => setOwner(value)}
-          getOptionLabel={value => value.name}
-          name="owner"
-          idName="ownerId"
-          label="Besitzer"
-          required={true}
-        />
-        <TextField
-          name="description"
-          label="Beschreibung"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          required={true}
-        />
-        <Button type="submit" color="primary">
-          Speichern
-        </Button>
-      </Stack>
+      <Grid container spacing={2}>
+        <Grid size={12}>
+          <TextField
+            name="name"
+            label="Name"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required={true}
+          />
+        </Grid>
+        <Grid size={12}>
+          <TextField
+            name="commander"
+            label="Commander"
+            value={commander}
+            onChange={e => setCommander(e.target.value)}
+            required={true}
+          />
+        </Grid>
+        <Grid size={12}>
+          <IdInput
+            value={owner}
+            options={users}
+            onInputChange={value => setOwner(value)}
+            getOptionLabel={value => value.name}
+            name="owner"
+            idName="ownerId"
+            label="Besitzer"
+            required={true}
+          />
+        </Grid>
+        <Grid size={12}>
+          <TextField
+            name="description"
+            label="Beschreibung"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            required={true}
+          />
+        </Grid>
+        <Grid size={12}>
+          <Button type="submit" color="primary">
+            Speichern
+          </Button>
+        </Grid>
+      </Grid>
     </Form>
   );
 }

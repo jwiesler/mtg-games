@@ -36,7 +36,6 @@ export function IdInput<I extends Input>({
         getOptionKey={o => o.id}
         value={value}
         onChange={(_, v) => {
-          console.log(v);
           if (v == null) {
             return;
           }

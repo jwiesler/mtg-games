@@ -31,6 +31,9 @@ export default function Home() {
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
           <Link href="/players">Spieler</Link>
         </Typography>
+        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+          <Link href="/games">Spiele</Link>
+        </Typography>
       </Box>
     </Container>
   );
