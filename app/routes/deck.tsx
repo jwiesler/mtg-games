@@ -87,7 +87,7 @@ export default function Deck() {
           }}
         >
           <img src={image} height="500px" />
-          <Box sx={{ flexGrow: 1, minWidth: "450px" }}>
+          <Box sx={{ flexGrow: 1, minWidth: "350px" }}>
             <EditDeck deck={deck} users={users} clearOnSave={false} />
             <Form method="delete" onSubmit={() => redirect("/")}>
               <Stack spacing={2}>
