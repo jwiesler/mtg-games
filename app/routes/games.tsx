@@ -110,7 +110,7 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   };
   const removePlay = (i: number) => {
     const copy = [...plays];
-    copy.splice(i);
+    copy.splice(i, 1);
     setPlays(copy);
   };
   const addPlay = () => {
