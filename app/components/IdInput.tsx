@@ -31,6 +31,7 @@ export function IdInput<I extends Input>({
     <Fragment>
       <Autocomplete
         disableClearable
+        autoHighlight
         options={options}
         getOptionLabel={getOptionLabel}
         getOptionKey={o => o.id}
