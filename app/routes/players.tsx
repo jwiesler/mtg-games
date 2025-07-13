@@ -78,7 +78,7 @@ export default function Users() {
         }}
       >
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          Decks
+          Spieler
         </Typography>
         <Accordion
           expanded={expanded}
