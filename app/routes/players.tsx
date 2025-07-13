@@ -25,7 +25,7 @@ import prisma from "~/db.server";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DestructionDialog from "~/components/DestructionDialog";
 import React from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import z from "zod";
 export const loader = async () => {
   return {

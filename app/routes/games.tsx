@@ -30,7 +30,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import type { User } from "~/generated/prisma/client";
 import { IdInput } from "~/components/IdInput";
 import z from "zod";
-import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import DestructionDialog from "~/components/DestructionDialog";
 import Placing from "~/components/Placing";
 
