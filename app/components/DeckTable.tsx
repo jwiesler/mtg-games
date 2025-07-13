@@ -1,4 +1,5 @@
 import {
+  IconButton,
   Link,
   Paper,
   Table,
@@ -9,13 +10,16 @@ import {
   TableRow,
 } from "@mui/material";
 import type { Deck } from "~/generated/prisma/client";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export function DeckTable({
   decks,
   usersMap,
+  onDelete,
 }: {
   decks: Deck[];
   usersMap: Record<string, string>;
+  onDelete: (id: number) => void;
 }) {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
@@ -25,6 +29,7 @@ export function DeckTable({
             <TableCell width={"3em"}>#</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Besitzer</TableCell>
+            <TableCell width={"5em"}></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -40,6 +45,11 @@ export function DeckTable({
                 <Link href={`/decks/${deck.id}`}>{deck.name}</Link>
               </TableCell>
               <TableCell>{usersMap[deck.ownerId]}</TableCell>
+              <TableCell>
+                <IconButton color="default" onClick={() => onDelete(deck.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

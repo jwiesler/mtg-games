@@ -29,6 +29,7 @@ import type { User } from "~/generated/prisma/client";
 import { IdInput } from "~/components/IdInput";
 import z from "zod";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DestructionDialog from "~/components/DestructionDialog";
 
 interface DeckDesc {
   id: number;
@@ -208,6 +209,14 @@ function GamesTable({
   games: Awaited<ReturnType<typeof loader>>["games"];
 }) {
   const submit = useSubmit();
+  const [open, setOpen] = React.useState(false);
+  const [deleteGameId, setDeleteGameId] = React.useState<number | null>(null);
+  const handleClose = (confirmed: boolean) => {
+    setOpen(false);
+    if (confirmed && deleteGameId) {
+      submit({ id: deleteGameId }, { method: "DELETE", replace: true });
+    }
+  };
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
       <Table sx={{ minWidth: 650 }} stickyHeader={true}>
@@ -234,7 +243,8 @@ function GamesTable({
                 <IconButton
                   color="default"
                   onClick={() => {
-                    submit({ id: game.id }, { method: "DELETE", replace: true });
+                    setDeleteGameId(game.id);
+                    setOpen(true);
                   }}
                 >
                   <DeleteIcon />
@@ -244,6 +254,11 @@ function GamesTable({
           ))}
         </TableBody>
       </Table>
+      <DestructionDialog
+        open={open}
+        handleClose={handleClose}
+        title={"Möchtest du dieses Spiel wirklich löschen?"}
+      />
     </TableContainer>
   );
 }
