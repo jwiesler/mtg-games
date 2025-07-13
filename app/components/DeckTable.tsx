@@ -22,8 +22,8 @@ export function DeckTable({
   onDelete: (id: number) => void;
 }) {
   return (
-    <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-      <Table sx={{ minWidth: 650 }} stickyHeader={true}>
+    <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
+      <Table stickyHeader>
         <TableHead>
           <TableRow>
             <TableCell width={"3em"}>#</TableCell>

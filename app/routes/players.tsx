@@ -105,11 +105,7 @@ export default function Users() {
           </AccordionDetails>
         </Accordion>
         <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-          <Table
-            sx={{ minWidth: 650 }}
-            aria-label="simple table"
-            stickyHeader={true}
-          >
+          <Table stickyHeader={true}>
             <TableHead>
               <TableRow>
                 <TableCell width={"3em"}>#</TableCell>
