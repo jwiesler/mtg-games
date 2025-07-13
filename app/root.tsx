@@ -1,3 +1,4 @@
+/// <reference types="vite-plugin-svgr/client" />
 import * as React from "react";
 import {
   isRouteErrorResponse,
@@ -15,6 +16,7 @@ import createEmotionCache from "./createCache";
 
 import type { Route } from "./+types/root";
 import { AppBar, Container, Toolbar } from "@mui/material";
+import MtgLogo from "./mtg.svg?react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -45,39 +47,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
               maxWidth="lg"
               sx={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <Link
                 to="/"
-                title="Remix"
                 style={{
                   color: "inherit",
-                  fontSize: "2em",
                   textDecoration: "none",
                 }}
               >
-                Magic
+                <MtgLogo
+                  fill="white"
+                  height="1.5em"
+                  width="8em"
+                  fontSize="2em"
+                  display="block"
+                />
               </Link>
-              {/* <Box
-              component="nav"
-              aria-label="Main navigation"
-              className="remix-app__header-nav"
-            >
-              <Box
-                component="ul"
-                sx={{
-                  listStyle: "none",
-                  m: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 3,
-                }}
-              >
-                
-              </Box>
-            </Box> */}
             </Container>
           </Toolbar>
         </AppBar>
