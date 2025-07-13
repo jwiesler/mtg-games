@@ -7,8 +7,7 @@ import {
 } from "react-router";
 import prisma from "~/db.server";
 import { API } from "~/scryfall";
-import { Button, Card, CardContent, Stack } from "@mui/material";
-import Item from "@mui/material/Stack";
+import { Box, Button, Card, CardContent, Stack } from "@mui/material";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
 import { EditDeck } from "~/components/EditDeck";
@@ -77,11 +76,17 @@ export default function Deck() {
   return (
     <Card>
       <CardContent>
-        <Stack spacing={2} direction="row">
-          <Item>
-            <img src={image} height={"500px"}></img>
-          </Item>
-          <Item flexGrow={1}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "1.5em",
+          }}
+        >
+          <img src={image} height="500px" />
+          <Box sx={{flexGrow: 1, minWidth: "450px"}}>
             <EditDeck deck={deck} users={users} clearOnSave={false} />
             <Form method="delete" onSubmit={() => redirect("/")}>
               <Stack spacing={2}>
@@ -90,8 +95,8 @@ export default function Deck() {
                 </Button>
               </Stack>
             </Form>
-          </Item>
-        </Stack>
+          </Box>
+        </Box>
       </CardContent>
     </Card>
   );
