@@ -5,9 +5,11 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   Grid,
   IconButton,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -30,6 +32,7 @@ import { IdInput } from "~/components/IdInput";
 import z from "zod";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DestructionDialog from "~/components/DestructionDialog";
+import Placing from "~/components/Placing";
 
 interface DeckDesc {
   id: number;
@@ -134,14 +137,26 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
       </AccordionSummary>
       <AccordionDetails>
         <Form method="post" onSubmit={clear}>
-          <Grid container spacing={2}>
+          <Stack spacing={2}>
             <p>Date picker</p>
             {plays.map(({ player, deck }, i) => {
               return (
                 <Grid key={i} size={12}>
                   <Paper elevation={3} key={i} sx={{ p: "0.75em" }}>
-                    <Grid container spacing={2}>
-                      <Grid size={12}>
+                    <Stack
+                      spacing={2}
+                      direction="row"
+                      sx={{
+                        alignItems: "center",
+                      }}
+                    >
+                      <Placing place={i + 1} />
+                      <Divider
+                        orientation="vertical"
+                        variant="middle"
+                        flexItem
+                      />
+                      <Stack spacing={2} sx={{ flexGrow: 1 }}>
                         <IdInput
                           value={player}
                           options={users}
@@ -154,8 +169,6 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
                           label="Spieler"
                           required={true}
                         />
-                      </Grid>
-                      <Grid size={12}>
                         <IdInput
                           value={deck}
                           options={decks}
@@ -168,8 +181,6 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
                           label="Deck"
                           required={true}
                         />
-                      </Grid>
-                      <Grid size={12}>
                         <Button
                           color="error"
                           disabled={plays.length <= 1}
@@ -177,13 +188,13 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
                         >
                           Mitspieler löschen
                         </Button>
-                      </Grid>
-                    </Grid>
+                      </Stack>
+                    </Stack>
                   </Paper>
                 </Grid>
               );
             })}
-            <Grid size={12}>
+            <Stack direction="row">
               <Button color="warning" onClick={() => addPlay()}>
                 Mitspieler hinzufügen
               </Button>
@@ -195,8 +206,8 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
               >
                 Speichern
               </Button>
-            </Grid>
-          </Grid>
+            </Stack>
+          </Stack>
         </Form>
       </AccordionDetails>
     </Accordion>
