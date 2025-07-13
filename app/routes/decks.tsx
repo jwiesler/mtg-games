@@ -17,9 +17,10 @@ import prisma from "~/db.server";
 import { DeckSchema } from "~/types";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { DeckTable } from "~/components/DeckTable";
-import type { User } from "~/generated/prisma/client";
+import { Prisma, type User } from "~/generated/prisma/client";
 import DestructionDialog from "~/components/DestructionDialog";
 import z from "zod";
+import { BadRequest, NotFound } from "~/responses";
 export const loader = async () => {
   return {
     decks: await prisma.deck.findMany(),
@@ -32,7 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const body = await request.formData();
     const s = DeckSchema.safeParse(Object.fromEntries(body));
     if (!s.success) {
-      throw new Response("Bad request", { status: 400 });
+      throw BadRequest("Failed to validate input");
     }
     const data = s.data;
     await prisma.deck.create({
@@ -47,11 +48,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const body = await request.formData();
     const id = z.coerce.number().safeParse(body.get("id"));
     if (!id.success) {
-      throw new Response("Bad request", { status: 400 });
+      throw BadRequest("Failed to validate input");
     }
-    await prisma.deck.delete({ where: { id: id.data } });
+    try {
+      await prisma.deck.delete({ where: { id: id.data } });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === "P2003") {
+          throw BadRequest(
+            "A deck that was played can't be deleted. Delete those games first.",
+          );
+        }
+      }
+      throw e;
+    }
   } else {
-    throw new Response("Not found", { status: 404 });
+    throw NotFound();
   }
 };
 

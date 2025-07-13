@@ -11,11 +11,12 @@ import { Box, Button, Card, CardContent, Stack } from "@mui/material";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
 import { EditDeck } from "~/components/EditDeck";
+import { BadRequest, NotFound } from "~/responses";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const id = Number(params.id);
   if (Number.isNaN(id)) {
-    throw new Response("Not Found", { status: 404 });
+    throw NotFound();
   }
   const deck = await prisma.deck.findUnique({
     where: { id: id },
@@ -27,7 +28,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     },
   });
   if (deck == null) {
-    throw new Response("Not Found", { status: 404 });
+    throw NotFound();
   }
   const users = await prisma.user.findMany();
   const card = await API.card(deck.commander);
@@ -43,7 +44,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   if (request.method === "POST") {
     const s = DeckSchema.safeParse(Object.fromEntries(body));
     if (!s.success) {
-      throw new Response("Bad request", { status: 400 });
+      throw BadRequest("Failed to validate input");
     }
     const data = s.data;
     let user = await prisma.user.findFirst({ where: { name: data.owner } });
@@ -63,7 +64,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     await prisma.deck.delete({ where: { id: Number(params.id) } });
     return redirect("/decks");
   } else {
-    throw new Response("Not found", { status: 404 });
+    throw NotFound();
   }
 };
 
@@ -86,7 +87,7 @@ export default function Deck() {
           }}
         >
           <img src={image} height="500px" />
-          <Box sx={{flexGrow: 1, minWidth: "450px"}}>
+          <Box sx={{ flexGrow: 1, minWidth: "450px" }}>
             <EditDeck deck={deck} users={users} clearOnSave={false} />
             <Form method="delete" onSubmit={() => redirect("/")}>
               <Stack spacing={2}>

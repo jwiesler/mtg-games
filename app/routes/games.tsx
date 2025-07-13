@@ -33,6 +33,7 @@ import z from "zod";
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import DestructionDialog from "~/components/DestructionDialog";
 import Placing from "~/components/Placing";
+import { BadRequest, NotFound } from "~/responses";
 
 interface DeckDesc {
   id: number;
@@ -70,7 +71,7 @@ async function createDeck(body: FormData) {
     !rawPlayerIds.success ||
     rawDeckIds.data.length != rawPlayerIds.data.length
   ) {
-    throw new Response("Bad request", { status: 400 });
+    throw BadRequest("Failed to validate input");
   }
   const deckIds = rawDeckIds.data;
   const playerIds = rawPlayerIds.data;
@@ -94,11 +95,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const body = await request.formData();
     const id = z.coerce.number().safeParse(body.get("id"));
     if (!id.success) {
-      throw new Response("Bad request", { status: 400 });
+      throw BadRequest("Failed to validate input");
     }
     await prisma.game.delete({ where: { id: id.data } });
   } else {
-    throw new Response("Not found", { status: 404 });
+    throw NotFound();
   }
 };
 

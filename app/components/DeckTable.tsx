@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import type { Deck } from "~/generated/prisma/client";
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import DeleteIcon from "@mui/icons-material/DeleteOutline";
 
 export function DeckTable({
   decks,

@@ -27,6 +27,8 @@ import DestructionDialog from "~/components/DestructionDialog";
 import React from "react";
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import z from "zod";
+import { Prisma } from "~/generated/prisma/client";
+import { BadRequest, NotFound } from "~/responses";
 export const loader = async () => {
   return {
     users: await prisma.user.findMany(),
@@ -38,18 +40,29 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const body = await request.formData();
     const name = body.get("name");
     if (name == null) {
-      throw new Response("Bad request", { status: 400 });
+      throw BadRequest("Form field 'name' not found");
     }
     await prisma.user.create({ data: { name: name.toString() } });
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = z.coerce.number().safeParse(body.get("id"));
     if (!id.success) {
-      throw new Response("Bad request", { status: 400 });
+      throw BadRequest("Failed to parse id");
     }
-    await prisma.user.delete({ where: { id: id.data } });
+    try {
+      await prisma.user.delete({ where: { id: id.data } });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === "P2003") {
+          throw BadRequest(
+            "A user with decks can't be deleted, delete the user's decks first",
+          );
+        }
+      }
+      throw e;
+    }
   } else {
-    throw new Response("Not found", { status: 404 });
+    throw NotFound();
   }
 };
 
