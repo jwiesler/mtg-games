@@ -20,6 +20,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { de } from "date-fns/locale/de";
 import React, { Fragment } from "react";
 import {
   type ActionFunctionArgs,
@@ -60,7 +64,8 @@ export const loader = async () => {
   };
 };
 
-async function createDeck(body: FormData) {
+async function createGame(body: FormData) {
+  const rawWhen = z.iso.datetime().safeParse(body.get("when"));
   const rawDeckIds = z
     .array(z.coerce.number())
     .safeParse(body.getAll("deckId"));
@@ -68,12 +73,14 @@ async function createDeck(body: FormData) {
     .array(z.coerce.number())
     .safeParse(body.getAll("playerId"));
   if (
+    !rawWhen.success ||
     !rawDeckIds.success ||
     !rawPlayerIds.success ||
     rawDeckIds.data.length != rawPlayerIds.data.length
   ) {
     throw BadRequest("Failed to validate input");
   }
+  const when = rawWhen.data;
   const deckIds = rawDeckIds.data;
   const playerIds = rawPlayerIds.data;
   const plays = deckIds.map((deckId, i) => {
@@ -84,14 +91,14 @@ async function createDeck(body: FormData) {
     };
   });
   await prisma.game.create({
-    data: { when: new Date(), plays: { createMany: { data: plays } } },
+    data: { when, plays: { createMany: { data: plays } } },
   });
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
-    createDeck(body);
+    createGame(body);
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = z.coerce.number().safeParse(body.get("id"));
@@ -109,6 +116,13 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   const [plays, setPlays] = React.useState([
     { player: users[0], deck: decks[0] },
   ]);
+  const [when, setWhen] = React.useState<Date | null>(() => {
+    const date = new Date();
+    date.setMinutes(date.getMinutes() - (date.getMinutes() % 5));
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  });
   const replacePlay = (i: number, play: { player: User; deck: DeckDesc }) => {
     const copy = [...plays];
     copy[i] = play;
@@ -140,7 +154,23 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
       <AccordionDetails>
         <Form method="post" onSubmit={clear}>
           <Stack spacing={2}>
-            <p>Date picker</p>
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={de}
+            >
+              <DateTimePicker
+                value={when}
+                onChange={v => setWhen(v)}
+                timezone="system"
+                label="Zeit"
+                minutesStep={5}
+              />
+            </LocalizationProvider>
+            <input
+              name="when"
+              value={when?.toISOString() || ""}
+              type="hidden"
+            />
             {plays.map(({ player, deck }, i) => {
               return (
                 <Grid key={i} size={12}>
@@ -236,7 +266,15 @@ function GameRow({
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{game.when.toLocaleString()}</TableCell>
+        <TableCell>
+          {game.when.toLocaleString("de", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </TableCell>
         <TableCell>{game.plays.length}</TableCell>
         <TableCell>
           <IconButton
@@ -302,7 +340,7 @@ function GamesTable({
       <Table stickyHeader={true}>
         <TableHead>
           <TableRow>
-            <TableCell />
+            <TableCell width={"5em"} />
             <TableCell>Datum</TableCell>
             <TableCell>Spieler</TableCell>
             <TableCell width={"5em"}></TableCell>

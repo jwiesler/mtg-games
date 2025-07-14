@@ -19,16 +19,18 @@
     "@emotion/styled": "latest",
     "@mui/icons-material": "latest",
     "@mui/material": "latest",
+    "@mui/x-date-pickers": "^8.8.0",
     "@prisma/client": "^6.11.1",
     "@react-router/node": "latest",
     "@react-router/serve": "latest",
+    "date-fns": "^4.1.0",
     "isbot": "latest",
     "prettier": "^3.6.2",
     "react": "latest",
     "react-dom": "latest",
     "react-router": "latest",
     "vite-plugin-svgr": "^4.3.0",
-    "zod": "^3.25.74"
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
