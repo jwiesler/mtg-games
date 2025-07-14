@@ -37,9 +37,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const data = s.data;
     await prisma.deck.create({
       data: {
-        name: data.name,
-        commander: data.commander,
-        description: data.description,
+        name: data.name.trim() || data.commander.trim(),
+        commander: data.commander.trim(),
+        description: data.description.trim(),
         ownerId: data.ownerId,
       },
     });

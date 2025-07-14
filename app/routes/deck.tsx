@@ -58,9 +58,9 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     }
     await prisma.deck.update({
       data: {
-        name: data.name,
-        commander: data.commander,
-        description: data.description,
+        name: data.name.trim() || data.commander.trim(),
+        commander: data.commander.trim(),
+        description: data.description.trim(),
         ownerId: user.id,
       },
       where: { id: Number(params.id) },

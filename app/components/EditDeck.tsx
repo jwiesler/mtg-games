@@ -54,7 +54,6 @@ export function EditDeck({
           label="Name"
           value={name}
           onChange={e => setName(e.target.value)}
-          required={true}
         />
         <TextField
           name="commander"
@@ -78,7 +77,6 @@ export function EditDeck({
           label="Beschreibung"
           value={description}
           onChange={e => setDescription(e.target.value)}
-          required={true}
         />
         <Button type="submit" color="primary">
           Speichern
