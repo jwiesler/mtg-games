@@ -1,3 +1,5 @@
+import DeleteIcon from "@mui/icons-material/DeleteOutline";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -13,20 +15,20 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import React from "react";
 import {
+  type ActionFunctionArgs,
   Form,
   useLoaderData,
   useSubmit,
-  type ActionFunctionArgs,
 } from "react-router";
-import prisma from "~/db.server";
-import DestructionDialog from "~/components/DestructionDialog";
-import React from "react";
-import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import z from "zod";
+
+import DestructionDialog from "~/components/DestructionDialog";
+import prisma from "~/db.server";
 import { Prisma } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
+
 export const loader = async () => {
   return {
     users: await prisma.user.findMany(),

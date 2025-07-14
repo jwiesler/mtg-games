@@ -1,12 +1,11 @@
-import Typography from "@mui/material/Typography";
+import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import SvgIcon from "@mui/material/SvgIcon";
+import Typography from "@mui/material/Typography";
 import type { SxProps } from "@mui/material/styles";
-
-import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import type { ReactElement } from "react";
 
 export function meta() {

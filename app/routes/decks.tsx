@@ -1,3 +1,4 @@
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -5,19 +6,20 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import {
+  type ActionFunctionArgs,
   useLoaderData,
   useSubmit,
-  type ActionFunctionArgs,
 } from "react-router";
+import z from "zod";
+
+import { DeckTable } from "~/components/DeckTable";
+import DestructionDialog from "~/components/DestructionDialog";
 import { EditDeck } from "~/components/EditDeck";
 import prisma from "~/db.server";
-import { DeckSchema } from "~/types";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { DeckTable } from "~/components/DeckTable";
 import { Prisma, type User } from "~/generated/prisma/client";
-import DestructionDialog from "~/components/DestructionDialog";
-import z from "zod";
 import { BadRequest, NotFound } from "~/responses";
+import { DeckSchema } from "~/types";
+
 export const loader = async () => {
   return {
     decks: await prisma.deck.findMany(),

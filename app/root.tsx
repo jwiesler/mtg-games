@@ -1,25 +1,24 @@
 /// <reference types="vite-plugin-svgr/client" />
 import * as React from "react";
+import { CacheProvider } from "@emotion/react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Toolbar from "@mui/material/Toolbar";
 import {
-  isRouteErrorResponse,
   Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
 } from "react-router";
-import { CacheProvider } from "@emotion/react";
-import Box from "@mui/material/Box";
-import AppTheme from "./theme";
-import createEmotionCache from "./createCache";
 
 import type { Route } from "./+types/root";
-import AppBar from "@mui/material/AppBar";
-import Container from "@mui/material/Container";
-import Toolbar from "@mui/material/Toolbar";
-
+import createEmotionCache from "./createCache";
 import MtgLogo from "./mtg.svg?react";
+import AppTheme from "./theme";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

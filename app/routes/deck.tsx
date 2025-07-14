@@ -1,21 +1,22 @@
-import {
-  Form,
-  redirect,
-  useLoaderData,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
-import prisma from "~/db.server";
-import { API } from "~/scryfall";
-import Stack from "@mui/material/Stack";
-import CardContent from "@mui/material/CardContent";
-import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Stack from "@mui/material/Stack";
+import {
+  type ActionFunctionArgs,
+  Form,
+  type LoaderFunctionArgs,
+  redirect,
+  useLoaderData,
+} from "react-router";
+
+import { EditDeck } from "~/components/EditDeck";
+import prisma from "~/db.server";
+import { BadRequest, NotFound } from "~/responses";
+import { API } from "~/scryfall";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
-import { EditDeck } from "~/components/EditDeck";
-import { BadRequest, NotFound } from "~/responses";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const id = Number(params.id);

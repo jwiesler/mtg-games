@@ -1,3 +1,4 @@
+import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
@@ -9,7 +10,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
 import type { Deck } from "~/generated/prisma/client";
-import DeleteIcon from "@mui/icons-material/DeleteOutline";
 
 export function DeckTable({
   decks,
