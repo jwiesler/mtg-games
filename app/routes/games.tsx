@@ -23,6 +23,7 @@ import Typography from "@mui/material/Typography";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { de } from "date-fns/locale/de";
 import React, { Fragment } from "react";
 import {
@@ -164,6 +165,11 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
                 timezone="system"
                 label="Zeit"
                 minutesStep={5}
+                viewRenderers={{
+                  hours: renderTimeViewClock,
+                  minutes: renderTimeViewClock,
+                  seconds: renderTimeViewClock,
+                }}
               />
             </LocalizationProvider>
             <input
