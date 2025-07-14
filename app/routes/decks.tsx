@@ -106,34 +106,32 @@ export default function Decks() {
     }
   };
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          my: 4,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
+    <Box
+      sx={{
+        my: 4,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+        Decks
+      </Typography>
+      <CreateDeck users={users} />
+      <DeckTable
+        decks={decks}
+        usersMap={usersMap}
+        onDelete={id => {
+          setDeleteDeckId(id);
+          setOpen(true);
         }}
-      >
-        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          Decks
-        </Typography>
-        <CreateDeck users={users} />
-        <DeckTable
-          decks={decks}
-          usersMap={usersMap}
-          onDelete={id => {
-            setDeleteDeckId(id);
-            setOpen(true);
-          }}
-        />
-        <DestructionDialog
-          open={open}
-          handleClose={handleClose}
-          title={"Möchtest du dieses Deck wirklich löschen?"}
-        />
-      </Box>
-    </Container>
+      />
+      <DestructionDialog
+        open={open}
+        handleClose={handleClose}
+        title={"Möchtest du dieses Deck wirklich löschen?"}
+      />
+    </Box>
   );
 }

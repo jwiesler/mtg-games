@@ -147,33 +147,31 @@ function CardsIcon({ sx }: { sx?: SxProps }) {
 
 export default function Home() {
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          my: 4,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1.5em",
-        }}
-      >
-        <SubpageLink
-          href="/decks"
-          title="Decks"
-          icon={<CardsIcon sx={{ fontSize: 80, fill: "white" }} />}
-        />
-        <SubpageLink
-          href="/players"
-          title="Spieler"
-          icon={<AccessibilityNewIcon sx={{ fontSize: 80 }} />}
-        />
-        <SubpageLink
-          href="/games"
-          title="Spiele"
-          icon={<ChessFigure sx={{ fill: "white", fontSize: 80 }} />}
-        />
-      </Box>
-    </Container>
+    <Box
+      sx={{
+        my: 4,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "1.5em",
+      }}
+    >
+      <SubpageLink
+        href="/decks"
+        title="Decks"
+        icon={<CardsIcon sx={{ fontSize: 80, fill: "white" }} />}
+      />
+      <SubpageLink
+        href="/players"
+        title="Spieler"
+        icon={<AccessibilityNewIcon sx={{ fontSize: 80 }} />}
+      />
+      <SubpageLink
+        href="/games"
+        title="Spiele"
+        icon={<ChessFigure sx={{ fill: "white", fontSize: 80 }} />}
+      />
+    </Box>
   );
 }

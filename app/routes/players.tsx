@@ -80,84 +80,82 @@ export default function Users() {
     }
   };
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          my: 4,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+    <Box
+      sx={{
+        my: 4,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+        Spieler
+      </Typography>
+      <Accordion
+        expanded={expanded}
+        onChange={(_, expanded) => setExpanded(expanded)}
+        sx={{ width: "100%" }}
       >
-        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          Spieler
-        </Typography>
-        <Accordion
-          expanded={expanded}
-          onChange={(_, expanded) => setExpanded(expanded)}
-          sx={{ width: "100%" }}
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1-content"
+          id="panel1-header"
         >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-          >
-            <Typography>Spieler anlegen</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Form method="post" onSubmit={() => setName("")}>
-              <TextField
-                name="name"
-                label="Name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required={true}
-              />
-            </Form>
-          </AccordionDetails>
-        </Accordion>
-        <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-          <Table stickyHeader={true}>
-            <TableHead>
-              <TableRow>
-                <TableCell width={"3em"}>#</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell width={"5em"}></TableCell>
+          <Typography>Spieler anlegen</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Form method="post" onSubmit={() => setName("")}>
+            <TextField
+              name="name"
+              label="Name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required={true}
+            />
+          </Form>
+        </AccordionDetails>
+      </Accordion>
+      <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+        <Table stickyHeader={true}>
+          <TableHead>
+            <TableRow>
+              <TableCell width={"3em"}>#</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell width={"5em"}></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map((user, index) => (
+              <TableRow
+                key={user.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {index + 1}
+                </TableCell>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>
+                  <IconButton
+                    color="default"
+                    onClick={() => {
+                      setDeleteUserId(user.id);
+                      setOpen(true);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.map((user, index) => (
-                <TableRow
-                  key={user.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {index + 1}
-                  </TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      color="default"
-                      onClick={() => {
-                        setDeleteUserId(user.id);
-                        setOpen(true);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <DestructionDialog
-          open={open}
-          handleClose={handleClose}
-          title={"Möchtest du diesen Spieler wirklich löschen?"}
-        />
-      </Box>
-    </Container>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <DestructionDialog
+        open={open}
+        handleClose={handleClose}
+        title={"Möchtest du diesen Spieler wirklich löschen?"}
+      />
+    </Box>
   );
 }

@@ -278,28 +278,26 @@ function GamesTable({
 export default function Games() {
   const { decks, users, games } = useLoaderData<typeof loader>();
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          my: 4,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          Spiele
-        </Typography>
-        {decks.length == 0 ? (
-          "Es muss erst mindestens ein Deck eingetragen sein"
-        ) : users.length == 0 ? (
-          "Es muss erst mindestens ein Spieler eingetragen sein"
-        ) : (
-          <CreateGame users={users} decks={decks} />
-        )}
-        {games.length > 0 && <GamesTable games={games} />}
-      </Box>
-    </Container>
+    <Box
+      sx={{
+        my: 4,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+        Spiele
+      </Typography>
+      {decks.length == 0 ? (
+        "Es muss erst mindestens ein Deck eingetragen sein"
+      ) : users.length == 0 ? (
+        "Es muss erst mindestens ein Spieler eingetragen sein"
+      ) : (
+        <CreateGame users={users} decks={decks} />
+      )}
+      {games.length > 0 && <GamesTable games={games} />}
+    </Box>
   );
 }
