@@ -1,4 +1,6 @@
-import { Button, Stack, TextField } from "@mui/material";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 import React from "react";
 import { Form } from "react-router";
 import { IdInput } from "./IdInput";

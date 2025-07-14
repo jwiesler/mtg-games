@@ -1,24 +1,23 @@
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Button,
-  Container,
-  Divider,
-  Grid,
-  IconButton,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
-import React from "react";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Collapse from "@mui/material/Collapse";
+import Divider from "@mui/material/Divider";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
+
+import React, { Fragment } from "react";
 import {
   Form,
   useLoaderData,
@@ -34,6 +33,8 @@ import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import DestructionDialog from "~/components/DestructionDialog";
 import Placing from "~/components/Placing";
 import { BadRequest, NotFound } from "~/responses";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 interface DeckDesc {
   id: number;
@@ -215,6 +216,73 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   );
 }
 
+function GameRow({
+  game,
+  onDelete,
+}: {
+  onDelete: (id: number) => void;
+  game: Awaited<ReturnType<typeof loader>>["games"][0];
+}) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <Fragment>
+      <TableRow sx={{ "& > *": { borderBottom: "unset !important" } }}>
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{game.when.toLocaleString()}</TableCell>
+        <TableCell>{game.plays.length}</TableCell>
+        <TableCell>
+          <IconButton
+            size="small"
+            color="default"
+            onClick={() => onDelete(game.id)}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Typography variant="h6" gutterBottom component="div">
+              Ergebnis
+            </Typography>
+            <Box sx={{ margin: 1 }}>
+              <Table size="small" aria-label="purchases">
+                <TableHead>
+                  <TableRow>
+                    <TableCell width="2.5em"></TableCell>
+                    <TableCell>Spieler</TableCell>
+                    <TableCell>Deck</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {game.plays.map((play, i) => (
+                    <TableRow key={i}>
+                      <TableCell component="th" scope="row">
+                        <Placing place={i + 1} />
+                      </TableCell>
+                      <TableCell>{play.player.name}</TableCell>
+                      <TableCell>{play.deck.name}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </Fragment>
+  );
+}
+
 function GamesTable({
   games,
 }: {
@@ -234,35 +302,22 @@ function GamesTable({
       <Table stickyHeader={true}>
         <TableHead>
           <TableRow>
-            <TableCell width={"3em"}>#</TableCell>
+            <TableCell />
             <TableCell>Datum</TableCell>
-            <TableCell>Mitspieler</TableCell>
+            <TableCell>Spieler</TableCell>
             <TableCell width={"5em"}></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {games.map((game, index) => (
-            <TableRow
+          {games.map(game => (
+            <GameRow
               key={game.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {index + 1}
-              </TableCell>
-              <TableCell>{game.when.toLocaleString()}</TableCell>
-              <TableCell>{game.plays.length}</TableCell>
-              <TableCell>
-                <IconButton
-                  color="default"
-                  onClick={() => {
-                    setDeleteGameId(game.id);
-                    setOpen(true);
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
+              game={game}
+              onDelete={() => {
+                setDeleteGameId(game.id);
+                setOpen(true);
+              }}
+            />
           ))}
         </TableBody>
       </Table>

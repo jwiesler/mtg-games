@@ -7,7 +7,11 @@ import {
 } from "react-router";
 import prisma from "~/db.server";
 import { API } from "~/scryfall";
-import { Box, Button, Card, CardContent, Stack } from "@mui/material";
+import Stack from "@mui/material/Stack";
+import CardContent from "@mui/material/CardContent";
+import Card from "@mui/material/Card";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
 import { EditDeck } from "~/components/EditDeck";

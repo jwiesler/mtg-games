@@ -1,8 +1,11 @@
-import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
-import { Paper, Stack, SvgIcon, type SxProps } from "@mui/material";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import SvgIcon from "@mui/material/SvgIcon";
+import type { SxProps } from "@mui/material/styles";
+
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import type { ReactElement } from "react";
 

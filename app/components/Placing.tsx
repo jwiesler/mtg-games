@@ -1,4 +1,4 @@
-import { Chip } from "@mui/material";
+import Chip from "@mui/material/Chip";
 
 function getColor(place: number): string {
   switch (place) {

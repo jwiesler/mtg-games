@@ -1,20 +1,19 @@
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Container,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-} from "@mui/material";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Form,
   useLoaderData,
@@ -22,7 +21,6 @@ import {
   type ActionFunctionArgs,
 } from "react-router";
 import prisma from "~/db.server";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DestructionDialog from "~/components/DestructionDialog";
 import React from "react";
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
@@ -106,13 +104,15 @@ export default function Users() {
         </AccordionSummary>
         <AccordionDetails>
           <Form method="post" onSubmit={() => setName("")}>
-            <TextField
-              name="name"
-              label="Name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required={true}
-            />
+            <Stack>
+              <TextField
+                name="name"
+                label="Name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required={true}
+              />
+            </Stack>
           </Form>
         </AccordionDetails>
       </Accordion>
@@ -137,6 +137,7 @@ export default function Users() {
                 <TableCell>{user.name}</TableCell>
                 <TableCell>
                   <IconButton
+                    size="small"
                     color="default"
                     onClick={() => {
                       setDeleteUserId(user.id);

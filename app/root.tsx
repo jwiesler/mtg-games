@@ -15,7 +15,10 @@ import AppTheme from "./theme";
 import createEmotionCache from "./createCache";
 
 import type { Route } from "./+types/root";
-import { AppBar, Container, Toolbar } from "@mui/material";
+import AppBar from "@mui/material/AppBar";
+import Container from "@mui/material/Container";
+import Toolbar from "@mui/material/Toolbar";
+
 import MtgLogo from "./mtg.svg?react";
 
 export const links: Route.LinksFunction = () => [
@@ -78,7 +81,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-const cache = createEmotionCache();
+const cache = createEmotionCache({ key: "mui", prepend: true });
 
 export default function App() {
   if (typeof window !== "undefined") {
