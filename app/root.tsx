@@ -80,7 +80,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-const cache = createEmotionCache({ key: "mui", prepend: true });
+const cache = createEmotionCache();
 
 export default function App() {
   if (typeof window !== "undefined") {

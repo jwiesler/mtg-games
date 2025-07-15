@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import React from "react";
 import {
   type ActionFunctionArgs,
+  type MetaFunction,
   useLoaderData,
   useSubmit,
 } from "react-router";
@@ -19,6 +20,12 @@ import prisma from "~/db.server";
 import { Prisma, type User } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
 import { DeckSchema } from "~/types";
+
+export const meta: MetaFunction<typeof loader> = () => [
+  {
+    title: "Decks",
+  },
+];
 
 export const loader = async () => {
   return {

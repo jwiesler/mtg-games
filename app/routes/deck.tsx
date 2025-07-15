@@ -7,6 +7,7 @@ import {
   type ActionFunctionArgs,
   Form,
   type LoaderFunctionArgs,
+  type MetaFunction,
   redirect,
   useLoaderData,
 } from "react-router";
@@ -17,6 +18,12 @@ import { BadRequest, NotFound } from "~/responses";
 import { API } from "~/scryfall";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
+  {
+    title: data ? data.deck.name : "Not found",
+  },
+];
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const id = Number(params.id);

@@ -19,6 +19,7 @@ import React from "react";
 import {
   type ActionFunctionArgs,
   Form,
+  type MetaFunction,
   useLoaderData,
   useSubmit,
 } from "react-router";
@@ -28,6 +29,12 @@ import DestructionDialog from "~/components/DestructionDialog";
 import prisma from "~/db.server";
 import { Prisma } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
+
+export const meta: MetaFunction<typeof loader> = () => [
+  {
+    title: "Spieler",
+  },
+];
 
 export const loader = async () => {
   return {

@@ -29,6 +29,7 @@ import React, { Fragment } from "react";
 import {
   type ActionFunctionArgs,
   Form,
+  type MetaFunction,
   useLoaderData,
   useSubmit,
 } from "react-router";
@@ -40,6 +41,12 @@ import Placing from "~/components/Placing";
 import prisma from "~/db.server";
 import type { User } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
+
+export const meta: MetaFunction<typeof loader> = () => [
+  {
+    title: "Spiele",
+  },
+];
 
 interface DeckDesc {
   id: number;
