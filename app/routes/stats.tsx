@@ -56,7 +56,7 @@ function StatsTable({
 }) {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-      <Table stickyHeader={true}>
+      <Table stickyHeader={true} sx={{ "td:not(:nth-child(1))": { textAlign: "right" } }}>
         <TableHead>
           <TableRow>
             <TableCell sx={{ width: "100%" }}>Name</TableCell>
