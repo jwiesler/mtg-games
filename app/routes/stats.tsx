@@ -116,7 +116,11 @@ function StatsTable({
                 <TableCell>{numberOrDash(deck_stats.placing.worst)}</TableCell>
                 <TableCell>{numberOrDash(deck_stats.placing.median)}</TableCell>
                 <TableCell>{numberOrDash(deck_stats.placing.mode)}</TableCell>
-                <TableCell>{Number.isNaN(deck_stats.winRate) ? "-" : PERCENTAGE_FORMAT.format(deck_stats.winRate)}</TableCell>
+                <TableCell>
+                  {Number.isNaN(deck_stats.winRate)
+                    ? "-"
+                    : PERCENTAGE_FORMAT.format(deck_stats.winRate)}
+                </TableCell>
               </TableRow>
             );
           })}
