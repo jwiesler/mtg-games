@@ -1,4 +1,5 @@
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
@@ -173,6 +174,11 @@ export default function Home() {
         href="/games"
         title="Spiele"
         icon={<ChessFigure sx={{ fill: "white", fontSize: 80 }} />}
+      />
+      <SubpageLink
+        href="/stats"
+        title="Statistiken"
+        icon={<BarChartIcon sx={{ fill: "white", fontSize: 80 }} />}
       />
     </Box>
   );

@@ -29,6 +29,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-router": "latest",
+    "simple-statistics": "^7.8.8",
     "vite-plugin-svgr": "^4.3.0",
     "zod": "^4.0.5"
   },

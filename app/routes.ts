@@ -6,4 +6,5 @@ export default [
   route("/decks", "routes/decks.tsx"),
   route("/players", "routes/players.tsx"),
   route("/games", "routes/games.tsx"),
+  route("/stats", "routes/stats.tsx"),
 ] satisfies RouteConfig;
