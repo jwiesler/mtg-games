@@ -58,6 +58,9 @@ export const loader = async () => {
     decks: await prisma.deck.findMany({ select: { id: true, name: true } }),
     users: await prisma.user.findMany(),
     games: await prisma.game.findMany({
+      orderBy: {
+        when: "desc",
+      },
       select: {
         id: true,
         when: true,

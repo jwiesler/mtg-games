@@ -114,6 +114,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     details = error.message;
     stack = error.stack;
   }
+  console.log(error);
 
   return (
     <Box component="main" sx={{ pt: 8, p: 2, maxWidth: "lg", mx: "auto" }}>
