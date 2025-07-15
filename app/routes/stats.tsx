@@ -43,8 +43,10 @@ export const loader = async () => {
   };
 };
 
+const NUMBER_FORMAT = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 });
+
 function numberOrDash(n: number) {
-  return Number.isNaN(n) ? "-" : n;
+  return Number.isNaN(n) ? "-" : NUMBER_FORMAT.format(n);
 }
 
 function StatsTable({
@@ -67,6 +69,7 @@ function StatsTable({
             <TableCell>Worst</TableCell>
             <TableCell>Median</TableCell>
             <TableCell>Mode</TableCell>
+            <TableCell>Winrate</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -103,6 +106,7 @@ function StatsTable({
                 <TableCell>{numberOrDash(deck_stats.placing.worst)}</TableCell>
                 <TableCell>{numberOrDash(deck_stats.placing.median)}</TableCell>
                 <TableCell>{numberOrDash(deck_stats.placing.mode)}</TableCell>
+                <TableCell>{numberOrDash(deck_stats.winRate)}</TableCell>
               </TableRow>
             );
           })}
