@@ -47,6 +47,11 @@ const NUMBER_FORMAT = new Intl.NumberFormat("de-DE", {
   maximumFractionDigits: 2,
 });
 
+const PERCENTAGE_FORMAT = new Intl.NumberFormat("de-DE", {
+  style: "percent",
+  maximumFractionDigits: 2,
+});
+
 function numberOrDash(n: number) {
   return Number.isNaN(n) ? "-" : NUMBER_FORMAT.format(n);
 }
@@ -111,7 +116,7 @@ function StatsTable({
                 <TableCell>{numberOrDash(deck_stats.placing.worst)}</TableCell>
                 <TableCell>{numberOrDash(deck_stats.placing.median)}</TableCell>
                 <TableCell>{numberOrDash(deck_stats.placing.mode)}</TableCell>
-                <TableCell>{numberOrDash(deck_stats.winRate)}</TableCell>
+                <TableCell>{Number.isNaN(deck_stats.winRate) ? "-" : PERCENTAGE_FORMAT.format(deck_stats.winRate)}</TableCell>
               </TableRow>
             );
           })}
