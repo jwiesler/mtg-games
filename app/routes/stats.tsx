@@ -139,6 +139,7 @@ export default function Stats() {
           justifyContent: "center",
           alignItems: "center",
           gap: "2em",
+          maxWidth: "100%",
         }}
       >
         <StatsTable values={decks} stats={stats.decks} />
