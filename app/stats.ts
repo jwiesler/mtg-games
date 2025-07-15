@@ -79,7 +79,7 @@ function playerPlacings(games: Game[]) {
       if (existing !== undefined) {
         existing.push(p.place);
       } else {
-        placings.set(p.deck.id, [p.place]);
+        placings.set(p.player.id, [p.place]);
       }
     });
   });

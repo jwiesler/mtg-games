@@ -43,7 +43,9 @@ export const loader = async () => {
   };
 };
 
-const NUMBER_FORMAT = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 });
+const NUMBER_FORMAT = new Intl.NumberFormat("de-DE", {
+  maximumFractionDigits: 2,
+});
 
 function numberOrDash(n: number) {
   return Number.isNaN(n) ? "-" : NUMBER_FORMAT.format(n);
@@ -58,7 +60,10 @@ function StatsTable({
 }) {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-      <Table stickyHeader={true} sx={{ "td:not(:nth-child(1))": { textAlign: "right" } }}>
+      <Table
+        stickyHeader={true}
+        sx={{ "td:not(:nth-child(1))": { textAlign: "right" } }}
+      >
         <TableHead>
           <TableRow>
             <TableCell sx={{ width: "100%" }}>Name</TableCell>
@@ -121,7 +126,6 @@ export default function Stats() {
   const stats = React.useMemo(() => {
     return calculate(games);
   }, games);
-  console.log(stats);
   return (
     <Box
       sx={{
