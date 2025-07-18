@@ -26,9 +26,11 @@ import {
 import z from "zod";
 
 import DestructionDialog from "~/components/DestructionDialog";
+import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
-import { Prisma } from "~/generated/prisma/client";
+import { Prisma, type User } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
+import { comparingBy, useSortingStates } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [
   {
@@ -75,6 +77,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Users() {
   const { users } = useLoaderData<typeof loader>();
+  const [order, orderBy, onRequestSort] = useSortingStates("asc", "name");
+  const sortedUsers = React.useMemo(() => {
+    const extract = (v: User) => v.name;
+    return users.sort(comparingBy(order, extract));
+  }, [order, orderBy]);
   const [expanded, setExpanded] = React.useState(false);
   const [name, setName] = React.useState("");
   const submit = useSubmit();
@@ -130,12 +137,19 @@ export default function Users() {
           <TableHead>
             <TableRow>
               <TableCell width={"3em"}>#</TableCell>
-              <TableCell>Name</TableCell>
+              <SortTableHead
+                order={order}
+                orderBy={orderBy}
+                sortKey="name"
+                onRequestSort={onRequestSort}
+              >
+                Name
+              </SortTableHead>
               <TableCell width={"5em"}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user, index) => (
+            {sortedUsers.map((user, index) => (
               <TableRow
                 key={user.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
