@@ -29,7 +29,9 @@ export const meta: MetaFunction<typeof loader> = () => [
 
 export const loader = async () => {
   return {
-    decks: await prisma.deck.findMany(),
+    decks: await prisma.deck.findMany({
+      select: { id: true, name: true, owner: true },
+    }),
     users: await prisma.user.findMany(),
   };
 };
@@ -101,7 +103,6 @@ function CreateDeck({ users }: { users: User[] }) {
 
 export default function Decks() {
   const { decks, users } = useLoaderData<typeof loader>();
-  const usersMap = Object.fromEntries(users.map(u => [u.id, u.name]));
   const submit = useSubmit();
   const [open, setOpen] = React.useState(false);
   const [deleteDeckId, setDeleteDeckId] = React.useState<number | null>(null);
@@ -127,7 +128,6 @@ export default function Decks() {
       <CreateDeck users={users} />
       <DeckTable
         decks={decks}
-        usersMap={usersMap}
         onDelete={id => {
           setDeleteDeckId(id);
           setOpen(true);

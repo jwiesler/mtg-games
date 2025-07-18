@@ -59,16 +59,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       throw BadRequest("Failed to validate input");
     }
     const data = s.data;
-    let user = await prisma.user.findFirst({ where: { name: data.owner } });
-    if (user == null) {
-      user = await prisma.user.create({ data: { name: data.owner } });
-    }
     await prisma.deck.update({
       data: {
         name: data.name.trim() || data.commander.trim(),
         commander: data.commander.trim(),
         description: data.description.trim(),
-        ownerId: user.id,
+        ownerId: data.ownerId,
       },
       where: { id: Number(params.id) },
     });

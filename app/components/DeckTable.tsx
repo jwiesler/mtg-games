@@ -8,31 +8,62 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import React from "react";
 
-import type { Deck } from "~/generated/prisma/client";
+import { SortTableHead } from "./SortTableHead";
+import type { User } from "~/generated/prisma/client";
+import { comparingBy, useSortingStates } from "~/sort";
+
+interface Deck {
+  name: string;
+  id: number;
+  owner: User;
+}
 
 export function DeckTable({
   decks,
-  usersMap,
   onDelete,
 }: {
   decks: Deck[];
-  usersMap: Record<string, string>;
   onDelete: (id: number) => void;
 }) {
+  const [order, orderBy, onRequestSort] = useSortingStates("asc", "name");
+  const sortedDecks = React.useMemo(() => {
+    let extract;
+    if (orderBy == "name") {
+      extract = (v: Deck) => v.name;
+    } else {
+      extract = (v: Deck) => v.owner.name;
+    }
+    return decks.sort(comparingBy(order, extract));
+  }, [order, orderBy]);
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
       <Table stickyHeader>
         <TableHead>
           <TableRow>
             <TableCell width={"3em"}>#</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Besitzer</TableCell>
+            <SortTableHead
+              order={order}
+              orderBy={orderBy}
+              sortKey="name"
+              onRequestSort={onRequestSort}
+            >
+              Name
+            </SortTableHead>
+            <SortTableHead
+              order={order}
+              orderBy={orderBy}
+              sortKey="owner"
+              onRequestSort={onRequestSort}
+            >
+              Besitzer
+            </SortTableHead>
             <TableCell width={"5em"}></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {decks.map((deck, index) => (
+          {sortedDecks.map((deck, index) => (
             <TableRow
               key={deck.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -43,7 +74,7 @@ export function DeckTable({
               <TableCell>
                 <Link href={`/decks/${deck.id}`}>{deck.name}</Link>
               </TableCell>
-              <TableCell>{usersMap[deck.ownerId]}</TableCell>
+              <TableCell>{deck.owner.name}</TableCell>
               <TableCell>
                 <IconButton
                   size="small"
