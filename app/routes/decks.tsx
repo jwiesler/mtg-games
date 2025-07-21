@@ -99,7 +99,7 @@ function CreateDeck({ users }: { users: User[] }) {
       </AccordionSummary>
       <AccordionDetails>
         <EditDeck
-          deck={{ name: "", owner: users[0], description: "", commander: "" }}
+          deck={{ name: "", owner: null, description: "", commander: "" }}
           users={users}
           clearOnSave={true}
         ></EditDeck>

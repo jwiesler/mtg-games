@@ -133,9 +133,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   const [expanded, setExpanded] = React.useState(false);
-  const [plays, setPlays] = React.useState([
-    { player: users[0], deck: decks[0] },
-  ]);
+  const [plays, setPlays] = React.useState<
+    { player: User | null; deck: DeckDesc | null }[]
+  >([{ player: null, deck: null }]);
   const [when, setWhen] = React.useState<Date | null>(() => {
     const date = new Date();
     date.setMinutes(date.getMinutes() - (date.getMinutes() % 5));
@@ -143,7 +143,10 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
     date.setMilliseconds(0);
     return date;
   });
-  const replacePlay = (i: number, play: { player: User; deck: DeckDesc }) => {
+  const replacePlay = (
+    i: number,
+    play: { player: User | null; deck: DeckDesc | null },
+  ) => {
     const copy = [...plays];
     copy[i] = play;
     setPlays(copy);
@@ -154,10 +157,10 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
     setPlays(copy);
   };
   const addPlay = () => {
-    setPlays([...plays, { player: users[0], deck: decks[0] }]);
+    setPlays([...plays, { player: null, deck: null }]);
   };
   const clear = () => {
-    setPlays([{ player: users[0], deck: decks[0] }]);
+    setPlays([{ player: null, deck: null }]);
   };
   return (
     <Accordion

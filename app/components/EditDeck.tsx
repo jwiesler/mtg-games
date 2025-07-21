@@ -11,7 +11,7 @@ interface Deck {
   name: string;
   description: string;
   commander: string;
-  owner: User;
+  owner: User | null;
 }
 
 export function EditDeck({
@@ -26,7 +26,7 @@ export function EditDeck({
   clearOnSave: boolean;
 }) {
   const [name, setName] = React.useState<string>(deck.name);
-  const [owner, setOwner] = React.useState<User>(deck.owner);
+  const [owner, setOwner] = React.useState<User | null>(deck.owner);
   const [description, setDescription] = React.useState<string>(
     deck.description,
   );
@@ -42,7 +42,7 @@ export function EditDeck({
       return;
     }
     setName("");
-    setOwner(users[0]);
+    setOwner(null);
     setDescription("");
     setCommander("");
   };

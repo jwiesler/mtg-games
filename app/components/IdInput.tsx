@@ -7,13 +7,13 @@ interface Input {
 }
 
 export interface InputProps<I extends Input> {
-  value: I;
+  value: I | null;
   options: I[];
   name: string;
   idName: string;
   label: string;
   required: boolean;
-  onInputChange: (user: I) => void;
+  onInputChange: (user: I | null) => void;
   getOptionLabel: (value: I) => string;
 }
 
@@ -30,16 +30,13 @@ export function IdInput<I extends Input>({
   return (
     <Fragment>
       <Autocomplete
-        disableClearable
+        blurOnSelect
         autoHighlight
         options={options}
         getOptionLabel={getOptionLabel}
         getOptionKey={o => o.id}
         value={value}
         onChange={(_, v) => {
-          if (v == null) {
-            return;
-          }
           onInputChange(v);
         }}
         isOptionEqualToValue={(a, b) => a.id == b.id}
@@ -61,7 +58,7 @@ export function IdInput<I extends Input>({
       <input
         type="number"
         hidden
-        value={value.id}
+        value={value?.id}
         name={idName}
         readOnly
       ></input>
