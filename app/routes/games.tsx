@@ -131,11 +131,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
+const DEFAULT_PLAY = {
+  player: null, deck: null
+}
+
+const DEFAULT_PLAYS = [
+  DEFAULT_PLAY,
+  DEFAULT_PLAY,
+  DEFAULT_PLAY,
+  DEFAULT_PLAY,
+]
+
 function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   const [expanded, setExpanded] = React.useState(false);
   const [plays, setPlays] = React.useState<
     { player: User | null; deck: DeckDesc | null }[]
-  >([{ player: null, deck: null }]);
+  >(DEFAULT_PLAYS);
   const [when, setWhen] = React.useState<Date | null>(() => {
     const date = new Date();
     date.setMinutes(date.getMinutes() - (date.getMinutes() % 5));
@@ -157,10 +168,10 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
     setPlays(copy);
   };
   const addPlay = () => {
-    setPlays([...plays, { player: null, deck: null }]);
+    setPlays([...plays, DEFAULT_PLAY]);
   };
   const clear = () => {
-    setPlays([{ player: null, deck: null }]);
+    setPlays(DEFAULT_PLAYS);
   };
   return (
     <Accordion
