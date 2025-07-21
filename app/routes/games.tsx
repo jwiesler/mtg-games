@@ -183,7 +183,7 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel-content"
       >
-        <Typography>Spiel erstellen</Typography>
+        <Typography>Spiel anlegen</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <Form method="post" onSubmit={clear}>

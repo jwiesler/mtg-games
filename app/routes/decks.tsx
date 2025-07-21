@@ -95,7 +95,7 @@ function CreateDeck({ users }: { users: User[] }) {
         aria-controls="panel1-content"
         id="panel1-header"
       >
-        <Typography>Deck erstellen</Typography>
+        <Typography>Deck anlegen</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <EditDeck
