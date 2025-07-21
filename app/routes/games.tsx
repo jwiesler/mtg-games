@@ -273,7 +273,7 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
               <DateTimePicker
                 value={when}
                 onChange={v => setWhen(v)}
-                timezone="system"
+                timezone="Europe/Berlin"
                 label="Zeit"
                 minutesStep={5}
                 viewRenderers={{
@@ -320,6 +320,14 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   );
 }
 
+const FORMAT = new Intl.DateTimeFormat("de", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
 function GameRow({
   game,
   onDelete,
@@ -340,15 +348,7 @@ function GameRow({
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>
-          {game.when.toLocaleString("de", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </TableCell>
+        <TableCell>{FORMAT.format(game.when)}</TableCell>
         <TableCell>{game.plays.length}</TableCell>
         <TableCell>
           <IconButton
