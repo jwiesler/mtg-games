@@ -173,8 +173,8 @@ function EditPlay({
     return [groupBy, copy];
   }, [player]);
   return (
-    <Grid key={i} size={12}>
-      <Paper elevation={3} key={i} sx={{ p: "0.75em" }}>
+    <Grid size={12}>
+      <Paper elevation={3} sx={{ p: "0.75em" }}>
         <Stack
           spacing={2}
           direction="row"
@@ -290,6 +290,7 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
             />
             {plays.map(({ player, deck }, i) => (
               <EditPlay
+                key={i}
                 i={i}
                 player={player}
                 deck={deck}
