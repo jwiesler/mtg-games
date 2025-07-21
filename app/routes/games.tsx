@@ -25,7 +25,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { de } from "date-fns/locale/de";
-import React, { Fragment } from "react";
+import React, { Fragment, useMemo } from "react";
 import {
   type ActionFunctionArgs,
   Form,
@@ -41,6 +41,7 @@ import Placing from "~/components/Placing";
 import prisma from "~/db.server";
 import type { User } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
+import { compareBools } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [
   {
@@ -51,6 +52,7 @@ export const meta: MetaFunction<typeof loader> = () => [
 interface DeckDesc {
   id: number;
   name: string;
+  ownerId: number;
 }
 
 export const loader = async () => {
@@ -59,7 +61,7 @@ export const loader = async () => {
       orderBy: {
         name: "asc",
       },
-      select: { id: true, name: true },
+      select: { id: true, name: true, ownerId: true },
     }),
     users: await prisma.user.findMany({
       orderBy: {
@@ -132,21 +134,98 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 const DEFAULT_PLAY = {
-  player: null, deck: null
-}
+  player: null,
+  deck: null,
+};
 
-const DEFAULT_PLAYS = [
-  DEFAULT_PLAY,
-  DEFAULT_PLAY,
-  DEFAULT_PLAY,
-  DEFAULT_PLAY,
-]
+const DEFAULT_PLAYS = [DEFAULT_PLAY, DEFAULT_PLAY, DEFAULT_PLAY, DEFAULT_PLAY];
+
+function EditPlay({
+  i,
+  player,
+  deck,
+  replacePlay,
+  decks,
+  users,
+  disallowDelete,
+}: {
+  i: number;
+  player: User | null;
+  deck: DeckDesc | null;
+  replacePlay: (
+    i: number,
+    w: { player: User | null; deck: DeckDesc | null } | null,
+  ) => void;
+  users: User[];
+  decks: DeckDesc[];
+  disallowDelete: boolean;
+}) {
+  const [groupBy, sortedDecks] = useMemo(() => {
+    if (player === null) {
+      return [undefined, decks];
+    }
+    const copy = [...decks];
+    copy.sort((a, b) =>
+      compareBools(a.ownerId !== player.id, b.ownerId !== player.id),
+    );
+    const groupBy = (deck: DeckDesc) =>
+      deck.ownerId === player.id ? `Decks von ${player.name}` : "Andere Decks";
+    return [groupBy, copy];
+  }, [player]);
+  return (
+    <Grid key={i} size={12}>
+      <Paper elevation={3} key={i} sx={{ p: "0.75em" }}>
+        <Stack
+          spacing={2}
+          direction="row"
+          sx={{
+            alignItems: "center",
+          }}
+        >
+          <Placing place={i + 1} />
+          <Divider orientation="vertical" variant="middle" flexItem />
+          <Stack spacing={2} sx={{ flexGrow: 1 }}>
+            <IdInput
+              value={player}
+              options={users}
+              onInputChange={value => replacePlay(i, { deck, player: value })}
+              getOptionLabel={value => value.name}
+              name="player"
+              idName="playerId"
+              label="Spieler"
+              required={true}
+            />
+            <IdInput
+              value={deck}
+              options={sortedDecks}
+              onInputChange={value => replacePlay(i, { deck: value, player })}
+              groupBy={groupBy}
+              getOptionLabel={value => value.name}
+              name="deck"
+              idName="deckId"
+              label="Deck"
+              required={true}
+            />
+            <Button
+              color="error"
+              disabled={disallowDelete}
+              onClick={() => replacePlay(i, null)}
+            >
+              Mitspieler löschen
+            </Button>
+          </Stack>
+        </Stack>
+      </Paper>
+    </Grid>
+  );
+}
 
 function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   const [expanded, setExpanded] = React.useState(false);
-  const [plays, setPlays] = React.useState<
-    { player: User | null; deck: DeckDesc | null }[]
-  >(DEFAULT_PLAYS);
+  const [plays, setPlays] =
+    React.useState<{ player: User | null; deck: DeckDesc | null }[]>(
+      DEFAULT_PLAYS,
+    );
   const [when, setWhen] = React.useState<Date | null>(() => {
     const date = new Date();
     date.setMinutes(date.getMinutes() - (date.getMinutes() % 5));
@@ -156,15 +235,14 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   });
   const replacePlay = (
     i: number,
-    play: { player: User | null; deck: DeckDesc | null },
+    play: { player: User | null; deck: DeckDesc | null } | null,
   ) => {
     const copy = [...plays];
-    copy[i] = play;
-    setPlays(copy);
-  };
-  const removePlay = (i: number) => {
-    const copy = [...plays];
-    copy.splice(i, 1);
+    if (play !== null) {
+      copy[i] = play;
+    } else {
+      copy.splice(i, 1);
+    }
     setPlays(copy);
   };
   const addPlay = () => {
@@ -210,61 +288,17 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
               value={when?.toISOString() || ""}
               type="hidden"
             />
-            {plays.map(({ player, deck }, i) => {
-              return (
-                <Grid key={i} size={12}>
-                  <Paper elevation={3} key={i} sx={{ p: "0.75em" }}>
-                    <Stack
-                      spacing={2}
-                      direction="row"
-                      sx={{
-                        alignItems: "center",
-                      }}
-                    >
-                      <Placing place={i + 1} />
-                      <Divider
-                        orientation="vertical"
-                        variant="middle"
-                        flexItem
-                      />
-                      <Stack spacing={2} sx={{ flexGrow: 1 }}>
-                        <IdInput
-                          value={player}
-                          options={users}
-                          onInputChange={value =>
-                            replacePlay(i, { deck, player: value })
-                          }
-                          getOptionLabel={value => value.name}
-                          name="player"
-                          idName="playerId"
-                          label="Spieler"
-                          required={true}
-                        />
-                        <IdInput
-                          value={deck}
-                          options={decks}
-                          onInputChange={value =>
-                            replacePlay(i, { deck: value, player })
-                          }
-                          getOptionLabel={value => value.name}
-                          name="deck"
-                          idName="deckId"
-                          label="Deck"
-                          required={true}
-                        />
-                        <Button
-                          color="error"
-                          disabled={plays.length <= 1}
-                          onClick={() => removePlay(i)}
-                        >
-                          Mitspieler löschen
-                        </Button>
-                      </Stack>
-                    </Stack>
-                  </Paper>
-                </Grid>
-              );
-            })}
+            {plays.map(({ player, deck }, i) => (
+              <EditPlay
+                i={i}
+                player={player}
+                deck={deck}
+                replacePlay={replacePlay}
+                users={users}
+                decks={decks}
+                disallowDelete={plays.length <= 1}
+              />
+            ))}
             <Stack direction="row">
               <Button color="warning" onClick={() => addPlay()}>
                 Mitspieler hinzufügen

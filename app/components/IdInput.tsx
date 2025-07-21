@@ -15,6 +15,7 @@ export interface InputProps<I extends Input> {
   required: boolean;
   onInputChange: (user: I | null) => void;
   getOptionLabel: (value: I) => string;
+  groupBy?: (value: I) => string;
 }
 
 export function IdInput<I extends Input>({
@@ -26,6 +27,7 @@ export function IdInput<I extends Input>({
   required,
   onInputChange,
   getOptionLabel,
+  groupBy,
 }: InputProps<I>) {
   return (
     <Fragment>
@@ -39,6 +41,7 @@ export function IdInput<I extends Input>({
         onChange={(_, v) => {
           onInputChange(v);
         }}
+        groupBy={groupBy}
         isOptionEqualToValue={(a, b) => a.id == b.id}
         renderInput={params => (
           <TextField
@@ -58,7 +61,7 @@ export function IdInput<I extends Input>({
       <input
         type="number"
         hidden
-        value={value?.id}
+        value={value == null ? 0 : value.id}
         name={idName}
         readOnly
       ></input>

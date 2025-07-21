@@ -36,3 +36,14 @@ export function useSortingStates<O>(
   };
   return [order, orderBy, onRequestSort];
 }
+
+/// Sort bools
+export function compareBools(a: boolean, b: boolean) {
+  if (a == b) {
+    return 0;
+  }
+  if (a) {
+    return 1;
+  }
+  return -1;
+}
