@@ -30,9 +30,16 @@ export const meta: MetaFunction<typeof loader> = () => [
 export const loader = async () => {
   return {
     decks: await prisma.deck.findMany({
+      orderBy: {
+        name: "asc",
+      },
       select: { id: true, name: true, owner: true },
     }),
-    users: await prisma.user.findMany(),
+    users: await prisma.user.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    }),
   };
 };
 
