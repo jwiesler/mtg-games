@@ -67,7 +67,7 @@ const HEADINGS: [keyof PlayStats, string][] = [
   ["placing_best", "Best"],
   ["placing_worst", "Worst"],
   ["placing_median", "Median"],
-  ["placing_mode", "Mode"],
+  ["placing_mode", "Common place"],
   ["winRate", "Winrate"],
 ];
 
