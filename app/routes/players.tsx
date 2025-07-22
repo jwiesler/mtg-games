@@ -84,7 +84,7 @@ export default function Users() {
   const [order, orderBy, onRequestSort] = useSortingStates("asc", "name");
   const sortedUsers = React.useMemo(() => {
     const extract = (v: User) => v.name;
-    return users.sort(comparingBy(order, extract));
+    return [...users].sort(comparingBy(order, extract));
   }, [order, orderBy]);
   const [expanded, setExpanded] = React.useState(false);
   const [name, setName] = React.useState("");

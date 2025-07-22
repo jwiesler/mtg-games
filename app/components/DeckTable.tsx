@@ -35,7 +35,7 @@ export function DeckTable({
     } else {
       extract = (v: Deck) => v.owner.name;
     }
-    return decks.sort(comparingBy(order, extract));
+    return [...decks].sort(comparingBy(order, extract));
   }, [order, orderBy, decks]);
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 440 }}>

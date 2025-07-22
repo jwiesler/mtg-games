@@ -38,10 +38,11 @@ import z from "zod";
 import DestructionDialog from "~/components/DestructionDialog";
 import { IdInput } from "~/components/IdInput";
 import Placing from "~/components/Placing";
+import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import type { User } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
-import { compareBools } from "~/sort";
+import { compareBools, comparingBy, useSortingStates } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [
   {
@@ -395,14 +396,22 @@ function GameRow({
   );
 }
 
-function GamesTable({
-  games,
-}: {
-  games: Awaited<ReturnType<typeof loader>>["games"];
-}) {
+type Game = Awaited<ReturnType<typeof loader>>["games"][0];
+
+function GamesTable({ games }: { games: Game[] }) {
   const submit = useSubmit();
   const [open, setOpen] = React.useState(false);
   const [deleteGameId, setDeleteGameId] = React.useState<number | null>(null);
+  const [order, orderBy, onRequestSort] = useSortingStates("desc", "when");
+  const sortedGames = React.useMemo(() => {
+    let extract;
+    if (orderBy == "when") {
+      extract = (v: Game) => v.when;
+    } else {
+      extract = (v: Game) => v.plays.length;
+    }
+    return [...games].sort(comparingBy<Game, number | Date>(order, extract));
+  }, [order, orderBy, games]);
   const handleClose = (confirmed: boolean) => {
     setOpen(false);
     if (confirmed && deleteGameId) {
@@ -415,13 +424,27 @@ function GamesTable({
         <TableHead>
           <TableRow>
             <TableCell width={"5em"} />
-            <TableCell>Datum</TableCell>
-            <TableCell>Spieler</TableCell>
+            <SortTableHead
+              order={order}
+              orderBy={orderBy}
+              sortKey="when"
+              onRequestSort={onRequestSort}
+            >
+              Datum
+            </SortTableHead>
+            <SortTableHead
+              order={order}
+              orderBy={orderBy}
+              sortKey="players"
+              onRequestSort={onRequestSort}
+            >
+              Spieler
+            </SortTableHead>
             <TableCell width={"5em"}></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {games.map(game => (
+          {sortedGames.map(game => (
             <GameRow
               key={game.id}
               game={game}
