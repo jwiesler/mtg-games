@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -74,9 +75,11 @@ const HEADINGS: [keyof PlayStats, string][] = [
 function StatsTable({
   values,
   stats,
+  linkPrefix,
 }: {
   values: Deck[];
   stats: Map<number, PlayStats>;
+  linkPrefix?: string;
 }) {
   const [order, orderBy, onRequestSort] = useSortingStates<
     "name" | keyof PlayStats
@@ -146,7 +149,11 @@ function StatsTable({
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {name}
+                  {linkPrefix === undefined ? (
+                    <span>{name}</span>
+                  ) : (
+                    <Link href={`${linkPrefix}${id}`}>{name}</Link>
+                  )}
                 </TableCell>
                 <TableCell>{numberOrDash(deck_stats.wins)}</TableCell>
                 <TableCell>{numberOrDash(deck_stats.games)}</TableCell>
@@ -200,7 +207,7 @@ export default function Stats() {
           maxWidth: "100%",
         }}
       >
-        <StatsTable values={decks} stats={stats.decks} />
+        <StatsTable values={decks} stats={stats.decks} linkPrefix="/decks/" />
         <StatsTable values={users} stats={stats.players} />
       </Box>
     </Box>

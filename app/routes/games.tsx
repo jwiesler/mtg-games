@@ -11,6 +11,7 @@ import Collapse from "@mui/material/Collapse";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
@@ -79,7 +80,7 @@ export const loader = async () => {
         plays: {
           select: {
             player: { select: { name: true } },
-            deck: { select: { name: true } },
+            deck: { select: { name: true, id: true } },
           },
         },
       },
@@ -383,7 +384,11 @@ function GameRow({
                         <Placing place={i + 1} />
                       </TableCell>
                       <TableCell>{play.player.name}</TableCell>
-                      <TableCell>{play.deck.name}</TableCell>
+                      <TableCell>
+                        <Link href={`/decks/${play.deck.id}`}>
+                          {play.deck.name}
+                        </Link>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
