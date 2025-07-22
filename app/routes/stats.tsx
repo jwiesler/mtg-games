@@ -10,7 +10,9 @@ import Typography from "@mui/material/Typography";
 import React from "react";
 import { type MetaFunction, useLoaderData } from "react-router";
 
+import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
+import { comparingBy, useSortingStates } from "~/sort";
 import { type PlayStats, calculate } from "~/stats";
 
 export const meta: MetaFunction<typeof loader> = () => [
@@ -56,13 +58,42 @@ function numberOrDash(n: number) {
   return Number.isNaN(n) ? "-" : NUMBER_FORMAT.format(n);
 }
 
+type Deck = { id: number; name: string };
+
+const HEADINGS: [keyof PlayStats, string][] = [
+  ["wins", "Wins"],
+  ["games", "Games"],
+  ["placing_average", "Average"],
+  ["placing_best", "Best"],
+  ["placing_worst", "Worst"],
+  ["placing_median", "Median"],
+  ["placing_mode", "Mode"],
+  ["winRate", "Winrate"],
+];
+
 function StatsTable({
   values,
   stats,
 }: {
-  values: { id: number; name: string }[];
+  values: Deck[];
   stats: Map<number, PlayStats>;
 }) {
+  const [order, orderBy, onRequestSort] = useSortingStates<
+    "name" | keyof PlayStats
+  >("asc", "name");
+  const sortedValues = React.useMemo(() => {
+    let extract;
+    if (orderBy == "name") {
+      extract = (v: Deck) => v.name;
+    } else {
+      console.log(orderBy);
+      extract = (v: Deck) => {
+        const s = stats.get(v.id);
+        return s == undefined ? Number.MIN_SAFE_INTEGER : s[orderBy];
+      };
+    }
+    return [...values].sort(comparingBy<Deck, number | string>(order, extract));
+  }, [order, orderBy, values]);
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
       <Table
@@ -71,32 +102,42 @@ function StatsTable({
       >
         <TableHead>
           <TableRow>
-            <TableCell sx={{ width: "100%" }}>Name</TableCell>
-            <TableCell>Wins</TableCell>
-            <TableCell>Games</TableCell>
-            <TableCell>Average</TableCell>
-            <TableCell>Best</TableCell>
-            <TableCell>Worst</TableCell>
-            <TableCell>Median</TableCell>
-            <TableCell>Mode</TableCell>
-            <TableCell>Winrate</TableCell>
+            <SortTableHead
+              order={order}
+              orderBy={orderBy}
+              sortKey="name"
+              onRequestSort={onRequestSort}
+              sx={{ width: "100%" }}
+            >
+              Name
+            </SortTableHead>
+            {HEADINGS.map(([key, heading]) => {
+              return (
+                <SortTableHead
+                  order={order}
+                  orderBy={orderBy}
+                  sortKey={key}
+                  onRequestSort={onRequestSort}
+                >
+                  {heading}
+                </SortTableHead>
+              );
+            })}
           </TableRow>
         </TableHead>
         <TableBody>
-          {values.map(({ id, name }) => {
+          {sortedValues.map(({ id, name }) => {
             let deck_stats = stats.get(id);
             if (deck_stats == undefined) {
               deck_stats = {
                 games: NaN,
                 wins: NaN,
                 winRate: NaN,
-                placing: {
-                  best: NaN,
-                  worst: NaN,
-                  average: NaN,
-                  median: NaN,
-                  mode: NaN,
-                },
+                placing_best: NaN,
+                placing_worst: NaN,
+                placing_average: NaN,
+                placing_median: NaN,
+                placing_mode: NaN,
               };
             }
             return (
@@ -110,12 +151,12 @@ function StatsTable({
                 <TableCell>{numberOrDash(deck_stats.wins)}</TableCell>
                 <TableCell>{numberOrDash(deck_stats.games)}</TableCell>
                 <TableCell>
-                  {numberOrDash(deck_stats.placing.average)}
+                  {numberOrDash(deck_stats.placing_average)}
                 </TableCell>
-                <TableCell>{numberOrDash(deck_stats.placing.best)}</TableCell>
-                <TableCell>{numberOrDash(deck_stats.placing.worst)}</TableCell>
-                <TableCell>{numberOrDash(deck_stats.placing.median)}</TableCell>
-                <TableCell>{numberOrDash(deck_stats.placing.mode)}</TableCell>
+                <TableCell>{numberOrDash(deck_stats.placing_best)}</TableCell>
+                <TableCell>{numberOrDash(deck_stats.placing_worst)}</TableCell>
+                <TableCell>{numberOrDash(deck_stats.placing_median)}</TableCell>
+                <TableCell>{numberOrDash(deck_stats.placing_mode)}</TableCell>
                 <TableCell>
                   {Number.isNaN(deck_stats.winRate)
                     ? "-"

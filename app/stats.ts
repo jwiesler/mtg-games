@@ -15,13 +15,11 @@ export interface PlayStats {
   games: number;
   wins: number;
   winRate: number;
-  placing: {
-    best: number;
-    worst: number;
-    average: number;
-    median: number;
-    mode: number;
-  };
+  placing_best: number;
+  placing_worst: number;
+  placing_average: number;
+  placing_median: number;
+  placing_mode: number;
 }
 
 function calcluatePlayStats(placings: Map<number, number[]>) {
@@ -44,46 +42,38 @@ function calcluatePlayStats(placings: Map<number, number[]>) {
       games: placings.length,
       wins,
       winRate: wins / placings.length,
-      placing: {
-        best,
-        worst,
-        average: sum / placings.length,
-        median: median,
-        mode: mode,
-      },
+      placing_best: best,
+      placing_worst: worst,
+      placing_average: sum / placings.length,
+      placing_median: median,
+      placing_mode: mode,
     });
   });
   return stats;
 }
 
-function deckPlacings(games: Game[]) {
+function getPlacings(games: Game[], e: (p: Play) => number) {
   const placings = new Map<number, number[]>();
   games.forEach(g => {
     g.plays.forEach(p => {
-      const existing = placings.get(p.deck.id);
+      const id = e(p);
+      const existing = placings.get(id);
       if (existing !== undefined) {
         existing.push(p.place);
       } else {
-        placings.set(p.deck.id, [p.place]);
+        placings.set(id, [p.place]);
       }
     });
   });
   return placings;
 }
 
+function deckPlacings(games: Game[]) {
+  return getPlacings(games, p => p.deck.id);
+}
+
 function playerPlacings(games: Game[]) {
-  const placings = new Map<number, number[]>();
-  games.forEach(g => {
-    g.plays.forEach(p => {
-      const existing = placings.get(p.player.id);
-      if (existing !== undefined) {
-        existing.push(p.place);
-      } else {
-        placings.set(p.player.id, [p.place]);
-      }
-    });
-  });
-  return placings;
+  return getPlacings(games, p => p.player.id);
 }
 
 export function calculate(games: Game[]) {
