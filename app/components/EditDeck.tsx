@@ -1,6 +1,9 @@
+import Autocomplete from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import { debounce } from "@mui/material/utils";
 import React from "react";
 import { Form } from "react-router";
 
@@ -13,6 +16,16 @@ interface Deck {
   commander: string;
   owner: User | null;
 }
+
+const autocompletions = debounce(
+  async (input: string, callback: (results: string[]) => void) => {
+    const url = new URL("https://api.scryfall.com/cards/autocomplete");
+    url.searchParams.append("q", input);
+    const result = await (await fetch(url)).json();
+    callback("data" in result ? (result.data as string[]) : []);
+  },
+  200,
+);
 
 export function EditDeck({
   deck,
@@ -30,13 +43,11 @@ export function EditDeck({
   const [description, setDescription] = React.useState<string>(
     deck.description,
   );
+  const [commanderCompletions, setCommanderCompletions] = React.useState<
+    string[]
+  >([]);
+  const [loading, setLoading] = React.useState(false);
   const [commander, setCommander] = React.useState<string>(deck.commander);
-  React.useEffect(() => {
-    setName(deck.name);
-    setOwner(deck.owner);
-    setDescription(deck.description);
-    setCommander(deck.commander);
-  }, []);
   const clear = () => {
     if (!clearOnSave) {
       return;
@@ -46,6 +57,20 @@ export function EditDeck({
     setDescription("");
     setCommander("");
   };
+  React.useEffect(() => {
+    let discardLoad = false;
+    setLoading(true);
+    autocompletions(commander, options => {
+      if (discardLoad) {
+        return;
+      }
+      setLoading(false);
+      setCommanderCompletions(options);
+    });
+    return () => {
+      discardLoad = true;
+    };
+  }, [commander]);
   return (
     <Form action={action} method="post" onSubmit={clear}>
       <Stack spacing={2}>
@@ -55,12 +80,41 @@ export function EditDeck({
           value={name}
           onChange={e => setName(e.target.value)}
         />
-        <TextField
-          name="commander"
-          label="Commander"
+        <Autocomplete
+          autoHighlight
+          autoComplete
+          filterOptions={x => x}
+          freeSolo
+          options={commanderCompletions}
           value={commander}
-          onChange={e => setCommander(e.target.value)}
-          required={true}
+          onInputChange={(_, v) => {
+            setCommander(v);
+          }}
+          onChange={(_, v) => {
+            setCommander(v ?? "");
+          }}
+          renderInput={params => (
+            <TextField
+              {...params}
+              name={"commander"}
+              label={"Commander"}
+              required={true}
+              slotProps={{
+                input: {
+                  ...params.InputProps,
+                  type: "search",
+                  endAdornment: (
+                    <React.Fragment>
+                      {loading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </React.Fragment>
+                  ),
+                },
+              }}
+            />
+          )}
         />
         <IdInput
           value={owner}
