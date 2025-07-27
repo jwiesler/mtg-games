@@ -1,13 +1,26 @@
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import SvgIcon from "@mui/material/SvgIcon";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import type { SxProps } from "@mui/material/styles";
 import type { ReactElement } from "react";
+import { useLoaderData } from "react-router";
+
+import CollapseRow from "~/components/CollapseRow";
+import GameResult from "~/components/GameResult";
+import prisma from "~/db.server";
+import { FORMAT } from "~/format";
 
 export function meta() {
   return [
@@ -148,38 +161,113 @@ function CardsIcon({ sx }: { sx?: SxProps }) {
   );
 }
 
-export default function Home() {
+export const loader = async () => {
+  return {
+    games: await prisma.game.findMany({
+      orderBy: {
+        when: "desc",
+      },
+      take: 5,
+      select: {
+        id: true,
+        when: true,
+        plays: {
+          select: {
+            player: { select: { name: true } },
+            deck: { select: { name: true, id: true } },
+          },
+        },
+      },
+    }),
+  };
+};
+
+function GameRow({ game }: { game: Game }) {
   return (
-    <Box
-      sx={{
-        my: 4,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexWrap: "wrap",
-        gap: "1.5em",
-      }}
-    >
-      <SubpageLink
-        href="/decks"
-        title="Decks"
-        icon={<CardsIcon sx={{ fontSize: 80, fill: "white" }} />}
-      />
-      <SubpageLink
-        href="/players"
-        title="Spieler"
-        icon={<AccessibilityNewIcon sx={{ fontSize: 80 }} />}
-      />
-      <SubpageLink
-        href="/games"
-        title="Spiele"
-        icon={<ChessFigure sx={{ fill: "white", fontSize: 80 }} />}
-      />
-      <SubpageLink
-        href="/stats"
-        title="Statistiken"
-        icon={<BarChartIcon sx={{ fill: "white", fontSize: 80 }} />}
-      />
-    </Box>
+    <CollapseRow
+      cells={[
+        <TableCell>{FORMAT.format(game.when)}</TableCell>,
+        <TableCell>{game.plays.length}</TableCell>,
+      ]}
+      inner={<GameResult game={game} />}
+    />
+  );
+}
+
+type Game = Awaited<ReturnType<typeof loader>>["games"][0];
+
+function RecentGames({ games }: { games: Game[] }) {
+  return (
+    <TableContainer component={Paper}>
+      <Table stickyHeader={true}>
+        <TableHead>
+          <TableRow>
+            <TableCell width={"5em"} />
+            <TableCell>Datum</TableCell>
+            <TableCell>Spieler</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {games.map(game => (
+            <GameRow key={game.id} game={game} />
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+export default function Home() {
+  const { games } = useLoaderData<typeof loader>();
+  return (
+    <>
+      <Box
+        sx={{
+          my: 4,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "1.5em",
+        }}
+      >
+        <SubpageLink
+          href="/decks"
+          title="Decks"
+          icon={<CardsIcon sx={{ fontSize: 80, fill: "white" }} />}
+        />
+        <SubpageLink
+          href="/players"
+          title="Spieler"
+          icon={<AccessibilityNewIcon sx={{ fontSize: 80 }} />}
+        />
+        <SubpageLink
+          href="/games"
+          title="Spiele"
+          icon={<ChessFigure sx={{ fill: "white", fontSize: 80 }} />}
+        />
+        <SubpageLink
+          href="/stats"
+          title="Statistiken"
+          icon={<BarChartIcon sx={{ fill: "white", fontSize: 80 }} />}
+        />
+      </Box>
+      <Card variant="outlined">
+        <Box
+          sx={{
+            m: 2,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+            Die letzten Spiele
+          </Typography>
+          <RecentGames games={games} />
+        </Box>
+      </Card>
+    </>
   );
 }

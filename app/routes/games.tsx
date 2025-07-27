@@ -326,7 +326,7 @@ function GameRow({
   onDelete,
 }: {
   onDelete: (id: number) => void;
-  game: Awaited<ReturnType<typeof loader>>["games"][0];
+  game: Game;
 }) {
   return (
     <CollapseRow
