@@ -1,17 +1,13 @@
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Collapse from "@mui/material/Collapse";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
-import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
@@ -26,7 +22,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { de } from "date-fns/locale/de";
-import React, { Fragment, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   type ActionFunctionArgs,
   Form,
@@ -36,11 +32,14 @@ import {
 } from "react-router";
 import z from "zod";
 
+import CollapseRow from "~/components/CollapseRow";
 import DestructionDialog from "~/components/DestructionDialog";
+import GameResult from "~/components/GameResult";
 import { IdInput } from "~/components/IdInput";
 import Placing from "~/components/Placing";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
+import { FORMAT } from "~/format";
 import type { User } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
 import { compareBools, comparingBy, useSortingStates } from "~/sort";
@@ -322,14 +321,6 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   );
 }
 
-const FORMAT = new Intl.DateTimeFormat("de", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
 function GameRow({
   game,
   onDelete,
@@ -337,21 +328,11 @@ function GameRow({
   onDelete: (id: number) => void;
   game: Awaited<ReturnType<typeof loader>>["games"][0];
 }) {
-  const [open, setOpen] = React.useState(false);
   return (
-    <Fragment>
-      <TableRow sx={{ "& > *": { borderBottom: "unset !important" } }}>
-        <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell>{FORMAT.format(game.when)}</TableCell>
-        <TableCell>{game.plays.length}</TableCell>
+    <CollapseRow
+      cells={[
+        <TableCell>{FORMAT.format(game.when)}</TableCell>,
+        <TableCell>{game.plays.length}</TableCell>,
         <TableCell>
           <IconButton
             size="small"
@@ -360,44 +341,10 @@ function GameRow({
           >
             <DeleteIcon />
           </IconButton>
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Typography variant="h6" gutterBottom component="div">
-              Ergebnis
-            </Typography>
-            <Box sx={{ margin: 1 }}>
-              <Table size="small" aria-label="purchases">
-                <TableHead>
-                  <TableRow>
-                    <TableCell width="2.5em"></TableCell>
-                    <TableCell>Spieler</TableCell>
-                    <TableCell>Deck</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {game.plays.map((play, i) => (
-                    <TableRow key={i}>
-                      <TableCell component="th" scope="row">
-                        <Placing place={i + 1} />
-                      </TableCell>
-                      <TableCell>{play.player.name}</TableCell>
-                      <TableCell>
-                        <Link href={`/decks/${play.deck.id}`}>
-                          {play.deck.name}
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </Fragment>
+        </TableCell>,
+      ]}
+      inner={<GameResult game={game} />}
+    />
   );
 }
 
