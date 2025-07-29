@@ -21,13 +21,18 @@ model Deck {
   ownerId      Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  colors       String @default("")
+  url          String @default("")
+  bracket      Int @default(3)
   plays        DeckPlay[]
 }
 
 model Game {
-  id    Int @id @default(autoincrement())
-  when  DateTime @default(now())
-  plays DeckPlay[]
+  id       Int @id @default(autoincrement())
+  when     DateTime @default(now())
+  duration Int @default(0)
+  plays    DeckPlay[]
+  comment  String @default("")
 }
 
 model User {
