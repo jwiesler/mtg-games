@@ -13,6 +13,7 @@ import React from "react";
 import { SortTableHead } from "./SortTableHead";
 import type { User } from "~/generated/prisma/client";
 import { comparingBy, useSortingStates } from "~/sort";
+import TablePagination from "@mui/material/TablePagination";
 
 interface Deck {
   name: string;
@@ -37,57 +38,77 @@ export function DeckTable({
     }
     return [...decks].sort(comparingBy(order, extract));
   }, [order, orderBy, decks]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const sortedDecksSlice = sortedDecks.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
   return (
-    <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-      <Table stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell width={"3em"}>#</TableCell>
-            <SortTableHead
-              order={order}
-              orderBy={orderBy}
-              sortKey="name"
-              onRequestSort={onRequestSort}
-            >
-              Name
-            </SortTableHead>
-            <SortTableHead
-              order={order}
-              orderBy={orderBy}
-              sortKey="owner"
-              onRequestSort={onRequestSort}
-            >
-              Besitzer
-            </SortTableHead>
-            <TableCell width={"5em"}></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedDecks.map((deck, index) => (
-            <TableRow
-              key={deck.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {index + 1}
-              </TableCell>
-              <TableCell>
-                <Link href={`/decks/${deck.id}`}>{deck.name}</Link>
-              </TableCell>
-              <TableCell>{deck.owner.name}</TableCell>
-              <TableCell>
-                <IconButton
-                  size="small"
-                  color="default"
-                  onClick={() => onDelete(deck.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
+    <>
+      <TableContainer component={Paper}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell width={"3em"}>#</TableCell>
+              <SortTableHead
+                order={order}
+                orderBy={orderBy}
+                sortKey="name"
+                onRequestSort={onRequestSort}
+              >
+                Name
+              </SortTableHead>
+              <SortTableHead
+                order={order}
+                orderBy={orderBy}
+                sortKey="owner"
+                onRequestSort={onRequestSort}
+              >
+                Besitzer
+              </SortTableHead>
+              <TableCell width={"5em"}></TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {sortedDecksSlice.map((deck, index) => (
+              <TableRow
+                key={deck.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {page * rowsPerPage + index + 1}
+                </TableCell>
+                <TableCell>
+                  <Link href={`/decks/${deck.id}`}>{deck.name}</Link>
+                </TableCell>
+                <TableCell>{deck.owner.name}</TableCell>
+                <TableCell>
+                  <IconButton
+                    size="small"
+                    color="default"
+                    onClick={() => onDelete(deck.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50]}
+        component="div"
+        count={sortedDecks.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(_, p) => setPage(p)}
+        onRowsPerPageChange={p => {
+          setRowsPerPage(parseInt(p.target.value, 10));
+          setPage(0);
+        }}
+      />
+    </>
   );
 }

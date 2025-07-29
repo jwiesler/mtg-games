@@ -15,6 +15,7 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -392,50 +393,70 @@ function GamesTable({ games }: { games: Game[] }) {
       submit({ id: deleteGameId }, { method: "DELETE", replace: true });
     }
   };
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const sortedGamesSlice = sortedGames.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
   return (
-    <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-      <Table stickyHeader={true}>
-        <TableHead>
-          <TableRow>
-            <TableCell width={"5em"} />
-            <SortTableHead
-              order={order}
-              orderBy={orderBy}
-              sortKey="when"
-              onRequestSort={onRequestSort}
-            >
-              Datum
-            </SortTableHead>
-            <SortTableHead
-              order={order}
-              orderBy={orderBy}
-              sortKey="players"
-              onRequestSort={onRequestSort}
-            >
-              Spieler
-            </SortTableHead>
-            <TableCell width={"5em"}></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedGames.map(game => (
-            <GameRow
-              key={game.id}
-              game={game}
-              onDelete={() => {
-                setDeleteGameId(game.id);
-                setOpen(true);
-              }}
-            />
-          ))}
-        </TableBody>
-      </Table>
-      <DestructionDialog
-        open={open}
-        handleClose={handleClose}
-        title={"Möchtest du dieses Spiel wirklich löschen?"}
+    <>
+      <TableContainer component={Paper}>
+        <Table stickyHeader={true}>
+          <TableHead>
+            <TableRow>
+              <TableCell width={"5em"} />
+              <SortTableHead
+                order={order}
+                orderBy={orderBy}
+                sortKey="when"
+                onRequestSort={onRequestSort}
+              >
+                Datum
+              </SortTableHead>
+              <SortTableHead
+                order={order}
+                orderBy={orderBy}
+                sortKey="players"
+                onRequestSort={onRequestSort}
+              >
+                Spieler
+              </SortTableHead>
+              <TableCell width={"5em"}></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedGamesSlice.map(game => (
+              <GameRow
+                key={game.id}
+                game={game}
+                onDelete={() => {
+                  setDeleteGameId(game.id);
+                  setOpen(true);
+                }}
+              />
+            ))}
+          </TableBody>
+        </Table>
+        <DestructionDialog
+          open={open}
+          handleClose={handleClose}
+          title={"Möchtest du dieses Spiel wirklich löschen?"}
+        />
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50]}
+        component="div"
+        count={games.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(_, p) => setPage(p)}
+        onRowsPerPageChange={p => {
+          setRowsPerPage(parseInt(p.target.value, 10));
+          setPage(0);
+        }}
       />
-    </TableContainer>
+    </>
   );
 }
 
