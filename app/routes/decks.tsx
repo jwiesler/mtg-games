@@ -57,6 +57,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         commander: data.commander.trim(),
         description: data.description.trim(),
         ownerId: data.ownerId,
+        bracket: data.bracket,
+        colors: data.colors.trim(),
+        url: data.url.trim(),
       },
     });
   } else if (request.method == "DELETE") {
@@ -99,7 +102,15 @@ function CreateDeck({ users }: { users: User[] }) {
       </AccordionSummary>
       <AccordionDetails>
         <EditDeck
-          deck={{ name: "", owner: null, description: "", commander: "" }}
+          deck={{
+            name: "",
+            owner: null,
+            description: "",
+            commander: "",
+            colors: "",
+            bracket: 3,
+            url: "",
+          }}
           users={users}
           clearOnSave={true}
         ></EditDeck>

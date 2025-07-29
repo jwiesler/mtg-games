@@ -15,6 +15,9 @@ interface Deck {
   description: string;
   commander: string;
   owner: User | null;
+  bracket: number;
+  colors: string;
+  url: string;
 }
 
 const autocompletions = debounce(
@@ -40,6 +43,9 @@ export function EditDeck({
 }) {
   const [name, setName] = React.useState<string>(deck.name);
   const [owner, setOwner] = React.useState<User | null>(deck.owner);
+  const [bracket, setBracket] = React.useState<number>(deck.bracket);
+  const [colors, setColors] = React.useState<string>(deck.colors);
+  const [url, setUrl] = React.useState<string>(deck.url);
   const [description, setDescription] = React.useState<string>(
     deck.description,
   );
@@ -56,6 +62,9 @@ export function EditDeck({
     setOwner(null);
     setDescription("");
     setCommander("");
+    setBracket(3);
+    setColors("");
+    setUrl("");
   };
   React.useEffect(() => {
     let discardLoad = false;
@@ -127,10 +136,29 @@ export function EditDeck({
           required={true}
         />
         <TextField
+          name="colors"
+          label="Farben"
+          value={colors}
+          onChange={e => setColors(e.target.value)}
+        />
+        <TextField
+          type="number"
+          name="bracket"
+          label="Bracket"
+          value={bracket}
+          onChange={e => setBracket(Number(e.target.value))}
+        />
+        <TextField
           name="description"
           label="Beschreibung"
           value={description}
           onChange={e => setDescription(e.target.value)}
+        />
+        <TextField
+          name="url"
+          label="Link"
+          value={url}
+          onChange={e => setUrl(e.target.value)}
         />
         <Button type="submit" color="primary">
           Speichern

@@ -5,5 +5,8 @@ export const DeckSchema = z.object({
   description: z.string(),
   commander: z.string(),
   ownerId: z.coerce.number(),
+  bracket: z.coerce.number(),
+  colors: z.string(),
+  url: z.string(),
 });
 export type Deck = z.infer<typeof DeckSchema>;

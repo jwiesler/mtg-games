@@ -52,6 +52,9 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
       description: true,
       commander: true,
       owner: true,
+      url: true,
+      bracket: true,
+      colors: true,
     },
   });
   if (deck == null) {
@@ -103,12 +106,21 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       throw BadRequest("Failed to validate input");
     }
     const data = s.data;
+    if (data.colors.trim() == "") {
+      const card = await API.card(data.commander);
+      if (card != null) {
+        data.colors = "{" + card.color_identity.join("}{") + "}";
+      }
+    }
     await prisma.deck.update({
       data: {
         name: data.name.trim() || data.commander.trim(),
         commander: data.commander.trim(),
         description: data.description.trim(),
         ownerId: data.ownerId,
+        bracket: data.bracket,
+        colors: data.colors.trim(),
+        url: data.url.trim(),
       },
       where: { id: Number(params.id) },
     });
@@ -180,11 +192,11 @@ function RecentPlays({ games, deck }: { games: Game[]; deck: number }) {
               <CollapseRow
                 key={game.id}
                 cells={[
-                  <TableCell>
+                  <TableCell key="0">
                     <Placing place={game.deckPlay + 1} />
                   </TableCell>,
-                  <TableCell>{FORMAT.format(game.when)}</TableCell>,
-                  <TableCell>
+                  <TableCell key="1">{FORMAT.format(game.when)}</TableCell>,
+                  <TableCell key="2">
                     {game.plays[game.deckPlay].player.name}
                   </TableCell>,
                 ]}
