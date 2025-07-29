@@ -171,6 +171,7 @@ export const loader = async () => {
       select: {
         id: true,
         when: true,
+        duration: true,
         plays: {
           select: {
             player: { select: { name: true } },

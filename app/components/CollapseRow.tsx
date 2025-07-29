@@ -17,7 +17,7 @@ export default function CollapseRow({
   return (
     <Fragment>
       <TableRow sx={{ "& > *": { borderBottom: "unset !important" } }}>
-        <TableCell>
+        <TableCell id="a">
           <IconButton
             aria-label="expand row"
             size="small"

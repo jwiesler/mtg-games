@@ -73,6 +73,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     select: {
       id: true,
       when: true,
+      duration: true,
       plays: {
         select: {
           deck: {

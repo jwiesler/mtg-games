@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
 import Link from "@mui/material/Link";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -6,20 +7,29 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import type { SxProps, Theme } from "@mui/material/styles";
 
 import Placing from "./Placing";
+
+function Duration({ seconds, sx }: { seconds: number; sx?: SxProps<Theme> }) {
+  const minutes = (seconds / 60) % 60;
+  const hours = Math.floor(seconds / 3600);
+  return <Chip label={`${hours}h ${minutes}min`} sx={sx} />;
+}
 
 export default function GameResult({
   game,
 }: {
   game: {
     plays: { deck: { id: number; name: string }; player: { name: string } }[];
+    duration: number;
   };
 }) {
   return (
     <>
       <Typography variant="h6" gutterBottom component="div">
         Ergebnis
+        <Duration seconds={game.duration} sx={{ float: "right" }} />
       </Typography>
       <Box sx={{ margin: 1 }}>
         <Table size="small" aria-label="purchases">

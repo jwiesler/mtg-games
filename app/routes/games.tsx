@@ -20,6 +20,7 @@ import Typography from "@mui/material/Typography";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { de } from "date-fns/locale/de";
 import React, { useMemo } from "react";
@@ -76,6 +77,7 @@ export const loader = async () => {
       select: {
         id: true,
         when: true,
+        duration: true,
         plays: {
           select: {
             player: { select: { name: true } },
@@ -95,15 +97,18 @@ async function createGame(body: FormData) {
   const rawPlayerIds = z
     .array(z.coerce.number())
     .safeParse(body.getAll("playerId"));
+  const rawDuration = z.coerce.number().safeParse(body.get("duration"));
   if (
     !rawWhen.success ||
     !rawDeckIds.success ||
     !rawPlayerIds.success ||
+    !rawDuration.success ||
     rawDeckIds.data.length != rawPlayerIds.data.length
   ) {
     throw BadRequest("Failed to validate input");
   }
   const when = rawWhen.data;
+  const duration = rawDuration.data;
   const deckIds = rawDeckIds.data;
   const playerIds = rawPlayerIds.data;
   const plays = deckIds.map((deckId, i) => {
@@ -114,7 +119,7 @@ async function createGame(body: FormData) {
     };
   });
   await prisma.game.create({
-    data: { when, plays: { createMany: { data: plays } } },
+    data: { when, duration, plays: { createMany: { data: plays } } },
   });
 }
 
@@ -221,6 +226,10 @@ function EditPlay({
   );
 }
 
+function secondsFromDate(d: Date) {
+  return (d.getHours() * 60 + d.getMinutes()) * 60 + d.getSeconds();
+}
+
 function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
   const [expanded, setExpanded] = React.useState(false);
   const [plays, setPlays] =
@@ -229,11 +238,10 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
     );
   const [when, setWhen] = React.useState<Date | null>(() => {
     const date = new Date();
-    date.setMinutes(date.getMinutes() - (date.getMinutes() % 5));
-    date.setSeconds(0);
-    date.setMilliseconds(0);
+    date.setMinutes(date.getMinutes() - (date.getMinutes() % 5), 0, 0);
     return date;
   });
+  const [duration, setDuration] = React.useState<Date | null>(null);
   const replacePlay = (
     i: number,
     play: { player: User | null; deck: DeckDesc | null } | null,
@@ -276,17 +284,31 @@ function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
                 onChange={v => setWhen(v)}
                 timezone="Europe/Berlin"
                 label="Zeit"
-                minutesStep={5}
                 viewRenderers={{
                   hours: renderTimeViewClock,
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
               />
+              <TimePicker
+                timezone="Europe/Berlin"
+                value={duration}
+                onChange={v => setDuration(v)}
+                label="Dauer"
+                viewRenderers={{
+                  hours: renderTimeViewClock,
+                  minutes: renderTimeViewClock,
+                }}
+              />
             </LocalizationProvider>
             <input
               name="when"
               value={when?.toISOString() || ""}
+              type="hidden"
+            />
+            <input
+              name="duration"
+              value={duration == null ? "" : secondsFromDate(duration)}
               type="hidden"
             />
             {plays.map(({ player, deck }, i) => (
@@ -331,9 +353,9 @@ function GameRow({
   return (
     <CollapseRow
       cells={[
-        <TableCell>{FORMAT.format(game.when)}</TableCell>,
-        <TableCell>{game.plays.length}</TableCell>,
-        <TableCell>
+        <TableCell key="0">{FORMAT.format(game.when)}</TableCell>,
+        <TableCell key="1">{game.plays.length}</TableCell>,
+        <TableCell key="2">
           <IconButton
             size="small"
             color="default"
