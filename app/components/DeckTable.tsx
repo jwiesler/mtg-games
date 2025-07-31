@@ -7,13 +7,13 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import React from "react";
 
 import { SortTableHead } from "./SortTableHead";
 import type { User } from "~/generated/prisma/client";
 import { comparingBy, useSortingStates } from "~/sort";
-import TablePagination from "@mui/material/TablePagination";
 
 interface Deck {
   name: string;

@@ -4,7 +4,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+import Button, { type ButtonProps } from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
@@ -24,7 +24,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { de } from "date-fns/locale/de";
-import React, { useMemo } from "react";
+import React from "react";
 import {
   type ActionFunctionArgs,
   Form,
@@ -80,7 +80,11 @@ export const loader = async () => {
         when: true,
         duration: true,
         plays: {
+          orderBy: {
+            place: "asc",
+          },
           select: {
+            place: true,
             player: { select: { name: true } },
             deck: { select: { name: true, id: true } },
           },
@@ -167,7 +171,7 @@ function EditPlay({
   decks: DeckDesc[];
   disallowDelete: boolean;
 }) {
-  const [groupBy, sortedDecks] = useMemo(() => {
+  const [groupBy, sortedDecks] = React.useMemo(() => {
     if (player === null) {
       return [undefined, decks];
     }

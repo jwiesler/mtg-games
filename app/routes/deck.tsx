@@ -75,7 +75,11 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
       when: true,
       duration: true,
       plays: {
+        orderBy: {
+          place: "asc"
+        },
         select: {
+          place: true,
           deck: {
             select: {
               id: true,

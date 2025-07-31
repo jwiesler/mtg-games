@@ -14,14 +14,19 @@ import Placing from "./Placing";
 function Duration({ seconds, sx }: { seconds: number; sx?: SxProps<Theme> }) {
   const minutes = (seconds / 60) % 60;
   const hours = Math.floor(seconds / 3600);
-  return <Chip label={`${hours}h ${minutes}min`} sx={sx} />;
+  const mins = `${minutes}min`;
+  return <Chip label={hours == 0 ? mins : `${hours}h ${mins}`} sx={sx} />;
 }
 
 export default function GameResult({
   game,
 }: {
   game: {
-    plays: { deck: { id: number; name: string }; player: { name: string } }[];
+    plays: {
+      place: number;
+      deck: { id: number; name: string };
+      player: { name: string };
+    }[];
     duration: number;
   };
 }) {
@@ -32,7 +37,7 @@ export default function GameResult({
         <Duration seconds={game.duration} sx={{ float: "right" }} />
       </Typography>
       <Box sx={{ margin: 1 }}>
-        <Table size="small" aria-label="purchases">
+        <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell width="2.5em"></TableCell>
@@ -44,7 +49,7 @@ export default function GameResult({
             {game.plays.map((play, i) => (
               <TableRow key={i}>
                 <TableCell component="th" scope="row">
-                  <Placing place={i + 1} />
+                  <Placing place={play.place} />
                 </TableCell>
                 <TableCell>{play.player.name}</TableCell>
                 <TableCell>
