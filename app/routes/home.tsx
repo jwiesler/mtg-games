@@ -174,7 +174,7 @@ export const loader = async () => {
         duration: true,
         plays: {
           orderBy: {
-            place: "asc"
+            place: "asc",
           },
           select: {
             player: { select: { name: true } },

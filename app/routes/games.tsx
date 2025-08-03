@@ -1,15 +1,9 @@
-import DeleteIcon from "@mui/icons-material/DeleteOutline";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
+import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
-import Button, { type ButtonProps } from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
-import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import MuiDrawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -18,16 +12,9 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
-import { de } from "date-fns/locale/de";
 import React from "react";
 import {
   type ActionFunctionArgs,
-  Form,
   type MetaFunction,
   useLoaderData,
   useSubmit,
@@ -36,27 +23,20 @@ import z from "zod";
 
 import CollapseRow from "~/components/CollapseRow";
 import DestructionDialog from "~/components/DestructionDialog";
+import type { GameData } from "~/components/EditGame";
+import EditGame, { DEFAULT_PLAYS } from "~/components/EditGame";
 import GameResult from "~/components/GameResult";
-import { IdInput } from "~/components/IdInput";
-import Placing from "~/components/Placing";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import { FORMAT } from "~/format";
-import type { User } from "~/generated/prisma/client";
 import { BadRequest, NotFound } from "~/responses";
-import { compareBools, comparingBy, useSortingStates } from "~/sort";
+import { comparingBy, useSortingStates } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [
   {
     title: "Spiele",
   },
 ];
-
-interface DeckDesc {
-  id: number;
-  name: string;
-  ownerId: number;
-}
 
 export const loader = async () => {
   return {
@@ -85,8 +65,8 @@ export const loader = async () => {
           },
           select: {
             place: true,
-            player: { select: { name: true } },
-            deck: { select: { name: true, id: true } },
+            player: { select: { name: true, id: true } },
+            deck: { select: { name: true, id: true, ownerId: true } },
           },
         },
       },
@@ -94,7 +74,7 @@ export const loader = async () => {
   };
 };
 
-async function createGame(body: FormData) {
+async function createOrEditGame(body: FormData) {
   const rawWhen = z.iso.datetime().safeParse(body.get("when"));
   const rawDeckIds = z
     .array(z.coerce.number())
@@ -123,15 +103,29 @@ async function createGame(body: FormData) {
       place: i + 1,
     };
   });
-  await prisma.game.create({
-    data: { when, duration, plays: { createMany: { data: plays } } },
-  });
+  const rawId = body.get("id");
+  if (rawId !== null) {
+    const parsedId = z.coerce.number().safeParse(rawId);
+    if (!parsedId.success) {
+      throw BadRequest("Failed to validate input");
+    }
+    await prisma.$transaction([
+      prisma.game.delete({ where: { id: parsedId.data } }),
+      prisma.game.create({
+        data: { when, duration, plays: { createMany: { data: plays } } },
+      }),
+    ]);
+  } else {
+    await prisma.game.create({
+      data: { when, duration, plays: { createMany: { data: plays } } },
+    });
+  }
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
-    createGame(body);
+    createOrEditGame(body);
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = z.coerce.number().safeParse(body.get("id"));
@@ -144,215 +138,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
-const DEFAULT_PLAY = {
-  player: null,
-  deck: null,
-};
-
-const DEFAULT_PLAYS = [DEFAULT_PLAY, DEFAULT_PLAY, DEFAULT_PLAY, DEFAULT_PLAY];
-
-function EditPlay({
-  i,
-  player,
-  deck,
-  replacePlay,
-  decks,
-  users,
-  disallowDelete,
-}: {
-  i: number;
-  player: User | null;
-  deck: DeckDesc | null;
-  replacePlay: (
-    i: number,
-    w: { player: User | null; deck: DeckDesc | null } | null,
-  ) => void;
-  users: User[];
-  decks: DeckDesc[];
-  disallowDelete: boolean;
-}) {
-  const [groupBy, sortedDecks] = React.useMemo(() => {
-    if (player === null) {
-      return [undefined, decks];
-    }
-    const copy = [...decks];
-    copy.sort((a, b) =>
-      compareBools(a.ownerId !== player.id, b.ownerId !== player.id),
-    );
-    const groupBy = (deck: DeckDesc) =>
-      deck.ownerId === player.id ? `Decks von ${player.name}` : "Andere Decks";
-    return [groupBy, copy];
-  }, [player]);
-  return (
-    <Grid size={12}>
-      <Paper elevation={3} sx={{ p: "0.75em" }}>
-        <Stack
-          spacing={2}
-          direction="row"
-          sx={{
-            alignItems: "center",
-          }}
-        >
-          <Placing place={i + 1} />
-          <Divider orientation="vertical" variant="middle" flexItem />
-          <Stack spacing={2} sx={{ flexGrow: 1 }}>
-            <IdInput
-              value={player}
-              options={users}
-              onInputChange={value => replacePlay(i, { deck, player: value })}
-              getOptionLabel={value => value.name}
-              name="player"
-              idName="playerId"
-              label="Spieler"
-              required={true}
-            />
-            <IdInput
-              value={deck}
-              options={sortedDecks}
-              onInputChange={value => replacePlay(i, { deck: value, player })}
-              groupBy={groupBy}
-              getOptionLabel={value => value.name}
-              name="deck"
-              idName="deckId"
-              label="Deck"
-              required={true}
-            />
-            <Button
-              color="error"
-              disabled={disallowDelete}
-              onClick={() => replacePlay(i, null)}
-            >
-              Mitspieler löschen
-            </Button>
-          </Stack>
-        </Stack>
-      </Paper>
-    </Grid>
-  );
-}
-
-function secondsFromDate(d: Date) {
-  return (d.getHours() * 60 + d.getMinutes()) * 60 + d.getSeconds();
-}
-
-function CreateGame({ users, decks }: { users: User[]; decks: DeckDesc[] }) {
-  const [expanded, setExpanded] = React.useState(false);
-  const [plays, setPlays] =
-    React.useState<{ player: User | null; deck: DeckDesc | null }[]>(
-      DEFAULT_PLAYS,
-    );
-  const [when, setWhen] = React.useState<Date | null>(() => {
-    const date = new Date();
-    date.setMinutes(date.getMinutes() - (date.getMinutes() % 5), 0, 0);
-    return date;
-  });
-  const [duration, setDuration] = React.useState<Date | null>(null);
-  const replacePlay = (
-    i: number,
-    play: { player: User | null; deck: DeckDesc | null } | null,
-  ) => {
-    const copy = [...plays];
-    if (play !== null) {
-      copy[i] = play;
-    } else {
-      copy.splice(i, 1);
-    }
-    setPlays(copy);
-  };
-  const addPlay = () => {
-    setPlays([...plays, DEFAULT_PLAY]);
-  };
-  const clear = () => {
-    setPlays(DEFAULT_PLAYS);
-  };
-  return (
-    <Accordion
-      expanded={expanded}
-      onChange={(_, expanded) => setExpanded(expanded)}
-      sx={{ width: "100%" }}
-    >
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls="panel-content"
-      >
-        <Typography>Spiel anlegen</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Form method="post" onSubmit={clear}>
-          <Stack spacing={2}>
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={de}
-            >
-              <DateTimePicker
-                value={when}
-                onChange={v => setWhen(v)}
-                timezone="Europe/Berlin"
-                label="Zeit"
-                viewRenderers={{
-                  hours: renderTimeViewClock,
-                  minutes: renderTimeViewClock,
-                  seconds: renderTimeViewClock,
-                }}
-              />
-              <TimePicker
-                timezone="Europe/Berlin"
-                value={duration}
-                onChange={v => setDuration(v)}
-                label="Dauer"
-                viewRenderers={{
-                  hours: renderTimeViewClock,
-                  minutes: renderTimeViewClock,
-                }}
-              />
-            </LocalizationProvider>
-            <input
-              name="when"
-              value={when?.toISOString() || ""}
-              type="hidden"
-            />
-            <input
-              name="duration"
-              value={duration == null ? "" : secondsFromDate(duration)}
-              type="hidden"
-            />
-            {plays.map(({ player, deck }, i) => (
-              <EditPlay
-                key={i}
-                i={i}
-                player={player}
-                deck={deck}
-                replacePlay={replacePlay}
-                users={users}
-                decks={decks}
-                disallowDelete={plays.length <= 1}
-              />
-            ))}
-            <Stack direction="row">
-              <Button color="warning" onClick={() => addPlay()}>
-                Mitspieler hinzufügen
-              </Button>
-
-              <Button
-                type="submit"
-                disabled={plays.length <= 1}
-                color="primary"
-              >
-                Speichern
-              </Button>
-            </Stack>
-          </Stack>
-        </Form>
-      </AccordionDetails>
-    </Accordion>
-  );
-}
-
 function GameRow({
   game,
+  onEdit,
   onDelete,
 }: {
   onDelete: (id: number) => void;
+  onEdit: (game: Game) => void;
   game: Game;
 }) {
   return (
@@ -360,24 +152,37 @@ function GameRow({
       cells={[
         <TableCell key="0">{FORMAT.format(game.when)}</TableCell>,
         <TableCell key="1">{game.plays.length}</TableCell>,
-        <TableCell key="2">
-          <IconButton
-            size="small"
-            color="default"
-            onClick={() => onDelete(game.id)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </TableCell>,
       ]}
-      inner={<GameResult game={game} />}
+      inner={
+        <>
+          <GameResult game={game} />
+          <Box sx={{ float: "right", mb: 1 }}>
+            <Button
+              color="warning"
+              style={{ marginRight: "1em" }}
+              onClick={() => onEdit(game)}
+            >
+              Bearbeiten
+            </Button>
+            <Button color="error" onClick={() => onDelete(game.id)}>
+              Löschen
+            </Button>
+          </Box>
+        </>
+      }
     />
   );
 }
 
 type Game = Awaited<ReturnType<typeof loader>>["games"][0];
 
-function GamesTable({ games }: { games: Game[] }) {
+function GamesTable({
+  games,
+  onEdit,
+}: {
+  games: Game[];
+  onEdit: (game: Game) => void;
+}) {
   const submit = useSubmit();
   const [open, setOpen] = React.useState(false);
   const [deleteGameId, setDeleteGameId] = React.useState<number | null>(null);
@@ -426,7 +231,6 @@ function GamesTable({ games }: { games: Game[] }) {
               >
                 Spieler
               </SortTableHead>
-              <TableCell width={"5em"}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -434,6 +238,7 @@ function GamesTable({ games }: { games: Game[] }) {
               <GameRow
                 key={game.id}
                 game={game}
+                onEdit={onEdit}
                 onDelete={() => {
                   setDeleteGameId(game.id);
                   setOpen(true);
@@ -464,8 +269,73 @@ function GamesTable({ games }: { games: Game[] }) {
   );
 }
 
+function Drawer({
+  children,
+  open,
+  onClose,
+  title,
+}: {
+  children: React.ReactNode;
+  open: boolean;
+  onClose: () => void;
+  title: string;
+}) {
+  return (
+    <MuiDrawer
+      open={open}
+      anchor="right"
+      onClose={onClose}
+      ModalProps={{
+        keepMounted: true,
+      }}
+    >
+      <Box sx={{ p: 2, width: "100vw", maxWidth: "600px" }} role="presentation">
+        <Box
+          sx={{
+            fontSize: "1.25em",
+            display: "flex",
+            alignItems: "center",
+            mb: "1.25em",
+          }}
+        >
+          <IconButton onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
+          <Typography variant="h6" component="h1">
+            {title}
+          </Typography>
+        </Box>
+        {children}
+      </Box>
+    </MuiDrawer>
+  );
+}
+
 export default function Games() {
   const { decks, users, games } = useLoaderData<typeof loader>();
+  const [open, setOpen] = React.useState(false);
+  const [mode, setMode] = React.useState<"create" | "edit">("create");
+  const createGame = () => {
+    const plays = DEFAULT_PLAYS;
+    const when = new Date();
+    when.setMinutes(when.getMinutes() - (when.getMinutes() % 5), 0, 0);
+    return {
+      plays,
+      when,
+      duration: null,
+    };
+  };
+  const [game, setGame] = React.useState<GameData>(createGame);
+  const submit = () => {
+    setGame(createGame());
+    setMode("create");
+    setOpen(false);
+  };
+  const openEditGame = (game: GameData, mode: "create" | "edit") => {
+    setMode(mode);
+    setGame(game);
+    setOpen(true);
+  };
   return (
     <Box
       sx={{
@@ -479,14 +349,33 @@ export default function Games() {
       <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
         Spiele
       </Typography>
+      <Button onClick={() => openEditGame(createGame(), "create")}>
+        Spiel eintragen
+      </Button>
+
       {decks.length == 0 ? (
         "Es muss erst mindestens ein Deck eingetragen sein"
       ) : users.length == 0 ? (
         "Es muss erst mindestens ein Spieler eingetragen sein"
       ) : (
-        <CreateGame users={users} decks={decks} />
+        <Drawer
+          title="Spiel anlegen"
+          open={open}
+          onClose={() => setOpen(false)}
+        >
+          <EditGame
+            game={game}
+            setGame={v => setGame(v)}
+            users={users}
+            decks={decks}
+            onSubmit={submit}
+            mode={mode}
+          />
+        </Drawer>
       )}
-      {games.length > 0 && <GamesTable games={games} />}
+      {games.length > 0 && (
+        <GamesTable games={games} onEdit={g => openEditGame(g, "edit")} />
+      )}
     </Box>
   );
 }

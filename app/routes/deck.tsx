@@ -76,7 +76,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
       duration: true,
       plays: {
         orderBy: {
-          place: "asc"
+          place: "asc",
         },
         select: {
           place: true,
