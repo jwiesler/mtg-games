@@ -359,7 +359,7 @@ export default function Games() {
         "Es muss erst mindestens ein Spieler eingetragen sein"
       ) : (
         <Drawer
-          title="Spiel anlegen"
+          title={mode == "create" ? "Spiel anlegen" : "Spiel bearbeiten"}
           open={open}
           onClose={() => setOpen(false)}
         >
