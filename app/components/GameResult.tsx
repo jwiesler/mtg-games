@@ -34,7 +34,9 @@ export default function GameResult({
     <>
       <Typography variant="h6" gutterBottom component="div">
         Ergebnis
-        <Duration seconds={game.duration} sx={{ float: "right" }} />
+        {game.duration > 0 && (
+          <Duration seconds={game.duration} sx={{ float: "right" }} />
+        )}
       </Typography>
       <Box sx={{ margin: 1 }}>
         <Table size="small">
