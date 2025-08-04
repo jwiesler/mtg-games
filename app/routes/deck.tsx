@@ -2,15 +2,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import React from "react";
 import {
   type ActionFunctionArgs,
   Form,
@@ -20,16 +12,11 @@ import {
   useLoaderData,
 } from "react-router";
 
-import CollapseRow from "~/components/CollapseRow";
 import { EditDeck } from "~/components/EditDeck";
-import GameResult from "~/components/GameResult";
-import Placing from "~/components/Placing";
-import { SortTableHead } from "~/components/SortTableHead";
+import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
-import { FORMAT } from "~/format";
 import { BadRequest, NotFound } from "~/responses";
 import { API } from "~/scryfall";
-import { comparingBy, useSortingStates } from "~/sort";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
 
@@ -88,6 +75,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
           },
           player: {
             select: {
+              id: true,
               name: true,
             },
           },
@@ -137,84 +125,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   }
 };
 
-type Game = Awaited<ReturnType<typeof loader>>["games"][0];
-
-function RecentPlays({ games, deck }: { games: Game[]; deck: number }) {
-  const [order, orderBy, onRequestSort] = useSortingStates("desc", "when");
-  const sortedGames = React.useMemo(() => {
-    let extract;
-    const copy = games.map(g => {
-      const index = g.plays.findIndex(p => p.deck.id === deck);
-      return { ...g, deckPlay: index === -1 ? 0 : index };
-    });
-    if (orderBy == "when") {
-      extract = (v: (typeof copy)[0]) => v.when;
-    } else if (orderBy == "player") {
-      extract = (v: (typeof copy)[0]) => v.plays[v.deckPlay].player.name;
-    } else {
-      extract = (v: (typeof copy)[0]) => v.deckPlay;
-    }
-    return copy.sort(
-      comparingBy<(typeof copy)[0], number | Date | string>(order, extract),
-    );
-  }, [order, orderBy, games]);
-  return (
-    <TableContainer component={Paper}>
-      <Table stickyHeader={true}>
-        <TableHead>
-          <TableRow>
-            <TableCell width={"5em"} />
-            <SortTableHead
-              width={"4em"}
-              order={order}
-              orderBy={orderBy}
-              sortKey="place"
-              onRequestSort={onRequestSort}
-            >
-              Platz
-            </SortTableHead>
-            <SortTableHead
-              order={order}
-              orderBy={orderBy}
-              sortKey="when"
-              onRequestSort={onRequestSort}
-            >
-              Datum
-            </SortTableHead>
-            <SortTableHead
-              order={order}
-              orderBy={orderBy}
-              sortKey="player"
-              onRequestSort={onRequestSort}
-            >
-              Spieler
-            </SortTableHead>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedGames.map(game => {
-            return (
-              <CollapseRow
-                key={game.id}
-                cells={[
-                  <TableCell key="0">
-                    <Placing place={game.deckPlay + 1} />
-                  </TableCell>,
-                  <TableCell key="1">{FORMAT.format(game.when)}</TableCell>,
-                  <TableCell key="2">
-                    {game.plays[game.deckPlay].player.name}
-                  </TableCell>,
-                ]}
-                inner={<GameResult game={game} />}
-              />
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
-
 export default function Deck() {
   const { deck, card, users, games } = useLoaderData<typeof loader>();
   const image =
@@ -248,7 +158,12 @@ export default function Deck() {
           </Box>
         </CardContent>
       </Card>
-      <RecentPlays games={games} deck={deck.id} />
+      <RecentPlays
+        games={games}
+        columnKey="player"
+        placingKey="deck"
+        placingId={deck.id}
+      />
     </div>
   );
 }

@@ -177,7 +177,7 @@ export const loader = async () => {
             place: "asc",
           },
           select: {
-            player: { select: { name: true } },
+            player: { select: { name: true, id: true } },
             deck: { select: { name: true, id: true } },
             place: true,
           },

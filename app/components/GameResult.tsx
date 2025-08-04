@@ -25,7 +25,7 @@ export default function GameResult({
     plays: {
       place: number;
       deck: { id: number; name: string };
-      player: { name: string };
+      player: { id: number; name: string };
     }[];
     duration: number;
   };
@@ -51,7 +51,11 @@ export default function GameResult({
                 <TableCell component="th" scope="row">
                   <Placing place={play.place} />
                 </TableCell>
-                <TableCell>{play.player.name}</TableCell>
+                <TableCell>
+                  <Link href={`/players/${play.player.id}`}>
+                    {play.player.name}
+                  </Link>
+                </TableCell>
                 <TableCell>
                   <Link href={`/decks/${play.deck.id}`}>{play.deck.name}</Link>
                 </TableCell>

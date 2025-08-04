@@ -5,6 +5,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
@@ -168,7 +169,9 @@ export default function Users() {
                 <TableCell component="th" scope="row">
                   {page * rowsPerPage + index + 1}
                 </TableCell>
-                <TableCell>{user.name}</TableCell>
+                <TableCell>
+                  <Link href={`/players/${user.id}`}>{user.name}</Link>
+                </TableCell>
                 <TableCell>
                   <IconButton
                     size="small"
