@@ -289,13 +289,22 @@ function Drawer({
         keepMounted: true,
       }}
     >
-      <Box sx={{ p: 2, width: "100vw", maxWidth: "600px" }} role="presentation">
+      <Box
+        sx={{
+          width: "100vw",
+          maxWidth: "600px",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+        role="presentation"
+      >
         <Box
           sx={{
+            p: 2,
             fontSize: "1.25em",
             display: "flex",
             alignItems: "center",
-            mb: "1.25em",
           }}
         >
           <IconButton onClick={onClose}>
@@ -305,7 +314,9 @@ function Drawer({
             {title}
           </Typography>
         </Box>
-        {children}
+        <Box sx={{ overflowY: "auto", p: 2, scrollbarWidth: "thin" }}>
+          {children}
+        </Box>
       </Box>
     </MuiDrawer>
   );
@@ -350,7 +361,7 @@ export default function Games() {
         Spiele
       </Typography>
       <Button onClick={() => openEditGame(createGame(), "create")}>
-        Spiel eintragen
+        Spiel anlegen
       </Button>
 
       {decks.length == 0 ? (

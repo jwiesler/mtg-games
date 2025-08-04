@@ -191,8 +191,8 @@ function GameRow({ game }: { game: Game }) {
   return (
     <CollapseRow
       cells={[
-        <TableCell>{FORMAT.format(game.when)}</TableCell>,
-        <TableCell>{game.plays.length}</TableCell>,
+        <TableCell key="0">{FORMAT.format(game.when)}</TableCell>,
+        <TableCell key="1">{game.plays.length}</TableCell>,
       ]}
       inner={<GameResult game={game} />}
     />
