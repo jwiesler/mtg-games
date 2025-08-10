@@ -210,7 +210,11 @@ export default function Stats() {
         }}
       >
         <StatsTable values={decks} stats={stats.decks} linkPrefix="/decks/" />
-        <StatsTable values={users} stats={stats.players} linkPrefix="/players/" />
+        <StatsTable
+          values={users}
+          stats={stats.players}
+          linkPrefix="/players/"
+        />
       </Box>
     </Box>
   );

@@ -22,12 +22,14 @@ import {
   type ActionFunctionArgs,
   Form,
   type MetaFunction,
+  useActionData,
   useLoaderData,
   useSubmit,
 } from "react-router";
 import z from "zod";
 
 import DestructionDialog from "~/components/DestructionDialog";
+import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import { Prisma, type User } from "~/generated/prisma/client";
@@ -54,12 +56,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
     const name = Validated(z.string().safeParse(body.get("name")));
-    await prisma.user.create({ data: { name } });
+    const user = await prisma.user.create({ data: { name } });
+    return { type: "create", key: `create-${user.id}`, name: user.name };
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = Validated(z.coerce.number().safeParse(body.get("id")));
     try {
-      await prisma.user.delete({ where: { id } });
+      const user = await prisma.user.delete({
+        select: { name: true },
+        where: { id },
+      });
+      return { type: "delete", key: `delete-${id}`, name: user.name };
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === "P2003") {
@@ -77,11 +84,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Users() {
   const { users } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  console.log(actionData);
   const [order, orderBy, onRequestSort] = useSortingStates("asc", "name");
   const sortedUsers = React.useMemo(() => {
     const extract = (v: User) => v.name;
     return [...users].sort(comparingBy(order, extract));
-  }, [order, orderBy]);
+  }, [users, order, orderBy]);
   const [expanded, setExpanded] = React.useState(false);
   const [name, setName] = React.useState("");
   const submit = useSubmit();
@@ -200,6 +209,17 @@ export default function Users() {
         handleClose={handleClose}
         title={"Möchtest du diesen Spieler wirklich löschen?"}
       />
+
+      {actionData && (
+        <NotificationSnack
+          key={actionData.key}
+          message={
+            actionData.type == "create"
+              ? `Spieler '${actionData.name}' angelegt`
+              : `Spieler '${actionData.name}' gelöscht`
+          }
+        />
+      )}
     </Box>
   );
 }

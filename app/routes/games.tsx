@@ -16,6 +16,7 @@ import React from "react";
 import {
   type ActionFunctionArgs,
   type MetaFunction,
+  useActionData,
   useLoaderData,
   useSubmit,
 } from "react-router";
@@ -26,6 +27,7 @@ import DestructionDialog from "~/components/DestructionDialog";
 import type { GameData } from "~/components/EditGame";
 import EditGame, { DEFAULT_PLAYS } from "~/components/EditGame";
 import GameResult from "~/components/GameResult";
+import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import { FORMAT } from "~/format";
@@ -104,7 +106,7 @@ async function createOrEditGame(body: FormData) {
   const rawId = body.get("id");
   if (rawId !== null) {
     const id = Validated(z.coerce.number().safeParse(rawId));
-    await prisma.$transaction([
+    const [, game] = await prisma.$transaction([
       prisma.game.delete({ where: { id } }),
       prisma.game.create({
         data: {
@@ -113,23 +115,28 @@ async function createOrEditGame(body: FormData) {
           comment,
           plays: { createMany: { data: plays } },
         },
+        select: { id: true },
       }),
     ]);
+    return { type: "update", key: `update-${game.id}` };
   } else {
-    await prisma.game.create({
+    const game = await prisma.game.create({
       data: { when, duration, comment, plays: { createMany: { data: plays } } },
+      select: { id: true },
     });
+    return { type: "create", key: `create-${game.id}` };
   }
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
-    await createOrEditGame(body);
+    return await createOrEditGame(body);
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = Validated(z.coerce.number().safeParse(body.get("id")));
     await prisma.game.delete({ where: { id } });
+    return { type: "delete", key: `delete-${id}` };
   } else {
     throw NotFound();
   }
@@ -321,6 +328,7 @@ function Drawer({
 
 export default function Games() {
   const { decks, users, games } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const [open, setOpen] = React.useState(false);
   const [mode, setMode] = React.useState<"create" | "edit">("create");
   const createGame = () => {
@@ -384,6 +392,18 @@ export default function Games() {
       )}
       {games.length > 0 && (
         <GamesTable games={games} onEdit={g => openEditGame(g, "edit")} />
+      )}
+      {actionData && (
+        <NotificationSnack
+          key={actionData.key}
+          message={`Spiel ${
+            actionData.type == "create"
+              ? "angelegt"
+              : actionData.type == "update"
+                ? "bearbeitet"
+                : "gelöscht"
+          }`}
+        />
       )}
     </Box>
   );

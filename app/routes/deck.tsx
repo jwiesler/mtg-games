@@ -3,17 +3,20 @@ import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
+import React from "react";
 import {
   type ActionFunctionArgs,
   Form,
   type LoaderFunctionArgs,
   type MetaFunction,
   redirect,
+  useActionData,
   useLoaderData,
 } from "react-router";
 import z from "zod";
 
 import { EditDeck } from "~/components/EditDeck";
+import NotificationSnack from "~/components/NotificationSnack";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
 import { NotFound, Validated } from "~/responses";
@@ -103,7 +106,10 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         data.colors = "{" + card.color_identity.join("}{") + "}";
       }
     }
-    await prisma.deck.update({
+    const deck = await prisma.deck.update({
+      select: {
+        updatedAt: true,
+      },
       data: {
         name: data.name.trim() || data.commander.trim(),
         commander: data.commander.trim(),
@@ -115,6 +121,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       },
       where: { id: Number(params.id) },
     });
+    return { type: "update", key: deck.updatedAt.toISOString() };
   } else if (request.method === "DELETE") {
     const id = Validated(z.number().safeParse(params.id));
     await prisma.deck.delete({ where: { id } });
@@ -126,6 +133,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 export default function Deck() {
   const { deck, card, users, games } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const image =
     card == null
       ? "https://cards.scryfall.io/border_crop/front/7/0/70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b.jpg?1559591549"
@@ -163,6 +171,9 @@ export default function Deck() {
         placingKey="deck"
         placingId={deck.id}
       />
+      {actionData && (
+        <NotificationSnack key={actionData.key} message={"Deck gespeichert"} />
+      )}
     </div>
   );
 }

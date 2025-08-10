@@ -8,6 +8,7 @@ import React from "react";
 import {
   type ActionFunctionArgs,
   type MetaFunction,
+  useActionData,
   useLoaderData,
   useSubmit,
 } from "react-router";
@@ -16,6 +17,7 @@ import z from "zod";
 import { DeckTable } from "~/components/DeckTable";
 import DestructionDialog from "~/components/DestructionDialog";
 import { EditDeck } from "~/components/EditDeck";
+import NotificationSnack from "~/components/NotificationSnack";
 import prisma from "~/db.server";
 import { Prisma, type User } from "~/generated/prisma/client";
 import { BadRequest, NotFound, Validated } from "~/responses";
@@ -47,7 +49,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
     const data = Validated(DeckSchema.safeParse(Object.fromEntries(body)));
-    await prisma.deck.create({
+    const deck = await prisma.deck.create({
       data: {
         name: data.name.trim() || data.commander.trim(),
         commander: data.commander.trim(),
@@ -57,12 +59,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         colors: data.colors.trim(),
         url: data.url.trim(),
       },
+      select: {
+        id: true,
+        name: true,
+      },
     });
+    return { type: "create", key: `create-${deck.id}`, name: deck.name };
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = Validated(z.coerce.number().safeParse(body.get("id")));
     try {
-      await prisma.deck.delete({ where: { id } });
+      const deck = await prisma.deck.delete({
+        select: { name: true },
+        where: { id },
+      });
+      return { type: "delete", key: `delete-${id}`, name: deck.name };
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === "P2003") {
@@ -113,6 +124,7 @@ function CreateDeck({ users }: { users: User[] }) {
 }
 
 export default function Decks() {
+  const actionData = useActionData<typeof action>();
   const { decks, users } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const [open, setOpen] = React.useState(false);
@@ -149,6 +161,13 @@ export default function Decks() {
         handleClose={handleClose}
         title={"Möchtest du dieses Deck wirklich löschen?"}
       />
+
+      {actionData && (
+        <NotificationSnack
+          key={actionData.key}
+          message={`Deck ${actionData.name} ${actionData.type == "create" ? "angelegt" : "gelöscht"}`}
+        />
+      )}
     </Box>
   );
 }
