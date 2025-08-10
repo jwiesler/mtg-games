@@ -106,6 +106,7 @@ function StatsTable({
         <TableHead>
           <TableRow>
             <SortTableHead
+              key="name"
               order={order}
               orderBy={orderBy}
               sortKey="name"
@@ -117,6 +118,7 @@ function StatsTable({
             {HEADINGS.map(([key, heading]) => {
               return (
                 <SortTableHead
+                  key={key}
                   order={order}
                   orderBy={orderBy}
                   sortKey={key}
@@ -208,7 +210,7 @@ export default function Stats() {
         }}
       >
         <StatsTable values={decks} stats={stats.decks} linkPrefix="/decks/" />
-        <StatsTable values={users} stats={stats.players} />
+        <StatsTable values={users} stats={stats.players} linkPrefix="/players/" />
       </Box>
     </Box>
   );
