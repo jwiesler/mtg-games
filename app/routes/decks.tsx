@@ -18,7 +18,7 @@ import DestructionDialog from "~/components/DestructionDialog";
 import { EditDeck } from "~/components/EditDeck";
 import prisma from "~/db.server";
 import { Prisma, type User } from "~/generated/prisma/client";
-import { BadRequest, NotFound } from "~/responses";
+import { BadRequest, NotFound, Validated } from "~/responses";
 import { DeckSchema } from "~/types";
 
 export const meta: MetaFunction<typeof loader> = () => [
@@ -46,11 +46,7 @@ export const loader = async () => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
-    const s = DeckSchema.safeParse(Object.fromEntries(body));
-    if (!s.success) {
-      throw BadRequest("Failed to validate input");
-    }
-    const data = s.data;
+    const data = Validated(DeckSchema.safeParse(Object.fromEntries(body)));
     await prisma.deck.create({
       data: {
         name: data.name.trim() || data.commander.trim(),
@@ -64,12 +60,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   } else if (request.method == "DELETE") {
     const body = await request.formData();
-    const id = z.coerce.number().safeParse(body.get("id"));
-    if (!id.success) {
-      throw BadRequest("Failed to validate input");
-    }
+    const id = Validated(z.coerce.number().safeParse(body.get("id")));
     try {
-      await prisma.deck.delete({ where: { id: id.data } });
+      await prisma.deck.delete({ where: { id } });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === "P2003") {

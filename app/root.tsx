@@ -105,6 +105,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
+    console.log(error.data);
     message = error.status === 404 ? "404" : "Error";
     details =
       error.status === 404

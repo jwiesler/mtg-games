@@ -11,11 +11,12 @@ import {
   redirect,
   useLoaderData,
 } from "react-router";
+import z from "zod";
 
 import { EditDeck } from "~/components/EditDeck";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
-import { BadRequest, NotFound } from "~/responses";
+import { NotFound, Validated } from "~/responses";
 import { API } from "~/scryfall";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
@@ -61,6 +62,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
       id: true,
       when: true,
       duration: true,
+      comment: true,
       plays: {
         orderBy: {
           place: "asc",
@@ -94,11 +96,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const body = await request.formData();
   if (request.method === "POST") {
-    const s = DeckSchema.safeParse(Object.fromEntries(body));
-    if (!s.success) {
-      throw BadRequest("Failed to validate input");
-    }
-    const data = s.data;
+    const data = Validated(DeckSchema.safeParse(Object.fromEntries(body)));
     if (data.colors.trim() == "") {
       const card = await API.card(data.commander);
       if (card != null) {
@@ -118,7 +116,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       where: { id: Number(params.id) },
     });
   } else if (request.method === "DELETE") {
-    await prisma.deck.delete({ where: { id: Number(params.id) } });
+    const id = Validated(z.number().safeParse(params.id));
+    await prisma.deck.delete({ where: { id } });
     return redirect("/decks");
   } else {
     throw NotFound();

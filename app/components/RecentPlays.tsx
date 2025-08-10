@@ -30,6 +30,7 @@ interface Game {
   when: Date;
   id: number;
   duration: number;
+  comment: string;
 }
 
 export default function RecentPlays<G extends Game>({

@@ -31,7 +31,7 @@ import DestructionDialog from "~/components/DestructionDialog";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import { Prisma, type User } from "~/generated/prisma/client";
-import { BadRequest, NotFound } from "~/responses";
+import { BadRequest, NotFound, Validated } from "~/responses";
 import { comparingBy, useSortingStates } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [
@@ -53,19 +53,13 @@ export const loader = async () => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
-    const name = body.get("name");
-    if (name == null) {
-      throw BadRequest("Form field 'name' not found");
-    }
-    await prisma.user.create({ data: { name: name.toString() } });
+    const name = Validated(z.string().safeParse(body.get("name")));
+    await prisma.user.create({ data: { name } });
   } else if (request.method == "DELETE") {
     const body = await request.formData();
-    const id = z.coerce.number().safeParse(body.get("id"));
-    if (!id.success) {
-      throw BadRequest("Failed to parse id");
-    }
+    const id = Validated(z.coerce.number().safeParse(body.get("id")));
     try {
-      await prisma.user.delete({ where: { id: id.data } });
+      await prisma.user.delete({ where: { id } });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === "P2003") {

@@ -37,6 +37,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
       id: true,
       when: true,
       duration: true,
+      comment: true,
       plays: {
         orderBy: {
           place: "asc",

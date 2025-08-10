@@ -29,7 +29,7 @@ import GameResult from "~/components/GameResult";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import { FORMAT } from "~/format";
-import { BadRequest, NotFound } from "~/responses";
+import { NotFound, Validated } from "~/responses";
 import { comparingBy, useSortingStates } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [
@@ -58,6 +58,7 @@ export const loader = async () => {
       select: {
         id: true,
         when: true,
+        comment: true,
         duration: true,
         plays: {
           orderBy: {
@@ -74,50 +75,49 @@ export const loader = async () => {
   };
 };
 
+const SCHEMA = z.object({
+  when: z.iso.datetime(),
+  deckId: z.array(z.coerce.number()),
+  playerId: z.array(z.coerce.number()),
+  duration: z.coerce.number(),
+  comment: z.string(),
+});
+
 async function createOrEditGame(body: FormData) {
-  const rawWhen = z.iso.datetime().safeParse(body.get("when"));
-  const rawDeckIds = z
-    .array(z.coerce.number())
-    .safeParse(body.getAll("deckId"));
-  const rawPlayerIds = z
-    .array(z.coerce.number())
-    .safeParse(body.getAll("playerId"));
-  const rawDuration = z.coerce.number().safeParse(body.get("duration"));
-  if (
-    !rawWhen.success ||
-    !rawDeckIds.success ||
-    !rawPlayerIds.success ||
-    !rawDuration.success ||
-    rawDeckIds.data.length != rawPlayerIds.data.length
-  ) {
-    throw BadRequest("Failed to validate input");
-  }
-  const when = rawWhen.data;
-  const duration = rawDuration.data;
-  const deckIds = rawDeckIds.data;
-  const playerIds = rawPlayerIds.data;
-  const plays = deckIds.map((deckId, i) => {
+  const raw = {
+    when: body.get("when"),
+    deckId: body.getAll("deckId"),
+    playerId: body.getAll("playerId"),
+    duration: body.get("duration"),
+    comment: body.get("comment"),
+  };
+  const { when, duration, deckId, playerId, comment } = Validated(
+    SCHEMA.safeParse(raw),
+  );
+  const plays = deckId.map((deckId, i) => {
     return {
       deckId,
-      playerId: playerIds[i],
+      playerId: playerId[i],
       place: i + 1,
     };
   });
   const rawId = body.get("id");
   if (rawId !== null) {
-    const parsedId = z.coerce.number().safeParse(rawId);
-    if (!parsedId.success) {
-      throw BadRequest("Failed to validate input");
-    }
+    const id = Validated(z.coerce.number().safeParse(rawId));
     await prisma.$transaction([
-      prisma.game.delete({ where: { id: parsedId.data } }),
+      prisma.game.delete({ where: { id } }),
       prisma.game.create({
-        data: { when, duration, plays: { createMany: { data: plays } } },
+        data: {
+          when,
+          duration,
+          comment,
+          plays: { createMany: { data: plays } },
+        },
       }),
     ]);
   } else {
     await prisma.game.create({
-      data: { when, duration, plays: { createMany: { data: plays } } },
+      data: { when, duration, comment, plays: { createMany: { data: plays } } },
     });
   }
 }
@@ -125,14 +125,11 @@ async function createOrEditGame(body: FormData) {
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
-    createOrEditGame(body);
+    await createOrEditGame(body);
   } else if (request.method == "DELETE") {
     const body = await request.formData();
-    const id = z.coerce.number().safeParse(body.get("id"));
-    if (!id.success) {
-      throw BadRequest("Failed to validate input");
-    }
-    await prisma.game.delete({ where: { id: id.data } });
+    const id = Validated(z.coerce.number().safeParse(body.get("id")));
+    await prisma.game.delete({ where: { id } });
   } else {
     throw NotFound();
   }
@@ -333,6 +330,7 @@ export default function Games() {
     return {
       plays,
       when,
+      comment: "",
       duration: null,
     };
   };

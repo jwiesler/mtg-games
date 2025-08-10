@@ -27,6 +27,7 @@ export default function GameResult({
       deck: { id: number; name: string };
       player: { id: number; name: string };
     }[];
+    comment: string;
     duration: number;
   };
 }) {
@@ -65,6 +66,11 @@ export default function GameResult({
             ))}
           </TableBody>
         </Table>
+        {game.comment !== "" && (
+          <Typography sx={{ fontStyle: "italic", paddingTop: 1 }}>
+            {game.comment}
+          </Typography>
+        )}
       </Box>
     </>
   );

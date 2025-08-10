@@ -3,6 +3,7 @@ import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -27,6 +28,7 @@ export interface GameData {
   id?: number;
   when: Date | null;
   duration: number | null;
+  comment: string;
   plays: { player: User | null; deck: DeckDesc | null }[];
 }
 
@@ -209,6 +211,12 @@ export default function EditGame({
           type="hidden"
         />
         {mode == "edit" && <input name="id" type="hidden" value={game.id} />}
+        <TextField
+          name="comment"
+          label="Kommentar"
+          value={game.comment}
+          onChange={e => setGame({ ...game, comment: e.target.value })}
+        ></TextField>
         {game.plays.map(({ player, deck }, i) => (
           <EditPlay
             key={i}
