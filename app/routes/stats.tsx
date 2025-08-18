@@ -89,7 +89,6 @@ function StatsTable({
     if (orderBy == "name") {
       extract = (v: Deck) => v.name;
     } else {
-      console.log(orderBy);
       extract = (v: Deck) => {
         const s = stats.get(v.id);
         return s == undefined ? Number.MIN_SAFE_INTEGER : s[orderBy];

@@ -33,6 +33,9 @@ model Game {
   duration Int @default(0)
   plays    DeckPlay[]
   comment  String @default("")
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model User {
@@ -40,6 +43,9 @@ model User {
   name  String
   plays DeckPlay[]
   decks Deck[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model DeckPlay {

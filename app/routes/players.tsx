@@ -85,7 +85,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Users() {
   const { users } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  console.log(actionData);
   const [order, orderBy, onRequestSort] = useSortingStates("asc", "name");
   const sortedUsers = React.useMemo(() => {
     const extract = (v: User) => v.name;

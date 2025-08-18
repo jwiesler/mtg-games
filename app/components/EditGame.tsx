@@ -15,7 +15,6 @@ import { Form } from "react-router";
 
 import { IdInput } from "./IdInput";
 import Placing from "./Placing";
-import type { User } from "~/generated/prisma/client";
 import { compareBools } from "~/sort";
 
 export interface DeckDesc {
@@ -24,12 +23,17 @@ export interface DeckDesc {
   ownerId: number;
 }
 
+export interface UserDesc {
+  name: string;
+  id: number;
+}
+
 export interface GameData {
   id?: number;
   when: Date | null;
   duration: number | null;
   comment: string;
-  plays: { player: User | null; deck: DeckDesc | null }[];
+  plays: { player: UserDesc | null; deck: DeckDesc | null }[];
 }
 
 function EditPlay({
@@ -42,13 +46,13 @@ function EditPlay({
   disallowDelete,
 }: {
   i: number;
-  player: User | null;
+  player: UserDesc | null;
   deck: DeckDesc | null;
   replacePlay: (
     i: number,
-    w: { player: User | null; deck: DeckDesc | null } | null,
+    w: { player: UserDesc | null; deck: DeckDesc | null } | null,
   ) => void;
-  users: User[];
+  users: UserDesc[];
   decks: DeckDesc[];
   disallowDelete: boolean;
 }) {
@@ -147,14 +151,14 @@ export default function EditGame({
 }: {
   game: GameData;
   setGame: (game: GameData) => void;
-  users: User[];
+  users: UserDesc[];
   decks: DeckDesc[];
   onSubmit: () => void;
   mode: "create" | "edit";
 }) {
   const replacePlay = (
     i: number,
-    play: { player: User | null; deck: DeckDesc | null } | null,
+    play: { player: UserDesc | null; deck: DeckDesc | null } | null,
   ) => {
     const plays = [...game.plays];
     if (play !== null) {

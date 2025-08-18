@@ -1,7 +1,6 @@
 import { type ZodSafeParseResult } from "zod";
 
 export function BadRequest(text: string) {
-  console.log(text);
   return new Response("Bad request", { status: 400, statusText: text });
 }
 

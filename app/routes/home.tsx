@@ -260,22 +260,24 @@ export default function Home() {
           icon={<BarChartIcon sx={{ fill: "white", fontSize: 80 }} />}
         />
       </Box>
-      <Card variant="outlined">
-        <Box
-          sx={{
-            m: 2,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-            Die letzten Spiele
-          </Typography>
-          <RecentGames games={games} />
-        </Box>
-      </Card>
+      {games.length > 0 && (
+        <Card variant="outlined">
+          <Box
+            sx={{
+              m: 2,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+              Die letzten Spiele
+            </Typography>
+            <RecentGames games={games} />
+          </Box>
+        </Card>
+      )}
     </>
   );
 }
