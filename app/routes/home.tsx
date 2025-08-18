@@ -18,9 +18,9 @@ import type { ReactElement } from "react";
 import { useLoaderData } from "react-router";
 
 import CollapseRow from "~/components/CollapseRow";
+import DateElement from "~/components/DateElement";
 import GameResult from "~/components/GameResult";
 import prisma from "~/db.server";
-import { FORMAT } from "~/format";
 
 export function meta() {
   return [
@@ -192,7 +192,9 @@ function GameRow({ game }: { game: Game }) {
   return (
     <CollapseRow
       cells={[
-        <TableCell key="0">{FORMAT.format(game.when)}</TableCell>,
+        <TableCell key="0">
+          <DateElement date={game.when} />
+        </TableCell>,
         <TableCell key="1">{game.plays.length}</TableCell>,
       ]}
       inner={<GameResult game={game} />}

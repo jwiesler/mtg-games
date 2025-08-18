@@ -23,6 +23,7 @@ import {
 import z from "zod";
 
 import CollapseRow from "~/components/CollapseRow";
+import DateElement from "~/components/DateElement";
 import DestructionDialog from "~/components/DestructionDialog";
 import type { GameData } from "~/components/EditGame";
 import EditGame, { DEFAULT_PLAYS } from "~/components/EditGame";
@@ -30,7 +31,6 @@ import GameResult from "~/components/GameResult";
 import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
-import { FORMAT } from "~/format";
 import { NotFound, Validated } from "~/responses";
 import { comparingBy, useSortingStates } from "~/sort";
 
@@ -154,7 +154,9 @@ function GameRow({
   return (
     <CollapseRow
       cells={[
-        <TableCell key="0">{FORMAT.format(game.when)}</TableCell>,
+        <TableCell key="0">
+          <DateElement date={game.when} />
+        </TableCell>,
         <TableCell key="1">{game.plays.length}</TableCell>,
       ]}
       inner={

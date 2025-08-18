@@ -9,10 +9,10 @@ import TableRow from "@mui/material/TableRow";
 import React from "react";
 
 import CollapseRow from "./CollapseRow";
+import DateElement from "./DateElement";
 import GameResult from "./GameResult";
 import Placing from "./Placing";
 import { SortTableHead } from "./SortTableHead";
-import { FORMAT } from "~/format";
 import { comparingBy, useSortingStates } from "~/sort";
 
 interface Game {
@@ -112,7 +112,9 @@ export default function RecentPlays<G extends Game>({
                     <TableCell key="0">
                       <Placing place={game.indexOfValue + 1} />
                     </TableCell>,
-                    <TableCell key="1">{FORMAT.format(game.when)}</TableCell>,
+                    <TableCell key="1">
+                      <DateElement date={game.when} />
+                    </TableCell>,
                     <TableCell key="2">
                       {game.plays[game.indexOfValue][columnKey].name}
                     </TableCell>,
