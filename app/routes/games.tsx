@@ -17,6 +17,7 @@ import {
   type ActionFunctionArgs,
   type MetaFunction,
   useActionData,
+  useBeforeUnload,
   useLoaderData,
   useSubmit,
 } from "react-router";
@@ -332,6 +333,11 @@ export default function Games() {
   const { decks, users, games } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [open, setOpen] = React.useState(false);
+  useBeforeUnload(e => {
+    if (open) {
+      e.preventDefault();
+    }
+  });
   const [mode, setMode] = React.useState<"create" | "edit">("create");
   const createGame = () => {
     const plays = DEFAULT_PLAYS;
