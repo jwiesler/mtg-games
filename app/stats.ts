@@ -22,9 +22,15 @@ export interface PlayStats {
   placing_mode: number;
 }
 
-function calculatePlayStats(placings: Map<number, number[]>) {
+function calculatePlayStats(
+  placings: Map<number, number[]>,
+  minPlacings: number,
+) {
   const stats = new Map<number, PlayStats>();
   placings.forEach((placings, deck) => {
+    if (placings.length < minPlacings) {
+      return;
+    }
     placings.sort();
     let best = placings[0];
     let worst = placings[0];
@@ -52,9 +58,16 @@ function calculatePlayStats(placings: Map<number, number[]>) {
   return stats;
 }
 
-function getPlacings(games: Game[], e: (p: Play) => number) {
+function getPlacings(
+  games: Game[],
+  playersFilter: boolean[],
+  e: (p: Play) => number,
+) {
   const placings = new Map<number, number[]>();
   games.forEach(g => {
+    if (!playersFilter[g.plays.length - 1]) {
+      return;
+    }
     g.plays.forEach(p => {
       const id = e(p);
       const existing = placings.get(id);
@@ -68,17 +81,28 @@ function getPlacings(games: Game[], e: (p: Play) => number) {
   return placings;
 }
 
-function deckPlacings(games: Game[]) {
-  return getPlacings(games, p => p.deck.id);
+function deckPlacings(games: Game[], playersFilter: boolean[]) {
+  return getPlacings(games, playersFilter, p => p.deck.id);
 }
 
-function playerPlacings(games: Game[]) {
-  return getPlacings(games, p => p.player.id);
+function playerPlacings(games: Game[], playersFilter: boolean[]) {
+  return getPlacings(games, playersFilter, p => p.player.id);
 }
 
-export function calculate(games: Game[]) {
+export function calculate(
+  games: Game[],
+  playersFilter: boolean[],
+  minPlaysPerDeck: number,
+  minPlaysPerPlayer: number,
+) {
   return {
-    decks: calculatePlayStats(deckPlacings(games)),
-    players: calculatePlayStats(playerPlacings(games)),
+    decks: calculatePlayStats(
+      deckPlacings(games, playersFilter),
+      minPlaysPerDeck,
+    ),
+    players: calculatePlayStats(
+      playerPlacings(games, playersFilter),
+      minPlaysPerPlayer,
+    ),
   };
 }

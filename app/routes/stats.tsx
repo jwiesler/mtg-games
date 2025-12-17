@@ -1,12 +1,23 @@
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
 import Link from "@mui/material/Link";
+import MenuItem from "@mui/material/MenuItem";
+import OutlinedInput from "@mui/material/OutlinedInput";
 import Paper from "@mui/material/Paper";
+import Select, { type SelectChangeEvent } from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import { type MetaFunction, useLoaderData } from "react-router";
@@ -179,11 +190,73 @@ function StatsTable({
   );
 }
 
+function NumberSelect({
+  label,
+  selected,
+  setSelected,
+}: {
+  label: string;
+  max: number;
+  selected: boolean[];
+  setSelected: (selected: boolean[]) => void;
+}) {
+  const handleChange = (event: SelectChangeEvent<number[]>) => {
+    const {
+      target: { value },
+    } = event;
+    const values: number[] =
+      typeof value === "string" ? value.split(",").map(v => Number(v)) : value;
+    const res: boolean[] = Array(selected.length).fill(false);
+    for (let i = 0; i < values.length; i++) {
+      res[values[i]] = true;
+    }
+    setSelected(res);
+  };
+
+  const value: number[] = [];
+  for (let i = 0; i < selected.length; i++) {
+    if (selected[i]) {
+      value.push(i);
+    }
+  }
+
+  return (
+    <div>
+      <FormControl sx={{ width: "100%" }}>
+        <InputLabel>{label}</InputLabel>
+        <Select
+          multiple
+          value={value}
+          onChange={handleChange}
+          input={<OutlinedInput label={label} />}
+          // MenuProps={MenuProps}
+        >
+          {selected.map((v, j) => {
+            const i = j + 1;
+            return (
+              <MenuItem key={i} value={j}>
+                {i}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+    </div>
+  );
+}
+
 export default function Stats() {
   const { decks, users, games } = useLoaderData<typeof loader>();
+  const maxPlayers = Math.max(...games.map(g => g.plays.length));
+  const [playersFilter, setPlayersFilter] = React.useState<boolean[]>(
+    Array(maxPlayers).fill(true),
+  );
+  const [minPlaysPerDeck, setMinPlaysPerDeck] = React.useState(0);
+  const [minPlaysPerPlayer, setMinPlaysPerPlayer] = React.useState(0);
   const stats = React.useMemo(() => {
-    return calculate(games);
-  }, games);
+    return calculate(games, playersFilter, minPlaysPerDeck, minPlaysPerPlayer);
+  }, [games, playersFilter, minPlaysPerDeck, minPlaysPerPlayer]);
+  const [expanded, setExpanded] = React.useState(false);
   return (
     <Box
       sx={{
@@ -208,6 +281,36 @@ export default function Stats() {
           maxWidth: "100%",
         }}
       >
+        <Accordion
+          expanded={expanded}
+          onChange={(_, expanded) => setExpanded(expanded)}
+          sx={{ width: "100%" }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography>Filter</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Stack spacing={2}>
+              <NumberSelect
+                label="Anzahl Spieler"
+                max={6}
+                selected={playersFilter}
+                setSelected={setPlayersFilter}
+              />
+              <TextField
+                label="Mindestens X Spiele / Spieler"
+                value={minPlaysPerPlayer}
+                onChange={e => setMinPlaysPerPlayer(Number(e.target.value))}
+              />
+              <TextField
+                label="Mindestens X Spiele / Deck"
+                value={minPlaysPerDeck}
+                onChange={e => setMinPlaysPerDeck(Number(e.target.value))}
+              />
+            </Stack>
+          </AccordionDetails>
+        </Accordion>
+
         <StatsTable values={decks} stats={stats.decks} linkPrefix="/decks/" />
         <StatsTable
           values={users}
