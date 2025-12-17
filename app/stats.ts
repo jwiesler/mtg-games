@@ -22,7 +22,7 @@ export interface PlayStats {
   placing_mode: number;
 }
 
-function calcluatePlayStats(placings: Map<number, number[]>) {
+function calculatePlayStats(placings: Map<number, number[]>) {
   const stats = new Map<number, PlayStats>();
   placings.forEach((placings, deck) => {
     placings.sort();
@@ -78,7 +78,7 @@ function playerPlacings(games: Game[]) {
 
 export function calculate(games: Game[]) {
   return {
-    decks: calcluatePlayStats(deckPlacings(games)),
-    players: calcluatePlayStats(playerPlacings(games)),
+    decks: calculatePlayStats(deckPlacings(games)),
+    players: calculatePlayStats(playerPlacings(games)),
   };
 }
