@@ -91,17 +91,22 @@ function playerPlacings(games: Game[], playersFilter: boolean[]) {
 
 export function calculate(
   games: Game[],
-  playersFilter: boolean[],
+  playersFilter: number[],
   minPlaysPerDeck: number,
   minPlaysPerPlayer: number,
 ) {
+  const maxPlayers = Math.max(...games.map(g => g.plays.length));
+  const playerCountFilter = Array.from({ length: maxPlayers }, () => false);
+  for (const player of playersFilter) {
+    playerCountFilter[player] = true;
+  }
   return {
     decks: calculatePlayStats(
-      deckPlacings(games, playersFilter),
+      deckPlacings(games, playerCountFilter),
       minPlaysPerDeck,
     ),
     players: calculatePlayStats(
-      playerPlacings(games, playersFilter),
+      playerPlacings(games, playerCountFilter),
       minPlaysPerPlayer,
     ),
   };

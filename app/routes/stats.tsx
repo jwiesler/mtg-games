@@ -192,12 +192,14 @@ function StatsTable({
 
 function NumberSelect({
   label,
+  values,
   selected,
   setSelected,
 }: {
   label: string;
-  selected: boolean[];
-  setSelected: (selected: boolean[]) => void;
+  values: number[];
+  selected: number[];
+  setSelected: (selected: number[]) => void;
 }) {
   const handleChange = (event: SelectChangeEvent<number[]>) => {
     const {
@@ -205,19 +207,8 @@ function NumberSelect({
     } = event;
     const values: number[] =
       typeof value === "string" ? value.split(",").map(v => Number(v)) : value;
-    const res: boolean[] = Array(selected.length).fill(false);
-    for (let i = 0; i < values.length; i++) {
-      res[values[i]] = true;
-    }
-    setSelected(res);
+    setSelected(values);
   };
-
-  const value: number[] = [];
-  for (let i = 0; i < selected.length; i++) {
-    if (selected[i]) {
-      value.push(i);
-    }
-  }
 
   return (
     <div>
@@ -225,15 +216,13 @@ function NumberSelect({
         <InputLabel>{label}</InputLabel>
         <Select
           multiple
-          value={value}
+          value={selected}
           onChange={handleChange}
           input={<OutlinedInput label={label} />}
-          // MenuProps={MenuProps}
         >
-          {selected.map((v, j) => {
-            const i = j + 1;
+          {values.map(i => {
             return (
-              <MenuItem key={i} value={j}>
+              <MenuItem key={i} value={i}>
                 {i}
               </MenuItem>
             );
@@ -246,10 +235,14 @@ function NumberSelect({
 
 export default function Stats() {
   const { decks, users, games } = useLoaderData<typeof loader>();
+  const minPlayers = Math.min(...games.map(g => g.plays.length));
   const maxPlayers = Math.max(...games.map(g => g.plays.length));
-  const [playersFilter, setPlayersFilter] = React.useState<boolean[]>(
-    Array(maxPlayers).fill(true),
+  const allPlayerValues = Array.from(
+    { length: maxPlayers - minPlayers + 1 },
+    (_, i) => minPlayers + i,
   );
+  const [playersFilter, setPlayersFilter] =
+    React.useState<number[]>(allPlayerValues);
   const [minPlaysPerDeck, setMinPlaysPerDeck] = React.useState(3);
   const [minPlaysPerPlayer, setMinPlaysPerPlayer] = React.useState(3);
   const stats = React.useMemo(() => {
@@ -292,6 +285,7 @@ export default function Stats() {
             <Stack spacing={2}>
               <NumberSelect
                 label="Anzahl Spieler"
+                values={allPlayerValues}
                 selected={playersFilter}
                 setSelected={setPlayersFilter}
               />
