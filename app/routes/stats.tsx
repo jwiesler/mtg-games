@@ -196,7 +196,6 @@ function NumberSelect({
   setSelected,
 }: {
   label: string;
-  max: number;
   selected: boolean[];
   setSelected: (selected: boolean[]) => void;
 }) {
@@ -251,8 +250,8 @@ export default function Stats() {
   const [playersFilter, setPlayersFilter] = React.useState<boolean[]>(
     Array(maxPlayers).fill(true),
   );
-  const [minPlaysPerDeck, setMinPlaysPerDeck] = React.useState(0);
-  const [minPlaysPerPlayer, setMinPlaysPerPlayer] = React.useState(0);
+  const [minPlaysPerDeck, setMinPlaysPerDeck] = React.useState(3);
+  const [minPlaysPerPlayer, setMinPlaysPerPlayer] = React.useState(3);
   const stats = React.useMemo(() => {
     return calculate(games, playersFilter, minPlaysPerDeck, minPlaysPerPlayer);
   }, [games, playersFilter, minPlaysPerDeck, minPlaysPerPlayer]);
@@ -293,7 +292,6 @@ export default function Stats() {
             <Stack spacing={2}>
               <NumberSelect
                 label="Anzahl Spieler"
-                max={6}
                 selected={playersFilter}
                 setSelected={setPlayersFilter}
               />
