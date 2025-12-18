@@ -1,6 +1,9 @@
+import DownIcon from "@mui/icons-material/KeyboardArrowDown";
+import UpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -41,9 +44,12 @@ function EditPlay({
   player,
   deck,
   replacePlay,
+  swap,
   decks,
   users,
   disallowDelete,
+  up,
+  down,
 }: {
   i: number;
   player: UserDesc | null;
@@ -52,9 +58,12 @@ function EditPlay({
     i: number,
     w: { player: UserDesc | null; deck: DeckDesc | null } | null,
   ) => void;
+  swap: (i: number, dir: "up" | "down") => void;
   users: UserDesc[];
   decks: DeckDesc[];
   disallowDelete: boolean;
+  up: boolean;
+  down: boolean;
 }) {
   const [groupBy, sortedDecks] = React.useMemo(() => {
     if (player === null) {
@@ -78,7 +87,21 @@ function EditPlay({
             alignItems: "center",
           }}
         >
-          <Placing place={i + 1} />
+          <Stack spacing={2} sx={{ alignItems: "center" }}>
+            <IconButton
+              sx={{ visibility: up ? "visible" : "hidden" }}
+              onClick={() => swap(i, "up")}
+            >
+              <UpIcon />
+            </IconButton>
+            <Placing place={i + 1} />
+            <IconButton
+              sx={{ visibility: down ? "visible" : "hidden" }}
+              onClick={() => swap(i, "down")}
+            >
+              <DownIcon />
+            </IconButton>
+          </Stack>
           <Divider orientation="vertical" variant="middle" flexItem />
           <Stack spacing={2} sx={{ flexGrow: 1 }}>
             <IdInput
@@ -168,6 +191,14 @@ export default function EditGame({
     }
     setGame({ ...game, plays });
   };
+  const swap = (i: number, dir: "up" | "down") => {
+    const target = i + (dir === "up" ? -1 : 1);
+    const plays = [...game.plays];
+    const copy = plays[i];
+    plays[i] = plays[target];
+    plays[target] = copy;
+    setGame({ ...game, plays });
+  };
   const addPlay = () => {
     setGame({ ...game, plays: [...game.plays, DEFAULT_PLAY] });
   };
@@ -228,9 +259,12 @@ export default function EditGame({
             player={player}
             deck={deck}
             replacePlay={replacePlay}
+            swap={swap}
             users={users}
             decks={decks}
             disallowDelete={game.plays.length <= 1}
+            up={i > 0}
+            down={i < game.plays.length - 1}
           />
         ))}
         <Stack direction="row">
