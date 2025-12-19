@@ -144,9 +144,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 function GameRow({
   game,
   onEdit,
-  onDelete,
 }: {
-  onDelete: (id: number) => void;
   onEdit: (game: Game) => void;
   game: Game;
 }) {
@@ -169,9 +167,6 @@ function GameRow({
             >
               Bearbeiten
             </Button>
-            <Button color="error" onClick={() => onDelete(game.id)}>
-              Löschen
-            </Button>
           </Box>
         </>
       }
@@ -188,9 +183,6 @@ function GamesTable({
   games: Game[];
   onEdit: (game: Game) => void;
 }) {
-  const submit = useSubmit();
-  const [open, setOpen] = React.useState(false);
-  const [deleteGameId, setDeleteGameId] = React.useState<number | null>(null);
   const [order, orderBy, onRequestSort] = useSortingStates("desc", "when");
   const sortedGames = React.useMemo(() => {
     let extract;
@@ -201,12 +193,6 @@ function GamesTable({
     }
     return [...games].sort(comparingBy<Game, number | Date>(order, extract));
   }, [order, orderBy, games]);
-  const handleClose = (confirmed: boolean) => {
-    setOpen(false);
-    if (confirmed && deleteGameId) {
-      submit({ id: deleteGameId }, { method: "DELETE", replace: true });
-    }
-  };
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const sortedGamesSlice = sortedGames.slice(
@@ -240,23 +226,10 @@ function GamesTable({
           </TableHead>
           <TableBody>
             {sortedGamesSlice.map(game => (
-              <GameRow
-                key={game.id}
-                game={game}
-                onEdit={onEdit}
-                onDelete={() => {
-                  setDeleteGameId(game.id);
-                  setOpen(true);
-                }}
-              />
+              <GameRow key={game.id} game={game} onEdit={onEdit} />
             ))}
           </TableBody>
         </Table>
-        <DestructionDialog
-          open={open}
-          handleClose={handleClose}
-          title={"Möchtest du dieses Spiel wirklich löschen?"}
-        />
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
@@ -296,7 +269,7 @@ export default function Games() {
     };
   };
   const [game, setGame] = React.useState<GameData>(createGame);
-  const submit = () => {
+  const resetEditGame = () => {
     setGame(createGame());
     setMode("create");
     setOpen(false);
@@ -305,6 +278,15 @@ export default function Games() {
     setMode(mode);
     setGame(game);
     setOpen(true);
+  };
+  const submit = useSubmit();
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [deleteGameId, setDeleteGameId] = React.useState<number | null>(null);
+  const handleClose = (confirmed: boolean) => {
+    setDeleteOpen(false);
+    if (confirmed && deleteGameId) {
+      submit({ id: deleteGameId }, { method: "DELETE", replace: true });
+    }
   };
   return (
     <Box
@@ -338,7 +320,11 @@ export default function Games() {
             setGame={v => setGame(v)}
             users={users}
             decks={decks}
-            onSubmit={submit}
+            onSubmit={resetEditGame}
+            onDelete={() => {
+              setDeleteGameId(game.id as number);
+              setDeleteOpen(true);
+            }}
             mode={mode}
           />
         </Drawer>
@@ -346,6 +332,11 @@ export default function Games() {
       {games.length > 0 && (
         <GamesTable games={games} onEdit={g => openEditGame(g, "edit")} />
       )}
+      <DestructionDialog
+        open={deleteOpen}
+        handleClose={handleClose}
+        title={"Möchtest du dieses Spiel wirklich löschen?"}
+      />
       {actionData && (
         <NotificationSnack
           key={actionData.key}
