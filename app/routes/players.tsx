@@ -1,9 +1,6 @@
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
@@ -29,6 +26,7 @@ import {
 import z from "zod";
 
 import DestructionDialog from "~/components/DestructionDialog";
+import Drawer from "~/components/Drawer";
 import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
@@ -82,6 +80,44 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
+interface UserData {
+  id?: number;
+  name: string;
+}
+
+function EditUser({
+  user,
+  setUser,
+  onSubmit,
+  mode,
+}: {
+  user: UserData;
+  setUser: (user: UserData) => void;
+  onSubmit: () => void;
+  mode: "create" | "edit";
+}) {
+  if (mode == "edit" && user.id === undefined) {
+    throw new Error("user.id is not set in edit mode");
+  }
+  return (
+    <Form method="post" onSubmit={onSubmit}>
+      <Stack spacing={2}>
+        <TextField
+          name="name"
+          label="Name"
+          value={user.name}
+          onChange={e => setUser({ ...user, name: e.target.value })}
+          required={true}
+        />
+        {mode == "edit" && <input name="id" type="hidden" value={user.id} />}
+        <Button type="submit" disabled={user.name.length < 3} color="primary">
+          Speichern
+        </Button>
+      </Stack>
+    </Form>
+  );
+}
+
 export default function Users() {
   const { users } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -90,13 +126,14 @@ export default function Users() {
     const extract = (v: User) => v.name;
     return [...users].sort(comparingBy(order, extract));
   }, [users, order, orderBy]);
-  const [expanded, setExpanded] = React.useState(false);
-  const [name, setName] = React.useState("");
   const submit = useSubmit();
-  const [open, setOpen] = React.useState(false);
+  const [mode, setMode] = React.useState<"edit" | "create">("create");
+  const [user, setUser] = React.useState<UserData>({ name: "" });
+  const [userDrawerOpen, setUserDrawerOpen] = React.useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [deleteUserId, setDeleteUserId] = React.useState<number | null>(null);
   const handleClose = (confirmed: boolean) => {
-    setOpen(false);
+    setDeleteModalOpen(false);
     if (confirmed && deleteUserId) {
       submit({ id: deleteUserId }, { method: "DELETE", replace: true });
     }
@@ -107,6 +144,11 @@ export default function Users() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
   );
+  const openEditUser = (user: UserData, mode: "edit" | "create") => {
+    setUser(user);
+    setMode(mode);
+    setUserDrawerOpen(true);
+  };
   return (
     <Box
       sx={{
@@ -120,32 +162,21 @@ export default function Users() {
       <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
         Spieler
       </Typography>
-      <Accordion
-        expanded={expanded}
-        onChange={(_, expanded) => setExpanded(expanded)}
-        sx={{ width: "100%" }}
+      <Button onClick={() => openEditUser({ name: "" }, "create")}>
+        Spieler anlegen
+      </Button>
+      <Drawer
+        title={mode == "create" ? "Spieler anlegen" : "Spieler bearbeiten"}
+        open={userDrawerOpen}
+        onClose={() => setUserDrawerOpen(false)}
       >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-          <Typography>Spieler anlegen</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Form method="post" onSubmit={() => setName("")}>
-            <Stack>
-              <TextField
-                name="name"
-                label="Name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required={true}
-              />
-            </Stack>
-          </Form>
-        </AccordionDetails>
-      </Accordion>
+        <EditUser
+          user={user}
+          setUser={setUser}
+          onSubmit={() => setUserDrawerOpen(false)}
+          mode={mode}
+        />
+      </Drawer>
       <TableContainer component={Paper}>
         <Table stickyHeader={true}>
           <TableHead>
@@ -180,7 +211,7 @@ export default function Users() {
                     color="default"
                     onClick={() => {
                       setDeleteUserId(user.id);
-                      setOpen(true);
+                      setDeleteModalOpen(true);
                     }}
                   >
                     <DeleteIcon />
@@ -204,7 +235,7 @@ export default function Users() {
         }}
       />
       <DestructionDialog
-        open={open}
+        open={deleteModalOpen}
         handleClose={handleClose}
         title={"Möchtest du diesen Spieler wirklich löschen?"}
       />
