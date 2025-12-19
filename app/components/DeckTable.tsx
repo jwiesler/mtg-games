@@ -39,7 +39,7 @@ export function DeckTable({
     return [...decks].sort(comparingBy(order, extract));
   }, [order, orderBy, decks]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const sortedDecksSlice = sortedDecks.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
