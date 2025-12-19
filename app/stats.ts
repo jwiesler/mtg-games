@@ -58,16 +58,9 @@ function calculatePlayStats(
   return stats;
 }
 
-function getPlacings(
-  games: Game[],
-  playersFilter: boolean[],
-  e: (p: Play) => number,
-) {
+function getPlacings(games: Game[], e: (p: Play) => number) {
   const placings = new Map<number, number[]>();
   games.forEach(g => {
-    if (!playersFilter[g.plays.length]) {
-      return;
-    }
     g.plays.forEach(p => {
       const id = e(p);
       const existing = placings.get(id);
@@ -81,12 +74,21 @@ function getPlacings(
   return placings;
 }
 
-function deckPlacings(games: Game[], playersFilter: boolean[]) {
-  return getPlacings(games, playersFilter, p => p.deck.id);
+function deckPlacings(games: Game[]) {
+  return getPlacings(games, p => p.deck.id);
 }
 
-function playerPlacings(games: Game[], playersFilter: boolean[]) {
-  return getPlacings(games, playersFilter, p => p.player.id);
+function playerPlacings(games: Game[]) {
+  return getPlacings(games, p => p.player.id);
+}
+
+function filterGames(games: Game[], playersFilter: number[]) {
+  const maxPlayers = Math.max(...games.map(g => g.plays.length));
+  const playerCountFilter = Array.from({ length: maxPlayers }, () => false);
+  for (const players of playersFilter) {
+    playerCountFilter[players] = true;
+  }
+  return games.filter(g => playerCountFilter[g.plays.length]);
 }
 
 export function calculate(
@@ -95,18 +97,11 @@ export function calculate(
   minPlaysPerDeck: number,
   minPlaysPerPlayer: number,
 ) {
-  const maxPlayers = Math.max(...games.map(g => g.plays.length));
-  const playerCountFilter = Array.from({ length: maxPlayers }, () => false);
-  for (const players of playersFilter) {
-    playerCountFilter[players] = true;
-  }
+  const filteredGames = filterGames(games, playersFilter);
   return {
-    decks: calculatePlayStats(
-      deckPlacings(games, playerCountFilter),
-      minPlaysPerDeck,
-    ),
+    decks: calculatePlayStats(deckPlacings(filteredGames), minPlaysPerDeck),
     players: calculatePlayStats(
-      playerPlacings(games, playerCountFilter),
+      playerPlacings(filteredGames),
       minPlaysPerPlayer,
     ),
   };
