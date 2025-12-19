@@ -274,6 +274,7 @@ export default function Stats() {
           </AccordionSummary>
           <AccordionDetails>
             <GamesFilter filter={filter} setFilter={setFilter} />
+            <Button onClick={() => setFilter(defaultFilter)} color="error" sx={{ marginTop: "0.5em" }}>Reset</Button>
           </AccordionDetails>
         </Accordion>
 
