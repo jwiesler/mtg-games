@@ -65,7 +65,7 @@ function getPlacings(
 ) {
   const placings = new Map<number, number[]>();
   games.forEach(g => {
-    if (!playersFilter[g.plays.length - 1]) {
+    if (!playersFilter[g.plays.length]) {
       return;
     }
     g.plays.forEach(p => {
@@ -97,8 +97,8 @@ export function calculate(
 ) {
   const maxPlayers = Math.max(...games.map(g => g.plays.length));
   const playerCountFilter = Array.from({ length: maxPlayers }, () => false);
-  for (const player of playersFilter) {
-    playerCountFilter[player] = true;
+  for (const players of playersFilter) {
+    playerCountFilter[players] = true;
   }
   return {
     decks: calculatePlayStats(
