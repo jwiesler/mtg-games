@@ -1,4 +1,4 @@
-import DeleteIcon from "@mui/icons-material/DeleteOutline";
+import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -30,7 +30,7 @@ import Drawer from "~/components/Drawer";
 import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
-import { Prisma, type User } from "~/generated/prisma/client";
+import { Prisma } from "~/generated/prisma/client";
 import { BadRequest, NotFound, Validated } from "~/responses";
 import { comparingBy, useSortingStates } from "~/sort";
 
@@ -50,12 +50,29 @@ export const loader = async () => {
   };
 };
 
+export const UserSchema = z.object({
+  name: z.string(),
+  id: z.string().optional(),
+});
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
-    const name = Validated(z.string().safeParse(body.get("name")));
-    const user = await prisma.user.create({ data: { name } });
-    return { type: "create", key: `create-${user.id}`, name: user.name };
+    const requestedUser = Validated(
+      UserSchema.safeParse(Object.fromEntries(body)),
+    );
+    let user: { name: string; id: number };
+    if (requestedUser.id !== undefined) {
+      user = await prisma.user.update({
+        where: { id: Number(requestedUser.id) },
+        data: { name: requestedUser.name },
+      });
+    } else {
+      user = await prisma.user.create({ data: { name: requestedUser.name } });
+    }
+
+    const mode = requestedUser.id === undefined ? "create" : "update";
+    return { type: mode, key: `${mode}-${user.id}`, name: user.name };
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = Validated(z.coerce.number().safeParse(body.get("id")));
@@ -89,11 +106,13 @@ function EditUser({
   user,
   setUser,
   onSubmit,
+  onDelete,
   mode,
 }: {
   user: UserData;
   setUser: (user: UserData) => void;
   onSubmit: () => void;
+  onDelete: () => void;
   mode: "create" | "edit";
 }) {
   if (mode == "edit" && user.id === undefined) {
@@ -110,20 +129,29 @@ function EditUser({
           required={true}
         />
         {mode == "edit" && <input name="id" type="hidden" value={user.id} />}
-        <Button type="submit" disabled={user.name.length < 3} color="primary">
-          Speichern
-        </Button>
+        <Stack direction="row">
+          <Button type="submit" disabled={user.name.length < 3} color="primary">
+            Speichern
+          </Button>
+          {mode == "edit" && (
+            <Button color="error" onClick={onDelete}>
+              Löschen
+            </Button>
+          )}
+        </Stack>
       </Stack>
     </Form>
   );
 }
 
+type User = Awaited<ReturnType<typeof loader>>["users"][0];
+
 function UsersTable({
   users,
-  onUserDeleteClick,
+  onUserEditClick,
 }: {
-  users: Awaited<ReturnType<typeof loader>>["users"][0][];
-  onUserDeleteClick: (value: number) => void;
+  users: User[];
+  onUserEditClick: (user: User) => void;
 }) {
   const [order, orderBy, onRequestSort] = useSortingStates("asc", "name");
   const sortedUsers = React.useMemo(() => {
@@ -170,9 +198,9 @@ function UsersTable({
                   <IconButton
                     size="small"
                     color="default"
-                    onClick={() => onUserDeleteClick(user.id)}
+                    onClick={() => onUserEditClick(user)}
                   >
-                    <DeleteIcon />
+                    <EditIcon />
                   </IconButton>
                 </TableCell>
               </TableRow>
@@ -207,6 +235,7 @@ export default function Users() {
   const [deleteUserId, setDeleteUserId] = React.useState<number | null>(null);
   const handleClose = (confirmed: boolean) => {
     setDeleteModalOpen(false);
+    setUserDrawerOpen(false);
     if (confirmed && deleteUserId) {
       submit({ id: deleteUserId }, { method: "DELETE", replace: true });
     }
@@ -242,14 +271,17 @@ export default function Users() {
           user={user}
           setUser={setUser}
           onSubmit={() => setUserDrawerOpen(false)}
+          onDelete={() => {
+            setDeleteUserId(user.id as number);
+            setDeleteModalOpen(true);
+          }}
           mode={mode}
         />
       </Drawer>
       <UsersTable
         users={users}
-        onUserDeleteClick={u => {
-          setDeleteUserId(u);
-          setDeleteModalOpen(true);
+        onUserEditClick={user => {
+          openEditUser(user, "edit");
         }}
       />
       <DestructionDialog
@@ -264,7 +296,9 @@ export default function Users() {
           message={
             actionData.type == "create"
               ? `Spieler '${actionData.name}' angelegt`
-              : `Spieler '${actionData.name}' gelöscht`
+              : actionData.type == "update"
+                ? `Spieler '${actionData.name}' gespeichert`
+                : `Spieler '${actionData.name}' gelöscht`
           }
         />
       )}
