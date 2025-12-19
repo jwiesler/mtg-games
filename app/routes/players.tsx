@@ -118,14 +118,87 @@ function EditUser({
   );
 }
 
-export default function Users() {
-  const { users } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+function UsersTable({
+  users,
+  onUserDeleteClick,
+}: {
+  users: Awaited<ReturnType<typeof loader>>["users"][0][];
+  onUserDeleteClick: (value: number) => void;
+}) {
   const [order, orderBy, onRequestSort] = useSortingStates("asc", "name");
   const sortedUsers = React.useMemo(() => {
     const extract = (v: User) => v.name;
     return [...users].sort(comparingBy(order, extract));
   }, [users, order, orderBy]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
+  const sortedUsersSlice = sortedUsers.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
+  return (
+    <>
+      <TableContainer component={Paper}>
+        <Table stickyHeader={true}>
+          <TableHead>
+            <TableRow>
+              <TableCell width={"3em"}>#</TableCell>
+              <SortTableHead
+                order={order}
+                orderBy={orderBy}
+                sortKey="name"
+                onRequestSort={onRequestSort}
+              >
+                Name
+              </SortTableHead>
+              <TableCell width={"5em"}></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedUsersSlice.map((user, index) => (
+              <TableRow
+                key={user.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {page * rowsPerPage + index + 1}
+                </TableCell>
+                <TableCell>
+                  <Link href={`/players/${user.id}`}>{user.name}</Link>
+                </TableCell>
+                <TableCell>
+                  <IconButton
+                    size="small"
+                    color="default"
+                    onClick={() => onUserDeleteClick(user.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50]}
+        component="div"
+        count={sortedUsers.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(_, p) => setPage(p)}
+        onRowsPerPageChange={p => {
+          setRowsPerPage(parseInt(p.target.value, 10));
+          setPage(0);
+        }}
+      />
+    </>
+  );
+}
+
+export default function Users() {
+  const { users } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const [mode, setMode] = React.useState<"edit" | "create">("create");
   const [user, setUser] = React.useState<UserData>({ name: "" });
@@ -138,12 +211,7 @@ export default function Users() {
       submit({ id: deleteUserId }, { method: "DELETE", replace: true });
     }
   };
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const sortedUsersSlice = sortedUsers.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage,
-  );
+
   const openEditUser = (user: UserData, mode: "edit" | "create") => {
     setUser(user);
     setMode(mode);
@@ -177,61 +245,11 @@ export default function Users() {
           mode={mode}
         />
       </Drawer>
-      <TableContainer component={Paper}>
-        <Table stickyHeader={true}>
-          <TableHead>
-            <TableRow>
-              <TableCell width={"3em"}>#</TableCell>
-              <SortTableHead
-                order={order}
-                orderBy={orderBy}
-                sortKey="name"
-                onRequestSort={onRequestSort}
-              >
-                Name
-              </SortTableHead>
-              <TableCell width={"5em"}></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedUsersSlice.map((user, index) => (
-              <TableRow
-                key={user.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {page * rowsPerPage + index + 1}
-                </TableCell>
-                <TableCell>
-                  <Link href={`/players/${user.id}`}>{user.name}</Link>
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    size="small"
-                    color="default"
-                    onClick={() => {
-                      setDeleteUserId(user.id);
-                      setDeleteModalOpen(true);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50]}
-        component="div"
-        count={sortedUsers.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={(_, p) => setPage(p)}
-        onRowsPerPageChange={p => {
-          setRowsPerPage(parseInt(p.target.value, 10));
-          setPage(0);
+      <UsersTable
+        users={users}
+        onUserDeleteClick={u => {
+          setDeleteUserId(u);
+          setDeleteModalOpen(true);
         }}
       />
       <DestructionDialog
