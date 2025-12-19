@@ -82,10 +82,10 @@ function playerPlacings(games: Game[]) {
   return getPlacings(games, p => p.player.id);
 }
 
-function filterGames(games: Game[], playersFilter: number[]) {
-  const maxPlayers = Math.max(...games.map(g => g.plays.length));
+export function filterGames<G extends Game>(games: G[], filter: Filter): G[] {
+  const maxPlayers = Math.max(...filter.players);
   const playerCountFilter = Array.from({ length: maxPlayers }, () => false);
-  for (const players of playersFilter) {
+  for (const players of filter.players) {
     playerCountFilter[players] = true;
   }
   return games.filter(g => playerCountFilter[g.plays.length]);
@@ -112,7 +112,7 @@ export function createDefaultFilter(games: Game[]): Filter {
 }
 
 export function calculate(games: Game[], filter: Filter) {
-  const filteredGames = filterGames(games, filter.players);
+  const filteredGames = filterGames(games, filter);
   return {
     decks: calculatePlayStats(
       deckPlacings(filteredGames),

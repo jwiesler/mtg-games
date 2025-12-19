@@ -1,4 +1,5 @@
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import QuestionMark from "@mui/icons-material/QuestionMark";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -14,6 +15,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import { type MetaFunction, useLoaderData } from "react-router";
@@ -27,6 +29,7 @@ import {
   type PlayStats,
   calculate,
   createDefaultFilter,
+  filterGames,
 } from "~/stats";
 
 export const meta: MetaFunction<typeof loader> = () => [
@@ -42,6 +45,7 @@ export const loader = async () => {
     prisma.game.findMany({
       select: {
         id: true,
+        when: true,
         plays: {
           select: {
             player: { select: { id: true } },
@@ -231,6 +235,75 @@ function GamesFilter({
   );
 }
 
+function roundTime(date: Date) {
+  if (date.getHours() <= 5) {
+    date.setDate(date.getDate() - 1);
+  }
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function GeneralStats({
+  games,
+  filter,
+}: {
+  games: Awaited<ReturnType<typeof loader>>["games"];
+  filter: Filter;
+}) {
+  const stats = React.useMemo(() => {
+    const filtered = filterGames(games, filter);
+    const uniqueDays = new Set(filtered.map(g => roundTime(g.when).getTime()))
+      .size;
+    return [
+      { name: "Spiele", value: filtered.length },
+      {
+        name: "Tage",
+        value: uniqueDays,
+        hint: "Tage an denen gespielt wurde, Spiele bis 5 Uhr morgens gehören zum vorherigen Tag",
+      },
+    ];
+  }, [games, filter]);
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "1.5em",
+      }}
+    >
+      {stats.map(({ name, value, hint }) => (
+        <Paper variant="outlined" sx={{ p: "1em", width: "12em" }}>
+          <Stack spacing={2} sx={{ alignItems: "center" }}>
+            <Typography variant="h4" component="h1">
+              {value}
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "0.5em",
+              }}
+            >
+              <Typography variant="h5" component="h1">
+                {name}
+              </Typography>
+              {hint && (
+                <Tooltip title={hint}>
+                  <QuestionMark sx={{ fontSize: "1em" }} color="action" />
+                </Tooltip>
+              )}
+            </Box>
+          </Stack>
+        </Paper>
+      ))}
+    </Box>
+  );
+}
+
 export default function Stats() {
   const { decks, users, games } = useLoaderData<typeof loader>();
   const defaultFilter = React.useMemo(
@@ -274,10 +347,17 @@ export default function Stats() {
           </AccordionSummary>
           <AccordionDetails>
             <GamesFilter filter={filter} setFilter={setFilter} />
-            <Button onClick={() => setFilter(defaultFilter)} color="error" sx={{ marginTop: "0.5em" }}>Reset</Button>
+            <Button
+              onClick={() => setFilter(defaultFilter)}
+              color="error"
+              sx={{ marginTop: "0.5em" }}
+            >
+              Reset
+            </Button>
           </AccordionDetails>
         </Accordion>
 
+        <GeneralStats games={games} filter={filter} />
         <StatsTable values={decks} stats={stats.decks} linkPrefix="/decks/" />
         <StatsTable
           values={users}
