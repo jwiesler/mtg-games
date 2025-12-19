@@ -3,13 +3,9 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
+import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
-import MenuItem from "@mui/material/MenuItem";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import Paper from "@mui/material/Paper";
-import Select, { type SelectChangeEvent } from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -22,10 +18,16 @@ import Typography from "@mui/material/Typography";
 import React from "react";
 import { type MetaFunction, useLoaderData } from "react-router";
 
+import { NumberSelect } from "~/components/NumberSelect";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import { comparingBy, useSortingStates } from "~/sort";
-import { type PlayStats, calculate } from "~/stats";
+import {
+  type Filter,
+  type PlayStats,
+  calculate,
+  createDefaultFilter,
+} from "~/stats";
 
 export const meta: MetaFunction<typeof loader> = () => [
   {
@@ -190,64 +192,53 @@ function StatsTable({
   );
 }
 
-function NumberSelect({
-  label,
-  values,
-  selected,
-  setSelected,
+function GamesFilter({
+  filter,
+  setFilter,
 }: {
-  label: string;
-  values: number[];
-  selected: number[];
-  setSelected: (selected: number[]) => void;
+  filter: Filter;
+  setFilter: (value: Filter) => void;
 }) {
-  const handleChange = (event: SelectChangeEvent<number[]>) => {
-    const {
-      target: { value },
-    } = event;
-    const values: number[] =
-      typeof value === "string" ? value.split(",").map(v => Number(v)) : value;
-    setSelected(values);
-  };
-
   return (
-    <div>
-      <FormControl sx={{ width: "100%" }}>
-        <InputLabel>{label}</InputLabel>
-        <Select
-          multiple
-          value={selected}
-          onChange={handleChange}
-          input={<OutlinedInput label={label} />}
-        >
-          {values.map(i => {
-            return (
-              <MenuItem key={i} value={i}>
-                {i}
-              </MenuItem>
-            );
-          })}
-        </Select>
-      </FormControl>
-    </div>
+    <Stack spacing={2}>
+      <NumberSelect
+        label="Anzahl Spieler"
+        values={filter.existingPlayerCounts}
+        selected={filter.players}
+        setSelected={players => setFilter({ ...filter, players })}
+      />
+      <TextField
+        label="Mindestens X Spiele / Spieler"
+        value={filter.minPlaysPerPlayer}
+        onChange={e =>
+          setFilter({
+            ...filter,
+            minPlaysPerPlayer: Number(e.target.value),
+          })
+        }
+      />
+      <TextField
+        label="Mindestens X Spiele / Deck"
+        value={filter.minPlaysPerDeck}
+        onChange={e =>
+          setFilter({
+            ...filter,
+            minPlaysPerDeck: Number(e.target.value),
+          })
+        }
+      />
+    </Stack>
   );
 }
 
 export default function Stats() {
   const { decks, users, games } = useLoaderData<typeof loader>();
-  const minPlayers = Math.min(...games.map(g => g.plays.length));
-  const maxPlayers = Math.max(...games.map(g => g.plays.length));
-  const allPlayerValues = Array.from(
-    { length: maxPlayers - minPlayers + 1 },
-    (_, i) => minPlayers + i,
+  const defaultFilter = React.useMemo(
+    () => createDefaultFilter(games),
+    [games],
   );
-  const [playersFilter, setPlayersFilter] =
-    React.useState<number[]>(allPlayerValues);
-  const [minPlaysPerDeck, setMinPlaysPerDeck] = React.useState(3);
-  const [minPlaysPerPlayer, setMinPlaysPerPlayer] = React.useState(3);
-  const stats = React.useMemo(() => {
-    return calculate(games, playersFilter, minPlaysPerDeck, minPlaysPerPlayer);
-  }, [games, playersFilter, minPlaysPerDeck, minPlaysPerPlayer]);
+  const [filter, setFilter] = React.useState(defaultFilter);
+  const stats = React.useMemo(() => calculate(games, filter), [games, filter]);
   const [expanded, setExpanded] = React.useState(false);
   return (
     <Box
@@ -282,24 +273,7 @@ export default function Stats() {
             <Typography>Filter</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Stack spacing={2}>
-              <NumberSelect
-                label="Anzahl Spieler"
-                values={allPlayerValues}
-                selected={playersFilter}
-                setSelected={setPlayersFilter}
-              />
-              <TextField
-                label="Mindestens X Spiele / Spieler"
-                value={minPlaysPerPlayer}
-                onChange={e => setMinPlaysPerPlayer(Number(e.target.value))}
-              />
-              <TextField
-                label="Mindestens X Spiele / Deck"
-                value={minPlaysPerDeck}
-                onChange={e => setMinPlaysPerDeck(Number(e.target.value))}
-              />
-            </Stack>
+            <GamesFilter filter={filter} setFilter={setFilter} />
           </AccordionDetails>
         </Accordion>
 

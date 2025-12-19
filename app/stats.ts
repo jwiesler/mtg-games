@@ -91,18 +91,36 @@ function filterGames(games: Game[], playersFilter: number[]) {
   return games.filter(g => playerCountFilter[g.plays.length]);
 }
 
-export function calculate(
-  games: Game[],
-  playersFilter: number[],
-  minPlaysPerDeck: number,
-  minPlaysPerPlayer: number,
-) {
-  const filteredGames = filterGames(games, playersFilter);
+export interface Filter {
+  readonly existingPlayerCounts: number[];
+  players: number[];
+  minPlaysPerDeck: number;
+  minPlaysPerPlayer: number;
+}
+
+export function createDefaultFilter(games: Game[]): Filter {
+  const existingPlayerCounts = Array.from(
+    new Set(games.map(g => g.plays.length)),
+  );
+  existingPlayerCounts.sort();
   return {
-    decks: calculatePlayStats(deckPlacings(filteredGames), minPlaysPerDeck),
+    existingPlayerCounts,
+    players: existingPlayerCounts,
+    minPlaysPerDeck: 3,
+    minPlaysPerPlayer: 3,
+  };
+}
+
+export function calculate(games: Game[], filter: Filter) {
+  const filteredGames = filterGames(games, filter.players);
+  return {
+    decks: calculatePlayStats(
+      deckPlacings(filteredGames),
+      filter.minPlaysPerDeck,
+    ),
     players: calculatePlayStats(
       playerPlacings(filteredGames),
-      minPlaysPerPlayer,
+      filter.minPlaysPerPlayer,
     ),
   };
 }
