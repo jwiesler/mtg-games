@@ -1,8 +1,5 @@
-import CloseIcon from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import MuiDrawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -26,6 +23,7 @@ import z from "zod";
 import CollapseRow from "~/components/CollapseRow";
 import DateElement from "~/components/DateElement";
 import DestructionDialog from "~/components/DestructionDialog";
+import Drawer from "~/components/Drawer";
 import type { GameData } from "~/components/EditGame";
 import EditGame, { DEFAULT_PLAYS } from "~/components/EditGame";
 import GameResult from "~/components/GameResult";
@@ -273,59 +271,6 @@ function GamesTable({
         }}
       />
     </>
-  );
-}
-
-function Drawer({
-  children,
-  open,
-  onClose,
-  title,
-}: {
-  children: React.ReactNode;
-  open: boolean;
-  onClose: () => void;
-  title: string;
-}) {
-  return (
-    <MuiDrawer
-      open={open}
-      anchor="right"
-      onClose={onClose}
-      ModalProps={{
-        keepMounted: true,
-      }}
-    >
-      <Box
-        sx={{
-          width: "100vw",
-          maxWidth: "600px",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-        role="presentation"
-      >
-        <Box
-          sx={{
-            p: 2,
-            fontSize: "1.25em",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <IconButton onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-          <Typography variant="h6" component="h1">
-            {title}
-          </Typography>
-        </Box>
-        <Box sx={{ overflowY: "auto", p: 2, scrollbarWidth: "thin" }}>
-          {children}
-        </Box>
-      </Box>
-    </MuiDrawer>
   );
 }
 
