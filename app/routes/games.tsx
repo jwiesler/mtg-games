@@ -45,7 +45,7 @@ export const loader = async () => {
       orderBy: {
         name: "asc",
       },
-      select: { id: true, name: true, ownerId: true },
+      select: { id: true, name: true, ownerId: true, commander: true },
     }),
     users: await prisma.user.findMany({
       orderBy: {
@@ -68,7 +68,9 @@ export const loader = async () => {
           select: {
             place: true,
             player: { select: { name: true, id: true } },
-            deck: { select: { name: true, id: true, ownerId: true } },
+            deck: {
+              select: { name: true, id: true, ownerId: true, commander: true },
+            },
           },
         },
       },

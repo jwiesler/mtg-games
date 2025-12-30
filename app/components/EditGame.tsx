@@ -1,5 +1,6 @@
 import DownIcon from "@mui/icons-material/KeyboardArrowDown";
 import UpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { createFilterOptions } from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
@@ -23,6 +24,7 @@ import { compareBools } from "~/sort";
 export interface DeckDesc {
   id: number;
   name: string;
+  commander: string;
   ownerId: number;
 }
 
@@ -120,6 +122,9 @@ function EditPlay({
               onInputChange={value => replacePlay(i, { deck: value, player })}
               groupBy={groupBy}
               getOptionLabel={value => value.name}
+              filterOptions={createFilterOptions({
+                stringify: value => `${value.name} ${value.commander}`,
+              })}
               name="deck"
               idName="deckId"
               label="Deck"

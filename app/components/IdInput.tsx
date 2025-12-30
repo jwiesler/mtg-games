@@ -1,3 +1,4 @@
+import type { FilterOptionsState } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { Fragment } from "react/jsx-runtime";
@@ -16,6 +17,7 @@ export interface InputProps<I extends Input> {
   onInputChange: (user: I | null) => void;
   getOptionLabel: (value: I) => string;
   groupBy?: (value: I) => string;
+  filterOptions?: (options: I[], state: FilterOptionsState<I>) => I[];
 }
 
 export function IdInput<I extends Input>({
@@ -28,6 +30,7 @@ export function IdInput<I extends Input>({
   onInputChange,
   getOptionLabel,
   groupBy,
+  filterOptions,
 }: InputProps<I>) {
   return (
     <Fragment>
@@ -43,6 +46,7 @@ export function IdInput<I extends Input>({
         }}
         groupBy={groupBy}
         isOptionEqualToValue={(a, b) => a.id == b.id}
+        filterOptions={filterOptions}
         renderInput={params => (
           <TextField
             {...params}
