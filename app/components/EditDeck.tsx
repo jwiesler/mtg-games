@@ -8,6 +8,7 @@ import React from "react";
 import { Form } from "react-router";
 
 import { IdInput } from "./IdInput";
+import NumberField from "~/components/NumberField";
 import type { User } from "~/generated/prisma/client";
 
 interface Deck {
@@ -141,15 +142,14 @@ export function EditDeck({
           value={colors}
           onChange={e => setColors(e.target.value)}
         />
-        <TextField
-          type="number"
+        <NumberField
           name="bracket"
           label="Bracket"
+          min={1}
+          max={5}
           required={true}
           value={bracket}
-          onChange={e =>
-            setBracket(e.target.value === "" ? null : Number(e.target.value))
-          }
+          onValueChange={v => setBracket(v)}
         />
         <TextField
           name="description"

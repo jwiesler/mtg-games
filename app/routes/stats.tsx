@@ -14,12 +14,12 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import { type MetaFunction, useLoaderData } from "react-router";
 
+import NumberField from "~/components/NumberField";
 import { NumberSelect } from "~/components/NumberSelect";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
@@ -213,28 +213,33 @@ function GamesFilter({
         selected={filter.players || []}
         setSelected={players => setFilter({ ...filter, players })}
       />
-      <TextField
+      <NumberField
         label="Mindestens X Spiele / Spieler"
-        value={filter.minPlaysPerPlayer || null}
-        type="number"
+        value={
+          filter.minPlaysPerPlayer === undefined
+            ? null
+            : filter.minPlaysPerPlayer
+        }
+        min={0}
         required={true}
-        onChange={e =>
+        onValueChange={v =>
           setFilter({
             ...filter,
-            minPlaysPerPlayer: Number(e.target.value),
+            minPlaysPerPlayer: v == null ? undefined : v,
           })
         }
       />
-      <TextField
+      <NumberField
         label="Mindestens X Spiele / Deck"
-        value={filter.minPlaysPerDeck || null}
-        type="number"
+        value={
+          filter.minPlaysPerDeck === undefined ? null : filter.minPlaysPerDeck
+        }
+        min={0}
         required={true}
-        onChange={e =>
+        onValueChange={v =>
           setFilter({
             ...filter,
-            minPlaysPerDeck:
-              e.target.value === "" ? undefined : Number(e.target.value),
+            minPlaysPerDeck: v == null ? undefined : v,
           })
         }
       />
@@ -317,7 +322,8 @@ export default function Stats() {
     () => createDefaultFilter(games),
     [games],
   );
-  const [partialFilter, setFilter] = React.useState<PartialFilter>(defaultFilter);
+  const [partialFilter, setFilter] =
+    React.useState<PartialFilter>(defaultFilter);
   const filter = { ...defaultFilter, partialFilter };
   const stats = React.useMemo(() => calculate(games, filter), [games, filter]);
   const [expanded, setExpanded] = React.useState(false);
