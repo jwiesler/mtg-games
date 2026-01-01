@@ -1,4 +1,5 @@
 import Check from "@mui/icons-material/Check";
+import Delete from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -106,12 +107,10 @@ interface UserData {
 function EditUser({
   user,
   setUser,
-  onDelete,
   mode,
 }: {
   user: UserData;
   setUser: (user: UserData) => void;
-  onDelete: () => void;
   mode: "create" | "edit";
 }) {
   if (mode == "edit" && user.id === undefined) {
@@ -127,11 +126,6 @@ function EditUser({
         required={true}
       />
       {mode == "edit" && <input name="id" type="hidden" value={user.id} />}
-      {mode == "edit" && (
-        <Button color="error" onClick={onDelete}>
-          Löschen
-        </Button>
-      )}
     </Stack>
   );
 }
@@ -219,10 +213,12 @@ function UsersTable({
 function EditDrawer({
   open,
   setOpen,
+  onDelete,
   ...args
 }: {
   open: boolean;
   setOpen: (value: ((prevState: boolean) => boolean) | boolean) => void;
+  onDelete: () => void;
 } & Parameters<typeof EditUser>[0]) {
   return (
     <Drawer.Root open={open} onClose={() => setOpen(false)}>
@@ -233,6 +229,11 @@ function EditDrawer({
             args.mode == "create" ? "Spieler anlegen" : "Spieler bearbeiten"
           }
         >
+          {args.mode == "edit" && (
+            <IconButton onClick={onDelete}>
+              <Delete />
+            </IconButton>
+          )}
           <IconButton
             type="submit"
             disabled={args.user.name.length < 3}
@@ -260,7 +261,9 @@ export default function Users() {
   const [deleteUserId, setDeleteUserId] = React.useState<number | null>(null);
   const handleClose = (confirmed: boolean) => {
     setDeleteModalOpen(false);
-    setUserDrawerOpen(false);
+    if (confirmed) {
+      setUserDrawerOpen(false);
+    }
     if (confirmed && deleteUserId) {
       submit({ id: deleteUserId }, { method: "DELETE", replace: true });
     }

@@ -1,4 +1,5 @@
 import Check from "@mui/icons-material/Check";
+import Delete from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -256,11 +257,13 @@ function EditDrawer({
   open,
   setOpen,
   onSubmit,
+  onDelete,
   ...args
 }: {
   open: boolean;
   setOpen: (value: boolean) => void;
   onSubmit: () => void;
+  onDelete: () => void;
 } & Parameters<typeof EditGame>[0]) {
   return (
     <Drawer.Root open={open} onClose={() => setOpen(false)}>
@@ -269,6 +272,11 @@ function EditDrawer({
           onClose={() => setOpen(false)}
           title={args.mode == "create" ? "Spiel anlegen" : "Spiel bearbeiten"}
         >
+          {args.mode == "edit" && (
+            <IconButton onClick={onDelete}>
+              <Delete />
+            </IconButton>
+          )}
           <IconButton type="submit" color="primary">
             <Check />
           </IconButton>
@@ -318,6 +326,9 @@ export default function Games() {
   const [deleteGameId, setDeleteGameId] = React.useState<number | null>(null);
   const handleClose = (confirmed: boolean) => {
     setDeleteOpen(false);
+    if (confirmed) {
+      setOpen(false);
+    }
     if (confirmed && deleteGameId) {
       submit({ id: deleteGameId }, { method: "DELETE", replace: true });
     }

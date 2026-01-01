@@ -173,14 +173,12 @@ export default function EditGame({
   setGame,
   users,
   decks,
-  onDelete,
   mode,
 }: {
   game: GameData;
   setGame: (game: GameData) => void;
   users: UserDesc[];
   decks: DeckDesc[];
-  onDelete: () => void;
   mode: "create" | "edit";
 }) {
   const replacePlay = (
@@ -268,12 +266,6 @@ export default function EditGame({
         <Button color="warning" onClick={() => addPlay()}>
           Mitspieler hinzufügen
         </Button>
-
-        {mode == "edit" && (
-          <Button color="error" onClick={onDelete}>
-            Löschen
-          </Button>
-        )}
       </Stack>
     </Stack>
   );
