@@ -15,7 +15,6 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { de } from "date-fns/locale";
 import React from "react";
-import { Form } from "react-router";
 
 import { IdInput } from "./IdInput";
 import Placing from "./Placing";
@@ -174,7 +173,6 @@ export default function EditGame({
   setGame,
   users,
   decks,
-  onSubmit,
   onDelete,
   mode,
 }: {
@@ -182,7 +180,6 @@ export default function EditGame({
   setGame: (game: GameData) => void;
   users: UserDesc[];
   decks: DeckDesc[];
-  onSubmit: () => void;
   onDelete: () => void;
   mode: "create" | "edit";
 }) {
@@ -213,86 +210,71 @@ export default function EditGame({
     throw new Error("game.id is not set in edit mode");
   }
   return (
-    <Form method="post" onSubmit={onSubmit}>
-      <Stack spacing={2}>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
-          <DateTimePicker
-            value={game.when}
-            onChange={v => v != null && setGame({ ...game, when: v })}
-            timezone="Europe/Berlin"
-            label="Zeit"
-            viewRenderers={{
-              hours: renderTimeViewClock,
-              minutes: renderTimeViewClock,
-              seconds: renderTimeViewClock,
-            }}
-          />
-          <TimePicker
-            timezone="Europe/Berlin"
-            value={
-              game.duration == null ? null : dateFromSeconds(game.duration)
-            }
-            onChange={v =>
-              v != null && setGame({ ...game, duration: secondsFromDate(v) })
-            }
-            label="Dauer"
-            viewRenderers={{
-              hours: renderTimeViewClock,
-              minutes: renderTimeViewClock,
-            }}
-          />
-        </LocalizationProvider>
-        <input
-          name="when"
-          value={game.when?.toISOString() || ""}
-          type="hidden"
+    <Stack spacing={2}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
+        <DateTimePicker
+          value={game.when}
+          onChange={v => v != null && setGame({ ...game, when: v })}
+          timezone="Europe/Berlin"
+          label="Zeit"
+          viewRenderers={{
+            hours: renderTimeViewClock,
+            minutes: renderTimeViewClock,
+            seconds: renderTimeViewClock,
+          }}
         />
-        <input
-          name="duration"
-          value={game.duration == null ? "" : game.duration}
-          type="hidden"
+        <TimePicker
+          timezone="Europe/Berlin"
+          value={game.duration == null ? null : dateFromSeconds(game.duration)}
+          onChange={v =>
+            v != null && setGame({ ...game, duration: secondsFromDate(v) })
+          }
+          label="Dauer"
+          viewRenderers={{
+            hours: renderTimeViewClock,
+            minutes: renderTimeViewClock,
+          }}
         />
-        {mode == "edit" && <input name="id" type="hidden" value={game.id} />}
-        <TextField
-          name="comment"
-          label="Kommentar"
-          value={game.comment}
-          onChange={e => setGame({ ...game, comment: e.target.value })}
-        ></TextField>
-        {game.plays.map(({ player, deck }, i) => (
-          <EditPlay
-            key={i}
-            i={i}
-            player={player}
-            deck={deck}
-            replacePlay={replacePlay}
-            swap={swap}
-            users={users}
-            decks={decks}
-            disallowDelete={game.plays.length <= 1}
-            up={i > 0}
-            down={i < game.plays.length - 1}
-          />
-        ))}
-        <Stack direction="row">
-          <Button color="warning" onClick={() => addPlay()}>
-            Mitspieler hinzufügen
-          </Button>
+      </LocalizationProvider>
+      <input name="when" value={game.when?.toISOString() || ""} type="hidden" />
+      <input
+        name="duration"
+        value={game.duration == null ? "" : game.duration}
+        type="hidden"
+      />
+      {mode == "edit" && <input name="id" type="hidden" value={game.id} />}
+      <TextField
+        name="comment"
+        label="Kommentar"
+        value={game.comment}
+        onChange={e => setGame({ ...game, comment: e.target.value })}
+      ></TextField>
+      {game.plays.map(({ player, deck }, i) => (
+        <EditPlay
+          key={i}
+          i={i}
+          player={player}
+          deck={deck}
+          replacePlay={replacePlay}
+          swap={swap}
+          users={users}
+          decks={decks}
+          disallowDelete={game.plays.length <= 1}
+          up={i > 0}
+          down={i < game.plays.length - 1}
+        />
+      ))}
+      <Stack>
+        <Button color="warning" onClick={() => addPlay()}>
+          Mitspieler hinzufügen
+        </Button>
 
-          <Button
-            type="submit"
-            disabled={game.plays.length <= 1}
-            color="primary"
-          >
-            Speichern
+        {mode == "edit" && (
+          <Button color="error" onClick={onDelete}>
+            Löschen
           </Button>
-          {mode == "edit" && (
-            <Button color="error" onClick={onDelete}>
-              Löschen
-            </Button>
-          )}
-        </Stack>
+        )}
       </Stack>
-    </Form>
+    </Stack>
   );
 }

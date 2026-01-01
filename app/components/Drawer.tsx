@@ -5,16 +5,51 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import React from "react";
 
-export default function Drawer({
+export function Header({
   children,
-  open,
   onClose,
   title,
 }: {
   children: React.ReactNode;
-  open: boolean;
   onClose: () => void;
   title: string;
+}) {
+  return (
+    <Box
+      sx={{
+        p: 2,
+        fontSize: "1.25em",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      <IconButton onClick={onClose}>
+        <CloseIcon />
+      </IconButton>
+      <Typography variant="h6" component="h1" flexGrow={1}>
+        {title}
+      </Typography>
+      {children}
+    </Box>
+  );
+}
+
+export function Body({ children }: { children: React.ReactNode }) {
+  return (
+    <Box sx={{ overflowY: "auto", p: 2, scrollbarWidth: "thin" }}>
+      {children}
+    </Box>
+  );
+}
+
+export function Root({
+  children,
+  open,
+  onClose,
+}: {
+  children: React.ReactNode;
+  open: boolean;
+  onClose: () => void;
 }) {
   return (
     <MuiDrawer
@@ -35,25 +70,14 @@ export default function Drawer({
         }}
         role="presentation"
       >
-        <Box
-          sx={{
-            p: 2,
-            fontSize: "1.25em",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <IconButton onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-          <Typography variant="h6" component="h1">
-            {title}
-          </Typography>
-        </Box>
-        <Box sx={{ overflowY: "auto", p: 2, scrollbarWidth: "thin" }}>
-          {children}
-        </Box>
+        {children}
       </Box>
     </MuiDrawer>
   );
 }
+
+export default {
+  Root,
+  Header,
+  Body,
+};

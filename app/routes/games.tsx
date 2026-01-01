@@ -1,5 +1,7 @@
+import Check from "@mui/icons-material/Check";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,6 +14,7 @@ import Typography from "@mui/material/Typography";
 import React from "react";
 import {
   type ActionFunctionArgs,
+  Form,
   type MetaFunction,
   useActionData,
   useBeforeUnload,
@@ -249,6 +252,35 @@ function GamesTable({
   );
 }
 
+function EditDrawer({
+  open,
+  setOpen,
+  onSubmit,
+  ...args
+}: {
+  open: boolean;
+  setOpen: (value: boolean) => void;
+  onSubmit: () => void;
+} & Parameters<typeof EditGame>[0]) {
+  return (
+    <Drawer.Root open={open} onClose={() => setOpen(false)}>
+      <Form method="post" onSubmit={onSubmit}>
+        <Drawer.Header
+          onClose={() => setOpen(false)}
+          title={args.mode == "create" ? "Spiel anlegen" : "Spiel bearbeiten"}
+        >
+          <IconButton type="submit" color="primary">
+            <Check />
+          </IconButton>
+        </Drawer.Header>
+        <Drawer.Body>
+          <EditGame {...args} />
+        </Drawer.Body>
+      </Form>
+    </Drawer.Root>
+  );
+}
+
 export default function Games() {
   const { decks, users, games } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -312,24 +344,20 @@ export default function Games() {
       ) : users.length == 0 ? (
         "Es muss erst mindestens ein Spieler eingetragen sein"
       ) : (
-        <Drawer
-          title={mode == "create" ? "Spiel anlegen" : "Spiel bearbeiten"}
+        <EditDrawer
           open={open}
-          onClose={() => setOpen(false)}
-        >
-          <EditGame
-            game={game}
-            setGame={v => setGame(v)}
-            users={users}
-            decks={decks}
-            onSubmit={resetEditGame}
-            onDelete={() => {
-              setDeleteGameId(game.id as number);
-              setDeleteOpen(true);
-            }}
-            mode={mode}
-          />
-        </Drawer>
+          setOpen={setOpen}
+          onSubmit={resetEditGame}
+          mode={mode}
+          game={game}
+          setGame={setGame}
+          users={users}
+          decks={decks}
+          onDelete={() => {
+            setDeleteGameId(game.id as number);
+            setDeleteOpen(true);
+          }}
+        />
       )}
       {games.length > 0 && (
         <GamesTable games={games} onEdit={g => openEditGame(g, "edit")} />

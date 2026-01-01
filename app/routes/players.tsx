@@ -1,3 +1,4 @@
+import Check from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -105,13 +106,11 @@ interface UserData {
 function EditUser({
   user,
   setUser,
-  onSubmit,
   onDelete,
   mode,
 }: {
   user: UserData;
   setUser: (user: UserData) => void;
-  onSubmit: () => void;
   onDelete: () => void;
   mode: "create" | "edit";
 }) {
@@ -119,28 +118,21 @@ function EditUser({
     throw new Error("user.id is not set in edit mode");
   }
   return (
-    <Form method="post" onSubmit={onSubmit}>
-      <Stack spacing={2}>
-        <TextField
-          name="name"
-          label="Name"
-          value={user.name}
-          onChange={e => setUser({ ...user, name: e.target.value })}
-          required={true}
-        />
-        {mode == "edit" && <input name="id" type="hidden" value={user.id} />}
-        <Stack direction="row">
-          <Button type="submit" disabled={user.name.length < 3} color="primary">
-            Speichern
-          </Button>
-          {mode == "edit" && (
-            <Button color="error" onClick={onDelete}>
-              Löschen
-            </Button>
-          )}
-        </Stack>
-      </Stack>
-    </Form>
+    <Stack spacing={2}>
+      <TextField
+        name="name"
+        label="Name"
+        value={user.name}
+        onChange={e => setUser({ ...user, name: e.target.value })}
+        required={true}
+      />
+      {mode == "edit" && <input name="id" type="hidden" value={user.id} />}
+      {mode == "edit" && (
+        <Button color="error" onClick={onDelete}>
+          Löschen
+        </Button>
+      )}
+    </Stack>
   );
 }
 
@@ -224,6 +216,39 @@ function UsersTable({
   );
 }
 
+function EditDrawer({
+  open,
+  setOpen,
+  ...args
+}: {
+  open: boolean;
+  setOpen: (value: ((prevState: boolean) => boolean) | boolean) => void;
+} & Parameters<typeof EditUser>[0]) {
+  return (
+    <Drawer.Root open={open} onClose={() => setOpen(false)}>
+      <Form method="post" onSubmit={() => setOpen(false)}>
+        <Drawer.Header
+          onClose={() => setOpen(false)}
+          title={
+            args.mode == "create" ? "Spieler anlegen" : "Spieler bearbeiten"
+          }
+        >
+          <IconButton
+            type="submit"
+            disabled={args.user.name.length < 3}
+            color="primary"
+          >
+            <Check />
+          </IconButton>
+        </Drawer.Header>
+        <Drawer.Body>
+          <EditUser {...args} />
+        </Drawer.Body>
+      </Form>
+    </Drawer.Root>
+  );
+}
+
 export default function Users() {
   const { users } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -262,22 +287,17 @@ export default function Users() {
       <Button onClick={() => openEditUser({ name: "" }, "create")}>
         Spieler anlegen
       </Button>
-      <Drawer
-        title={mode == "create" ? "Spieler anlegen" : "Spieler bearbeiten"}
+      <EditDrawer
         open={userDrawerOpen}
-        onClose={() => setUserDrawerOpen(false)}
-      >
-        <EditUser
-          user={user}
-          setUser={setUser}
-          onSubmit={() => setUserDrawerOpen(false)}
-          onDelete={() => {
-            setDeleteUserId(user.id as number);
-            setDeleteModalOpen(true);
-          }}
-          mode={mode}
-        />
-      </Drawer>
+        setOpen={setUserDrawerOpen}
+        mode={mode}
+        user={user}
+        setUser={setUser}
+        onDelete={() => {
+          setDeleteUserId(user.id as number);
+          setDeleteModalOpen(true);
+        }}
+      />
       <UsersTable
         users={users}
         onUserEditClick={user => {
