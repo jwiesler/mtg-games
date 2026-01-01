@@ -31,7 +31,7 @@ export default function DestructionDialog({
         <Button onClick={() => handleClose(true)} autoFocus color="error">
           Ok
         </Button>
-        <Button onClick={() => handleClose(false)}>Cancel</Button>
+        <Button onClick={() => handleClose(false)}>Abbrechen</Button>
       </DialogActions>
     </Dialog>
   );
