@@ -20,7 +20,7 @@ interface Deck {
   url: string;
 }
 
-const autocompletions = debounce(
+const autoCompletions = debounce(
   async (input: string, callback: (results: string[]) => void) => {
     const url = new URL("https://api.scryfall.com/cards/autocomplete");
     url.searchParams.append("q", input);
@@ -43,7 +43,7 @@ export function EditDeck({
 }) {
   const [name, setName] = React.useState<string>(deck.name);
   const [owner, setOwner] = React.useState<User | null>(deck.owner);
-  const [bracket, setBracket] = React.useState<number>(deck.bracket);
+  const [bracket, setBracket] = React.useState<number | null>(deck.bracket);
   const [colors, setColors] = React.useState<string>(deck.colors);
   const [url, setUrl] = React.useState<string>(deck.url);
   const [description, setDescription] = React.useState<string>(
@@ -69,7 +69,7 @@ export function EditDeck({
   React.useEffect(() => {
     let discardLoad = false;
     setLoading(true);
-    autocompletions(commander, options => {
+    autoCompletions(commander, options => {
       if (discardLoad) {
         return;
       }
@@ -145,8 +145,11 @@ export function EditDeck({
           type="number"
           name="bracket"
           label="Bracket"
+          required={true}
           value={bracket}
-          onChange={e => setBracket(Number(e.target.value))}
+          onChange={e =>
+            setBracket(e.target.value === "" ? null : Number(e.target.value))
+          }
         />
         <TextField
           name="description"

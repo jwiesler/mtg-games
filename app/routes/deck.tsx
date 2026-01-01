@@ -24,9 +24,9 @@ import { API } from "~/scryfall";
 import type { Deck } from "~/types";
 import { DeckSchema } from "~/types";
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => [
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   {
-    title: data ? data.deck.name : "Not found",
+    title: loaderData ? loaderData.deck.name : "Not found",
   },
 ];
 

@@ -196,24 +196,28 @@ function StatsTable({
   );
 }
 
+type PartialFilter = Partial<Filter> & Pick<Filter, "existingPlayerCounts">;
+
 function GamesFilter({
   filter,
   setFilter,
 }: {
-  filter: Filter;
-  setFilter: (value: Filter) => void;
+  filter: PartialFilter;
+  setFilter: (value: PartialFilter) => void;
 }) {
   return (
     <Stack spacing={2}>
       <NumberSelect
         label="Anzahl Spieler"
         values={filter.existingPlayerCounts}
-        selected={filter.players}
+        selected={filter.players || []}
         setSelected={players => setFilter({ ...filter, players })}
       />
       <TextField
         label="Mindestens X Spiele / Spieler"
-        value={filter.minPlaysPerPlayer}
+        value={filter.minPlaysPerPlayer || null}
+        type="number"
+        required={true}
         onChange={e =>
           setFilter({
             ...filter,
@@ -223,11 +227,14 @@ function GamesFilter({
       />
       <TextField
         label="Mindestens X Spiele / Deck"
-        value={filter.minPlaysPerDeck}
+        value={filter.minPlaysPerDeck || null}
+        type="number"
+        required={true}
         onChange={e =>
           setFilter({
             ...filter,
-            minPlaysPerDeck: Number(e.target.value),
+            minPlaysPerDeck:
+              e.target.value === "" ? undefined : Number(e.target.value),
           })
         }
       />
@@ -273,8 +280,8 @@ function GeneralStats({
         gap: "1.5em",
       }}
     >
-      {stats.map(({ name, value, hint }) => (
-        <Paper variant="outlined" sx={{ p: "1em", width: "12em" }}>
+      {stats.map(({ name, value, hint }, i) => (
+        <Paper key={i} variant="outlined" sx={{ p: "1em", width: "12em" }}>
           <Stack spacing={2} sx={{ alignItems: "center" }}>
             <Typography variant="h4" component="h1">
               {value}
@@ -310,7 +317,8 @@ export default function Stats() {
     () => createDefaultFilter(games),
     [games],
   );
-  const [filter, setFilter] = React.useState(defaultFilter);
+  const [partialFilter, setFilter] = React.useState<PartialFilter>(defaultFilter);
+  const filter = { ...defaultFilter, partialFilter };
   const stats = React.useMemo(() => calculate(games, filter), [games, filter]);
   const [expanded, setExpanded] = React.useState(false);
   return (
@@ -346,7 +354,7 @@ export default function Stats() {
             <Typography>Filter</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <GamesFilter filter={filter} setFilter={setFilter} />
+            <GamesFilter filter={partialFilter} setFilter={setFilter} />
             <Button
               onClick={() => setFilter(defaultFilter)}
               color="error"

@@ -64,7 +64,7 @@ export default function RecentPlays<G extends Game>({
     );
   }, [order, orderBy, games]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const sortedGamesSlice = sortedGames.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
