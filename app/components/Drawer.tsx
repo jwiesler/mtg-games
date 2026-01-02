@@ -4,6 +4,7 @@ import MuiDrawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import React from "react";
+import { useTheme } from "@mui/material";
 
 export function Header({
   children,
@@ -14,6 +15,7 @@ export function Header({
   onClose: () => void;
   title: string;
 }) {
+  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -21,6 +23,10 @@ export function Header({
         fontSize: "1.25em",
         display: "flex",
         alignItems: "center",
+        position: "sticky",
+        top: "0",
+        zIndex: 5,
+        backgroundColor: theme.vars != undefined ? theme.vars.palette.background.paper : theme.palette.background.paper,
       }}
     >
       <IconButton onClick={onClose}>
