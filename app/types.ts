@@ -9,4 +9,3 @@ export const DeckSchema = z.object({
   colors: z.string(),
   url: z.string(),
 });
-export type Deck = z.infer<typeof DeckSchema>;

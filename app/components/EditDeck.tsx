@@ -33,12 +33,10 @@ const autoCompletions = debounce(
 
 export function EditDeck({
   deck,
-  action,
   users,
   clearOnSave,
 }: {
   deck: Deck;
-  action?: string;
   users: User[];
   clearOnSave: boolean;
 }) {
@@ -82,7 +80,7 @@ export function EditDeck({
     };
   }, [commander]);
   return (
-    <Form action={action} method="post" onSubmit={clear}>
+    <Form method="post" onSubmit={clear}>
       <Stack spacing={2}>
         <TextField
           name="name"

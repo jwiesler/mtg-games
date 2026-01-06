@@ -2,7 +2,6 @@ import type { FilterOptionsState } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { Fragment } from "react/jsx-runtime";
-import { useRef } from "react";
 
 interface Input {
   id: number;
@@ -64,9 +63,9 @@ export function IdInput<I extends Input>({
         )}
         onFocus={e => {
           e.target.scrollIntoView({
-            behavior: 'smooth',
+            behavior: "smooth",
             block: "start",
-          })
+          });
         }}
       />
       <input

@@ -54,7 +54,7 @@ export const loader = async () => {
 
 export const UserSchema = z.object({
   name: z.string(),
-  id: z.string().optional(),
+  id: z.coerce.number().optional(),
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -66,7 +66,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     let user: { name: string; id: number };
     if (requestedUser.id !== undefined) {
       user = await prisma.user.update({
-        where: { id: Number(requestedUser.id) },
+        where: { id: requestedUser.id },
         data: { name: requestedUser.name },
       });
     } else {
