@@ -1,5 +1,3 @@
-import DeleteIcon from "@mui/icons-material/DeleteOutline";
-import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -21,13 +19,7 @@ interface Deck {
   owner: User;
 }
 
-export function DeckTable({
-  decks,
-  onDelete,
-}: {
-  decks: Deck[];
-  onDelete: (id: number) => void;
-}) {
+export function DeckTable({ decks }: { decks: Deck[] }) {
   const [order, orderBy, onRequestSort] = useSortingStates("asc", "name");
   const sortedDecks = React.useMemo(() => {
     let extract;
@@ -83,15 +75,6 @@ export function DeckTable({
                   <Link href={`/decks/${deck.id}`}>{deck.name}</Link>
                 </TableCell>
                 <TableCell>{deck.owner.name}</TableCell>
-                <TableCell>
-                  <IconButton
-                    size="small"
-                    color="default"
-                    onClick={() => onDelete(deck.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>

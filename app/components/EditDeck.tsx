@@ -5,18 +5,18 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { debounce } from "@mui/material/utils";
 import React from "react";
-import { Form } from "react-router";
 
 import { IdInput } from "./IdInput";
 import NumberField from "~/components/NumberField";
 import type { User } from "~/generated/prisma/client";
 
-interface Deck {
+export interface DeckData {
+  id?: number;
   name: string;
   description: string;
   commander: string;
   owner: User | null;
-  bracket: number;
+  bracket: number | null;
   colors: string;
   url: string;
 }
@@ -31,44 +31,35 @@ const autoCompletions = debounce(
   200,
 );
 
+export const EMPTY_DECK: DeckData = {
+  name: "",
+  owner: null,
+  description: "",
+  commander: "",
+  bracket: 3,
+  colors: "",
+  url: "",
+};
+
 export function EditDeck({
+  mode,
   deck,
+  setDeck,
   users,
-  clearOnSave,
 }: {
-  deck: Deck;
+  mode: "create" | "edit";
+  deck: DeckData;
+  setDeck: (deck: DeckData) => void;
   users: User[];
-  clearOnSave: boolean;
 }) {
-  const [name, setName] = React.useState<string>(deck.name);
-  const [owner, setOwner] = React.useState<User | null>(deck.owner);
-  const [bracket, setBracket] = React.useState<number | null>(deck.bracket);
-  const [colors, setColors] = React.useState<string>(deck.colors);
-  const [url, setUrl] = React.useState<string>(deck.url);
-  const [description, setDescription] = React.useState<string>(
-    deck.description,
-  );
   const [commanderCompletions, setCommanderCompletions] = React.useState<
     string[]
   >([]);
   const [loading, setLoading] = React.useState(false);
-  const [commander, setCommander] = React.useState<string>(deck.commander);
-  const clear = () => {
-    if (!clearOnSave) {
-      return;
-    }
-    setName("");
-    setOwner(null);
-    setDescription("");
-    setCommander("");
-    setBracket(3);
-    setColors("");
-    setUrl("");
-  };
   React.useEffect(() => {
     let discardLoad = false;
     setLoading(true);
-    autoCompletions(commander, options => {
+    autoCompletions(deck.commander, options => {
       if (discardLoad) {
         return;
       }
@@ -78,93 +69,95 @@ export function EditDeck({
     return () => {
       discardLoad = true;
     };
-  }, [commander]);
+  }, [deck.commander]);
+  if (mode == "edit" && deck.id === undefined) {
+    throw new Error("deck.id is not set in edit mode");
+  }
   return (
-    <Form method="post" onSubmit={clear}>
-      <Stack spacing={2}>
-        <TextField
-          name="name"
-          label="Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
-        <Autocomplete
-          autoHighlight
-          autoComplete
-          filterOptions={x => x}
-          freeSolo
-          options={commanderCompletions}
-          value={commander}
-          onInputChange={(_, v) => {
-            setCommander(v);
-          }}
-          onChange={(_, v) => {
-            setCommander(v ?? "");
-          }}
-          renderInput={params => (
-            <TextField
-              {...params}
-              name={"commander"}
-              label={"Commander"}
-              required={true}
-              slotProps={{
-                input: {
-                  ...params.InputProps,
-                  type: "search",
-                  endAdornment: (
-                    <React.Fragment>
-                      {loading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </React.Fragment>
-                  ),
-                },
-              }}
-            />
-          )}
-        />
-        <IdInput
-          value={owner}
-          options={users}
-          onInputChange={value => setOwner(value)}
-          getOptionLabel={value => value.name}
-          name="owner"
-          idName="ownerId"
-          label="Besitzer"
-          required={true}
-        />
-        <TextField
-          name="colors"
-          label="Farben"
-          value={colors}
-          onChange={e => setColors(e.target.value)}
-        />
-        <NumberField
-          name="bracket"
-          label="Bracket"
-          min={1}
-          max={5}
-          required={true}
-          value={bracket}
-          onValueChange={v => setBracket(v)}
-        />
-        <TextField
-          name="description"
-          label="Beschreibung"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-        />
-        <TextField
-          name="url"
-          label="Link"
-          value={url}
-          onChange={e => setUrl(e.target.value)}
-        />
-        <Button type="submit" color="primary">
-          Speichern
-        </Button>
-      </Stack>
-    </Form>
+    <Stack spacing={2}>
+      <TextField
+        name="name"
+        label="Name"
+        value={deck.name}
+        onChange={e => setDeck({ ...deck, name: e.target.value })}
+      />
+      <Autocomplete
+        autoHighlight
+        autoComplete
+        filterOptions={x => x}
+        freeSolo
+        options={commanderCompletions}
+        value={deck.commander}
+        onInputChange={(_, v) => {
+          setDeck({ ...deck, commander: v });
+        }}
+        onChange={(_, v) => {
+          setDeck({ ...deck, commander: v ?? "" });
+        }}
+        renderInput={params => (
+          <TextField
+            {...params}
+            name={"commander"}
+            label={"Commander"}
+            required={true}
+            slotProps={{
+              input: {
+                ...params.InputProps,
+                type: "search",
+                endAdornment: (
+                  <React.Fragment>
+                    {loading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </React.Fragment>
+                ),
+              },
+            }}
+          />
+        )}
+      />
+      <IdInput
+        value={deck.owner}
+        options={users}
+        onInputChange={value => setDeck({ ...deck, owner: value })}
+        getOptionLabel={value => value.name}
+        name="owner"
+        idName="ownerId"
+        label="Besitzer"
+        required={true}
+      />
+      <TextField
+        name="colors"
+        label="Farben"
+        value={deck.colors}
+        onChange={e => setDeck({ ...deck, colors: e.target.value })}
+      />
+      <NumberField
+        name="bracket"
+        label="Bracket"
+        min={1}
+        max={5}
+        required={true}
+        value={deck.bracket}
+        onValueChange={v => setDeck({ ...deck, bracket: v })}
+      />
+      <TextField
+        name="description"
+        label="Beschreibung"
+        value={deck.description}
+        onChange={e => setDeck({ ...deck, description: e.target.value })}
+      />
+      <TextField
+        name="url"
+        label="Link"
+        value={deck.url}
+        onChange={e => setDeck({ ...deck, url: e.target.value })}
+      />
+      <Button type="submit" color="primary">
+        Speichern
+      </Button>
+      {mode == "edit" && <input name="id" type="hidden" value={deck.id} />}
+    </Stack>
   );
 }

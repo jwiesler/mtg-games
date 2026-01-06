@@ -1,5 +1,3 @@
-import Check from "@mui/icons-material/Check";
-import Delete from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -19,7 +17,6 @@ import Typography from "@mui/material/Typography";
 import React from "react";
 import {
   type ActionFunctionArgs,
-  Form,
   type MetaFunction,
   useActionData,
   useLoaderData,
@@ -28,7 +25,7 @@ import {
 import z from "zod";
 
 import DestructionDialog from "~/components/DestructionDialog";
-import Drawer from "~/components/Drawer";
+import EditDrawer from "~/components/EditDrawer";
 import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
@@ -210,47 +207,7 @@ function UsersTable({
   );
 }
 
-function EditDrawer({
-  open,
-  setOpen,
-  onDelete,
-  ...args
-}: {
-  open: boolean;
-  setOpen: (value: ((prevState: boolean) => boolean) | boolean) => void;
-  onDelete: () => void;
-} & Parameters<typeof EditUser>[0]) {
-  return (
-    <Drawer.Root open={open} onClose={() => setOpen(false)}>
-      <Form method="post" onSubmit={() => setOpen(false)}>
-        <Drawer.Header
-          onClose={() => setOpen(false)}
-          title={
-            args.mode == "create" ? "Spieler anlegen" : "Spieler bearbeiten"
-          }
-        >
-          {args.mode == "edit" && (
-            <IconButton onClick={onDelete}>
-              <Delete />
-            </IconButton>
-          )}
-          <IconButton
-            type="submit"
-            disabled={args.user.name.length < 3}
-            color="primary"
-          >
-            <Check />
-          </IconButton>
-        </Drawer.Header>
-        <Drawer.Body>
-          <EditUser {...args} />
-        </Drawer.Body>
-      </Form>
-    </Drawer.Root>
-  );
-}
-
-export default function Users() {
+export function Users() {
   const { users } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const submit = useSubmit();
@@ -293,14 +250,15 @@ export default function Users() {
       <EditDrawer
         open={userDrawerOpen}
         setOpen={setUserDrawerOpen}
-        mode={mode}
-        user={user}
-        setUser={setUser}
         onDelete={() => {
           setDeleteUserId(user.id as number);
           setDeleteModalOpen(true);
         }}
-      />
+        mode={"create"}
+        what={"Spieler"}
+      >
+        <EditUser mode={mode} user={user} setUser={setUser} />
+      </EditDrawer>
       <UsersTable
         users={users}
         onUserEditClick={user => {

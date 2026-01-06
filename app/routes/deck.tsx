@@ -2,20 +2,28 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Stack from "@mui/material/Stack";
-import React from "react";
+import Link from "@mui/material/Link";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
+import React, { type ReactElement } from "react";
 import {
   type ActionFunctionArgs,
-  Form,
   type LoaderFunctionArgs,
   type MetaFunction,
   redirect,
   useActionData,
   useLoaderData,
+  useSubmit,
 } from "react-router";
 
 import { DeckSchema, deleteDeck, parseIdParam, updateDeck } from "~/api.server";
-import { EditDeck } from "~/components/EditDeck";
+import DestructionDialog from "~/components/DestructionDialog";
+import { type DeckData, EditDeck } from "~/components/EditDeck";
+import EditDrawer from "~/components/EditDrawer";
 import NotificationSnack from "~/components/NotificationSnack";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
@@ -110,11 +118,35 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 export default function Deck() {
   const { deck, card, users, games } = useLoaderData<typeof loader>();
+  const submit = useSubmit();
   const actionData = useActionData<typeof action>();
+  const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [editDeck, setEditDeck] = React.useState<DeckData>(deck);
+
+  const handleDeleteClose = (confirmed: boolean) => {
+    setDeleteOpen(false);
+    if (confirmed) {
+      submit({}, { method: "DELETE", replace: true });
+    }
+  };
   const image =
     card == null
       ? "https://cards.scryfall.io/border_crop/front/7/0/70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b.jpg?1559591549"
       : card.image_uris["border_crop"];
+  const properties: Record<string, ReactElement | string> = {
+    Commander: deck.commander,
+    Besitzer: <Link href={`/players/${deck.owner.id}`}>{deck.owner.name}</Link>,
+    Farben: deck.colors,
+    Bracket: String(deck.bracket),
+  };
+  if (deck.url) {
+    properties["Link"] = (
+      <a href={deck.url} target="_blank">
+        {deck.url}
+      </a>
+    );
+  }
   return (
     <div>
       <Card>
@@ -128,16 +160,52 @@ export default function Deck() {
               gap: "1.5em",
             }}
           >
-            <img src={image} height="500px" />
+            <img
+              src={image}
+              alt={deck.commander}
+              height="510px"
+              width="360px"
+            />
             <Box sx={{ flexGrow: 1, minWidth: "350px" }}>
-              <EditDeck deck={deck} users={users} clearOnSave={false} />
-              <Form method="delete" onSubmit={() => redirect("/")}>
-                <Stack spacing={2}>
-                  <Button type="submit" color="error">
-                    Löschen
-                  </Button>
-                </Stack>
-              </Form>
+              <Typography variant="h4" component="h1">
+                {deck.name}
+              </Typography>
+              {deck.description && (
+                <Typography sx={{ fontStyle: "italic", marginTop: 0.5 }}>
+                  {deck.description}
+                </Typography>
+              )}
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ textAlign: "right" }}></TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Object.entries(properties).map(([name, element], i) => (
+                    <TableRow key={i}>
+                      <TableCell component="th" scope="row">
+                        {name}
+                      </TableCell>
+                      <TableCell>{element}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Box sx={{ float: "right", mb: 1 }}>
+                <Button
+                  type="submit"
+                  color="warning"
+                  onClick={() => {
+                    setEditDeck(deck);
+                    setEditDrawerOpen(true);
+                  }}
+                  sx={{ marginTop: 1 }}
+                >
+                  Bearbeiten
+                </Button>
+              </Box>
             </Box>
           </Box>
         </CardContent>
@@ -147,6 +215,27 @@ export default function Deck() {
         columnKey="player"
         placingKey="deck"
         placingId={deck.id}
+      />
+      <EditDrawer
+        open={editDrawerOpen}
+        setOpen={setEditDrawerOpen}
+        onDelete={() => {
+          setDeleteOpen(true);
+        }}
+        mode="edit"
+        what="Deck"
+      >
+        <EditDeck
+          mode="edit"
+          deck={editDeck}
+          setDeck={setEditDeck}
+          users={users}
+        />
+      </EditDrawer>
+      <DestructionDialog
+        open={deleteOpen}
+        handleClose={handleDeleteClose}
+        title={"Möchtest du dieses Deck wirklich löschen?"}
       />
       {actionData && (
         <NotificationSnack key={actionData.key} message={"Deck gespeichert"} />
