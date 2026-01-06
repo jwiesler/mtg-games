@@ -34,7 +34,7 @@ import GameResult from "~/components/GameResult";
 import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
-import { NotFound, Validated } from "~/responses";
+import { NotFound, Validated } from "~/responses.server";
 import { comparingBy, useSortingStates } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [

@@ -6,15 +6,13 @@ import {
   useLoaderData,
 } from "react-router";
 
+import { parseIdParam } from "~/api.server";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
-import { NotFound } from "~/responses";
+import { NotFound } from "~/responses.server";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const id = Number(params.id);
-  if (Number.isNaN(id)) {
-    throw NotFound();
-  }
+  const id = parseIdParam(params.id);
   const user = await prisma.user.findUnique({
     where: { id },
     select: {

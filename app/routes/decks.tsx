@@ -14,14 +14,13 @@ import {
 } from "react-router";
 import z from "zod";
 
+import { DeckSchema, createDeck, deleteDeck } from "~/api.server";
 import { DeckTable } from "~/components/DeckTable";
 import DestructionDialog from "~/components/DestructionDialog";
 import { EditDeck } from "~/components/EditDeck";
 import NotificationSnack from "~/components/NotificationSnack";
 import prisma from "~/db.server";
-import { Prisma, type User } from "~/generated/prisma/client";
-import { BadRequest, NotFound, Validated } from "~/responses";
-import { DeckSchema } from "~/types";
+import { NotFound, Validated } from "~/responses.server";
 
 export const meta: MetaFunction<typeof loader> = () => [
   {
@@ -48,46 +47,21 @@ export const loader = async () => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method == "POST") {
     const body = await request.formData();
-    const data = Validated(DeckSchema.safeParse(Object.fromEntries(body)));
-    const deck = await prisma.deck.create({
-      data: {
-        name: data.name.trim() || data.commander.trim(),
-        commander: data.commander.trim(),
-        description: data.description.trim(),
-        ownerId: data.ownerId,
-        bracket: data.bracket,
-        colors: data.colors.trim(),
-        url: data.url.trim(),
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+    const deck = await createDeck(
+      Validated(DeckSchema.safeParse(Object.fromEntries(body))),
+    );
     return { type: "create", key: `create-${deck.id}`, name: deck.name };
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = Validated(z.coerce.number().safeParse(body.get("id")));
-    try {
-      const deck = await prisma.deck.delete({
-        select: { name: true },
-        where: { id },
-      });
-      return { type: "delete", key: `delete-${id}`, name: deck.name };
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === "P2003") {
-          throw BadRequest(
-            "A deck that was played can't be deleted. Delete those games first.",
-          );
-        }
-      }
-      throw e;
-    }
+    const deck = await deleteDeck(id);
+    return { type: "delete", key: `delete-${id}`, name: deck.name };
   } else {
     throw NotFound();
   }
 };
+
+type User = Awaited<ReturnType<typeof loader>>["users"][0];
 
 function CreateDeck({ users }: { users: User[] }) {
   const [expanded, setExpanded] = React.useState(false);

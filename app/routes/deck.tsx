@@ -13,16 +13,14 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import z from "zod";
 
+import { DeckSchema, deleteDeck, parseIdParam, updateDeck } from "~/api.server";
 import { EditDeck } from "~/components/EditDeck";
 import NotificationSnack from "~/components/NotificationSnack";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
-import { NotFound, Validated } from "~/responses";
-import { API } from "~/scryfall";
-import type { Deck } from "~/types";
-import { DeckSchema } from "~/types";
+import { NotFound, Validated } from "~/responses.server";
+import { API as SCRYFALL } from "~/scryfall";
 
 export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   {
@@ -31,10 +29,7 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
 ];
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const id = Number(params.id);
-  if (Number.isNaN(id)) {
-    throw NotFound();
-  }
+  const id = parseIdParam(params.id);
   const deck = await prisma.deck.findUnique({
     where: { id: id },
     select: {
@@ -52,7 +47,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     throw NotFound();
   }
   const users = await prisma.user.findMany();
-  const card = await API.card(deck.commander);
+  const card = await SCRYFALL.card(deck.commander);
   const games = await prisma.game.findMany({
     where: {
       plays: {
@@ -99,32 +94,14 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const body = await request.formData();
   if (request.method === "POST") {
-    const data = Validated(DeckSchema.safeParse(Object.fromEntries(body)));
-    if (data.colors.trim() == "") {
-      const card = await API.card(data.commander);
-      if (card != null) {
-        data.colors = "{" + card.color_identity.join("}{") + "}";
-      }
-    }
-    const deck = await prisma.deck.update({
-      select: {
-        updatedAt: true,
-      },
-      data: {
-        name: data.name.trim() || data.commander.trim(),
-        commander: data.commander.trim(),
-        description: data.description.trim(),
-        ownerId: data.ownerId,
-        bracket: data.bracket,
-        colors: data.colors.trim(),
-        url: data.url.trim(),
-      },
-      where: { id: Number(params.id) },
-    });
+    const deck = await updateDeck(
+      parseIdParam(params.id),
+      Validated(DeckSchema.safeParse(Object.fromEntries(body))),
+    );
     return { type: "update", key: deck.updatedAt.toISOString() };
   } else if (request.method === "DELETE") {
-    const id = Validated(z.number().safeParse(params.id));
-    await prisma.deck.delete({ where: { id } });
+    const id = parseIdParam(params.id);
+    await deleteDeck(id);
     return redirect("/decks");
   } else {
     throw NotFound();

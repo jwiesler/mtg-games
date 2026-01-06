@@ -33,7 +33,7 @@ import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import { Prisma } from "~/generated/prisma/client";
-import { BadRequest, NotFound, Validated } from "~/responses";
+import { BadRequest, NotFound, Validated } from "~/responses.server";
 import { comparingBy, useSortingStates } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [
