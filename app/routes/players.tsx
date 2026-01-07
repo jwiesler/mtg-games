@@ -207,7 +207,7 @@ function UsersTable({
   );
 }
 
-export function Users() {
+export default function Users() {
   const { users } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const submit = useSubmit();
