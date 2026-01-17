@@ -32,7 +32,7 @@ export function Header({
             : theme.palette.background.paper,
       }}
     >
-      <IconButton onClick={onClose}>
+      <IconButton aria-label="close" onClick={onClose}>
         <CloseIcon />
       </IconButton>
       <Typography variant="h6" component="h1" flexGrow={1}>

@@ -8,3 +8,8 @@
 /app/generated/prisma
 
 .idea
+
+/test-results/
+*.db
+*.sqlite
+

@@ -29,11 +29,11 @@ export default function EditDrawer({
           title={mode == "create" ? `${what} anlegen` : `${what} bearbeiten`}
         >
           {mode == "edit" && (
-            <IconButton onClick={onDelete}>
+            <IconButton aria-label="delete" onClick={onDelete}>
               <Delete />
             </IconButton>
           )}
-          <IconButton type="submit" color="primary">
+          <IconButton aria-label="submit" type="submit" color="primary">
             <Check />
           </IconButton>
         </Drawer.Header>

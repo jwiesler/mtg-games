@@ -90,6 +90,7 @@ function EditPlay({
         >
           <Stack spacing={2} sx={{ alignItems: "center" }}>
             <IconButton
+              aria-label="up"
               sx={{ visibility: up ? "visible" : "hidden" }}
               onClick={() => swap(i, "up")}
             >
@@ -97,6 +98,7 @@ function EditPlay({
             </IconButton>
             <Placing place={i + 1} />
             <IconButton
+              aria-label="down"
               sx={{ visibility: down ? "visible" : "hidden" }}
               onClick={() => swap(i, "down")}
             >

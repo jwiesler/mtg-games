@@ -179,6 +179,7 @@ function UsersTable({
                 </TableCell>
                 <TableCell>
                   <IconButton
+                    aria-label="edit"
                     size="small"
                     color="default"
                     onClick={() => onUserEditClick(user)}
