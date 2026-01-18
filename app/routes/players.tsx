@@ -255,7 +255,7 @@ export default function Users() {
           setDeleteUserId(user.id as number);
           setDeleteModalOpen(true);
         }}
-        mode={"create"}
+        mode={mode}
         what={"Spieler"}
       >
         <EditUser mode={mode} user={user} setUser={setUser} />

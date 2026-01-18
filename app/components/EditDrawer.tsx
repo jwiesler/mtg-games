@@ -23,7 +23,7 @@ export default function EditDrawer({
 }) {
   return (
     <Drawer.Root open={open} onClose={() => setOpen(false)}>
-      <Form method="post">
+      <Form method="post" onSubmit={() => setOpen(false)}>
         <Drawer.Header
           onClose={() => setOpen(false)}
           title={mode == "create" ? `${what} anlegen` : `${what} bearbeiten`}
