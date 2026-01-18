@@ -6,6 +6,7 @@ on:
       - main
 
 concurrency:
+  group: ci-${{ github.event.client_payload.branch || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -13,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: npm ci
       - run: npm run format-check
       - run: npm run typecheck
       - run: npm run lint
