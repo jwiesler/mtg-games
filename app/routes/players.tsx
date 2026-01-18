@@ -83,7 +83,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return { type: "delete", key: `delete-${id}`, name: user.name };
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === "P2003") {
+        if ((e as Prisma.PrismaClientKnownRequestError).code === "P2003") {
           throw BadRequest(
             "A user with decks can't be deleted, delete the user's decks first",
           );
