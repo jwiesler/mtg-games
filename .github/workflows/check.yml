@@ -13,7 +13,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Cache npm dependencies
         uses: actions/cache@v5
         with:
@@ -25,7 +25,7 @@ jobs:
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').devDependencies['@playwright/test'].version)")" >> $GITHUB_ENV
       - name: Cache playwright binaries
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         id: playwright-cache
         with:
           path: |
@@ -44,7 +44,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - name: Run tests
         run: npm run test:dev
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
