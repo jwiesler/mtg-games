@@ -5,5 +5,16 @@
     "enabled": true,
     "prConcurrentLimit": 10
   },
-  "extends": ["config:recommended"]
+  "automerge": true,
+  "extends": ["config:recommended"],
+  "packageRules": [
+    {
+      "automerge": true,
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "automerge": false,
+      "matchUpdateTypes": ["major"]
+    }
+  ]
 }
