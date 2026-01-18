@@ -12,7 +12,8 @@
     "format-check": "prettier --check .",
     "lint": "eslint .",
     "prisma-generate": "prisma generate",
-    "test": "dotenv -e .test.env -- \"npx prisma migrate reset --force && npx playwright test\""
+    "test": "npm exec -- prisma migrate reset --force && npm exec -- playwright test",
+    "test:dev": "dotenv -e .test.env -- npm run test"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
