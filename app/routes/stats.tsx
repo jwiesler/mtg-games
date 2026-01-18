@@ -255,15 +255,11 @@ function roundTime(date: Date) {
   return date;
 }
 
-function GeneralStats({
-  games,
-  filter,
-}: {
-  games: Awaited<ReturnType<typeof loader>>["games"];
-  filter: Filter;
-}) {
+type Game = Awaited<ReturnType<typeof loader>>["games"][0];
+
+function GeneralStats({ games, filter }: { games: Game[]; filter: Filter }) {
   const stats = React.useMemo(() => {
-    const filtered = filterGames(games, filter);
+    const filtered = filterGames<Game>(games, filter);
     const uniqueDays = new Set(filtered.map(g => roundTime(g.when).getTime()))
       .size;
     return [

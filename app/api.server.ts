@@ -50,7 +50,7 @@ export async function deleteDeck(id: number) {
     });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      if (e.code === "P2003") {
+      if ((e as Prisma.PrismaClientKnownRequestError).code === "P2003") {
         throw BadRequest(
           "A deck that was played can't be deleted. Delete those games first.",
         );
