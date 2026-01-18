@@ -1,5 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "prConcurrentLimit": 2,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "prConcurrentLimit": 10
+  },
   "extends": ["config:recommended"]
 }
