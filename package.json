@@ -13,8 +13,7 @@
     "lint": "eslint .",
     "prisma-generate": "dotenv -e .dev.env -- prisma generate",
     "test": "npm exec -- prisma migrate reset --force && npm exec -- playwright test",
-    "test:dev": "dotenv -e .test.env -- npm run test",
-    "postinstall": "npm run prisma-generate"
+    "test:dev": "dotenv -e .test.env -- npm run test"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
