@@ -16,7 +16,7 @@ export async function fillVisibleTextField(
   await field.fill(value);
 }
 
-export async function forwardBrowserLogs(page: Page) {
+export function forwardBrowserLogs(page: Page) {
   page.on("console", log => {
     // Step 2: Forward to Node console with context
     console.log(`[Browser ${log.type()}]`, log.text());
