@@ -120,7 +120,11 @@ export default function Deck() {
   const { deck, card, users, games } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const actionData = useActionData<typeof action>();
-  const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
+  const [editDrawerOpen, _setEditDrawerOpen] = React.useState(false);
+  const setEditDrawerOpen = (value: boolean) => {
+    console.log("editDrawerOpen", value);
+    _setEditDrawerOpen(value);
+  };
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [editDeck, setEditDeck] = React.useState<DeckData>(deck);
 
