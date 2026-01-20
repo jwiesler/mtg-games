@@ -6,6 +6,16 @@ export async function expectVisibleLinkTo(e: Locator, link: string) {
   await expect(e).toHaveAttribute("href", link);
 }
 
+export async function fillVisibleTextField(
+  page: Page,
+  label: string,
+  value: string,
+) {
+  const field = page.getByLabel(label);
+  await expect(field).toBeVisible();
+  await field.fill(value);
+}
+
 export async function forwardBrowserLogs(page: Page) {
   page.on("console", log => {
     // Step 2: Forward to Node console with context

@@ -16,11 +16,11 @@ export async function createDeck(overrides = {}) {
       commander: "Commander",
       description: "Description",
       colors: "esper",
-      url: "https://example.com",
+      url: "https://example.com/yawgmoth",
       bracket: 4,
       owner: {
         connect: {
-          id: 0,
+          id: 1,
         },
       },
       ...overrides,

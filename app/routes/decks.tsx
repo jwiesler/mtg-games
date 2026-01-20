@@ -95,7 +95,7 @@ export default function Decks() {
       {actionData && (
         <NotificationSnack
           key={actionData.key}
-          message={`Deck ${actionData.name} ${actionData.type == "create" ? "angelegt" : "gelöscht"}`}
+          message={`Deck '${actionData.name}' ${actionData.type == "create" ? "angelegt" : "gelöscht"}`}
         />
       )}
     </Box>
