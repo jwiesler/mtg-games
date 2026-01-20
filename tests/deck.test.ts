@@ -28,7 +28,7 @@ test("show deck", async ({ page }) => {
   await expect(page.getByText("#NAME")).toBeVisible();
   await expect(page.getByText("#COMMANDER")).toBeVisible();
   await expect(page.getByText("#COLORS")).toBeVisible();
-  await expect(page.getByText("#BRACKET")).toBeVisible();
+  await expect(page.getByText("4")).toBeVisible();
   await expect(page.getByText("#DESCRIPTION")).toBeVisible();
   await expect(page.getByText("#URL")).toBeVisible();
 });
