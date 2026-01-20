@@ -9,6 +9,25 @@ export async function createUser(overrides = {}) {
   });
 }
 
+export async function createDeck(overrides = {}) {
+  return prisma.deck.create({
+    data: {
+      name: "Deck",
+      commander: "Commander",
+      description: "Description",
+      colors: "esper",
+      url: "https://example.com",
+      bracket: 4,
+      owner: {
+        connect: {
+          id: 0,
+        },
+      },
+      ...overrides,
+    },
+  });
+}
+
 export async function resetDb() {
   // Disable FK constraints
   await prisma.$executeRawUnsafe(`PRAGMA foreign_keys = OFF`);

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { createUser, resetDb } from "./db/factories";
+import { createDeck, createUser, resetDb } from "./db/factories";
 import { expectVisibleLinkTo } from "./playwright";
 
 test.beforeEach(async () => {
@@ -147,4 +147,28 @@ test.describe("delete tests", () => {
       "/players/2",
     );
   });
+});
+
+test("user has deck", async ({ page }) => {
+  const u = await createUser({ name: "Alice" });
+  await createDeck({ owner: { connect: { id: u.id } } });
+
+  await page.goto(`/players`);
+
+  const row = page.locator("tr", { hasText: "Alice" });
+  await row.getByRole("button", { name: "edit" }).click();
+  await page.getByRole("button", { name: "delete" }).click();
+  await page.getByRole("button", { name: "Ok" }).click();
+
+  await expect(
+    page.getByText(
+      "A user with decks can't be deleted, delete the user's decks first",
+    ),
+  ).toBeVisible();
+
+  await page.goto(`/players`);
+  await expectVisibleLinkTo(
+    page.getByRole("link", { name: "Alice" }),
+    "/players/1",
+  );
 });
