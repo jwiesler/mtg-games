@@ -13,7 +13,7 @@ test("show deck", async ({ page }) => {
     name: "#NAME",
     commander: "#COMMANDER",
     colors: "#COLORS",
-    bracket: "4",
+    bracket: 4,
     description: "#DESCRIPTION",
     url: "#URL",
     owner: {
@@ -24,7 +24,7 @@ test("show deck", async ({ page }) => {
   });
   await page.goto(`/decks/1`);
 
-  await expect(page.getByText("#Alice")).toBeVisible();
+  await expect(page.getByText("Alice")).toBeVisible();
   await expect(page.getByText("#NAME")).toBeVisible();
   await expect(page.getByText("#COMMANDER")).toBeVisible();
   await expect(page.getByText("#COLORS")).toBeVisible();
