@@ -10,13 +10,22 @@ interface Card {
   color_identity: string[];
 }
 
+function trimSuffix(s: string, suffix: string): string {
+  if (s.endsWith(suffix)) {
+    return s.slice(0, s.length - suffix.length);
+  }
+  return s;
+}
+
 export const API = {
   card: cache(async (name: string) => {
     const url = new URL("https://api.scryfall.com/cards/named");
     url.searchParams.append("exact", name);
     const r = await fetch(url);
     if (r.ok) {
-      return (await r.json()) as Card;
+      const card = (await r.json()) as Card;
+      card.scryfall_uri = trimSuffix(card.scryfall_uri, "?utm_source=api");
+      return card;
     }
     return null;
   }),
