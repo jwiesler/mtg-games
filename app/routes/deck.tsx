@@ -120,11 +120,7 @@ export default function Deck() {
   const { deck, card, users, games } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const actionData = useActionData<typeof action>();
-  const [editDrawerOpen, _setEditDrawerOpen] = React.useState(false);
-  const setEditDrawerOpen = (value: boolean) => {
-    console.log("editDrawerOpen", value);
-    _setEditDrawerOpen(value);
-  };
+  const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [editDeck, setEditDeck] = React.useState<DeckData>(deck);
 
@@ -139,7 +135,12 @@ export default function Deck() {
       ? "https://cards.scryfall.io/border_crop/front/7/0/70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b.jpg?1559591549"
       : card.image_uris["border_crop"];
   const properties: Record<string, ReactElement | string> = {
-    Commander: deck.commander,
+    Commander:
+      card == null ? (
+        deck.commander
+      ) : (
+        <Link href={card.scryfall_uri}>{deck.commander}</Link>
+      ),
     Besitzer: <Link href={`/players/${deck.owner.id}`}>{deck.owner.name}</Link>,
     Farben: deck.colors,
     Bracket: String(deck.bracket),
