@@ -139,7 +139,9 @@ export default function Deck() {
       card == null ? (
         deck.commander
       ) : (
-        <Link href={card.scryfall_uri}>{deck.commander}</Link>
+        <Link href={card.scryfall_uri} target="_blank">
+          {deck.commander}
+        </Link>
       ),
     Besitzer: <Link href={`/players/${deck.owner.id}`}>{deck.owner.name}</Link>,
     Farben: deck.colors,
@@ -147,9 +149,9 @@ export default function Deck() {
   };
   if (deck.url) {
     properties["Link"] = (
-      <a href={deck.url} target="_blank">
+      <Link href={deck.url} target="_blank">
         {deck.url}
-      </a>
+      </Link>
     );
   }
   return (
