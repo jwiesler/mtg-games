@@ -28,6 +28,23 @@ export async function createDeck(overrides = {}) {
   });
 }
 
+export async function createGame(overrides = {}) {
+  return prisma.game.create({
+    data: {
+      when: new Date(),
+      duration: 600,
+      comment: "",
+      plays: {
+        create: [
+          { place: 1, deckId: 1, playerId: 1 },
+          { place: 2, deckId: 2, playerId: 2 },
+        ],
+      },
+      ...overrides,
+    },
+  });
+}
+
 export async function resetDb() {
   // Disable FK constraints
   await prisma.$executeRawUnsafe(`PRAGMA foreign_keys = OFF`);

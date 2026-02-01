@@ -22,3 +22,13 @@ export function forwardBrowserLogs(page: Page) {
     console.log(`[Browser ${log.type()}]`, log.text());
   });
 }
+
+export async function selectOption(
+  target: Locator,
+  page: Page,
+  option: string,
+) {
+  await target.fill(option);
+  await page.getByRole("option", { name: option }).click();
+  await expect(target).toHaveValue(option);
+}

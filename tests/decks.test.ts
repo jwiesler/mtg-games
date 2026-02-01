@@ -1,7 +1,11 @@
 import { type Page, expect, test } from "@playwright/test";
 
 import { createDeck, createUser, resetDb } from "./db/factories";
-import { expectVisibleLinkTo, fillVisibleTextField } from "./playwright";
+import {
+  expectVisibleLinkTo,
+  fillVisibleTextField,
+  selectOption,
+} from "./playwright";
 
 test.beforeEach(async () => {
   await resetDb();
@@ -37,9 +41,7 @@ async function fillEdit(
   await fillVisibleTextField(page, "Link", deck.url);
   const owner = page.getByLabel("Besitzer");
   await expect(owner).toBeVisible();
-  await owner.fill(deck.owner);
-  await page.getByRole("option", { name: deck.owner }).click();
-  await expect(owner).toHaveValue(deck.owner);
+  await selectOption(owner, page, deck.owner);
 }
 
 test("shows decks", async ({ page }) => {
