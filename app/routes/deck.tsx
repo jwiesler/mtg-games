@@ -9,6 +9,7 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import { PieChart } from "@mui/x-charts/PieChart";
 import React, { type ReactElement } from "react";
 import {
   type ActionFunctionArgs,
@@ -27,8 +28,10 @@ import EditDrawer from "~/components/EditDrawer";
 import NotificationSnack from "~/components/NotificationSnack";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
+import { PERCENTAGE } from "~/format";
 import { NotFound, Validated } from "~/responses.server";
 import { API as SCRYFALL } from "~/scryfall";
+import { getPlacings } from "~/stats";
 
 export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   {
@@ -117,6 +120,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 type Deck = Awaited<ReturnType<typeof loader>>["deck"];
+type Game = Awaited<ReturnType<typeof loader>>["games"][0];
 type CardData = Awaited<ReturnType<typeof loader>>["card"];
 
 function Properties({ deck, card }: { deck: Deck; card: CardData }) {
@@ -130,9 +134,12 @@ function Properties({ deck, card }: { deck: Deck; card: CardData }) {
         </Link>
       ),
     Besitzer: <Link href={`/players/${deck.owner.id}`}>{deck.owner.name}</Link>,
-    Farben: deck.colors,
+
     Bracket: String(deck.bracket),
   };
+  if (deck.colors !== "") {
+    properties["Farben"] = deck.colors;
+  }
   if (deck.url) {
     properties["Link"] = (
       <Link href={deck.url} target="_blank">
@@ -198,7 +205,7 @@ function DeckCard({
               </Typography>
             )}
             <Properties deck={deck} card={card} />
-            <Box sx={{ float: "right", mb: 1 }}>
+            <Box sx={{ float: "right" }}>
               <Button
                 type="submit"
                 color="warning"
@@ -211,6 +218,78 @@ function DeckCard({
           </Box>
         </Box>
       </CardContent>
+      <div></div>
+    </Card>
+  );
+}
+
+function distinctCounts(values: number[]): Map<number, number> {
+  const res = new Map<number, number>();
+  for (const value of values) {
+    const existing = res.get(value);
+    if (existing !== undefined) {
+      res.set(value, existing + 1);
+    } else {
+      res.set(value, 1);
+    }
+  }
+  return res;
+}
+
+function PlacingsChart({ deck, games }: { deck: number; games: Game[] }) {
+  const series = React.useMemo(() => {
+    const placings = getPlacings(games, null, p => p.deck.id).get(deck) || [];
+    const counts = Array.from(distinctCounts(placings).entries());
+    counts.sort((a, b) => a[0] - b[0]);
+    return counts.map(([place, count], i) => {
+      return {
+        id: i,
+        value: count,
+        place: place,
+        label: `${place}. Platz`,
+      };
+    });
+  }, [deck, games]);
+  return (
+    <PieChart
+      series={[
+        {
+          data: series,
+          valueFormatter: (item: { value: number }) =>
+            `${PERCENTAGE.format(item.value / games.length)} (${item.value} ${item.value == 1 ? "Spiel" : "Spiele"})`,
+          innerRadius: 50,
+          arcLabel: item =>
+            item.label == undefined
+              ? ""
+              : item.label.substring(0, item.label.indexOf(".")),
+        },
+      ]}
+      width={200}
+      height={200}
+      hideLegend={true}
+    />
+  );
+}
+
+function Stats({ games, placingId }: { games: Game[]; placingId: number }) {
+  return (
+    <Card>
+      <CardContent
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          flexDirection: "row",
+          justifyContent: "space-around",
+        }}
+      >
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h5" gutterBottom>
+            Platzierungen
+          </Typography>
+          <PlacingsChart deck={placingId} games={games} />
+        </Box>{" "}
+      </CardContent>
+      <div></div>
     </Card>
   );
 }
@@ -231,7 +310,7 @@ export default function Deck() {
   };
 
   return (
-    <div>
+    <Box sx={{ display: "flex", gap: "1em", flexDirection: "column" }}>
       <DeckCard
         deck={deck}
         card={card}
@@ -240,6 +319,7 @@ export default function Deck() {
           setEditDrawerOpen(true);
         }}
       />
+      <Stats games={games} placingId={deck.id} />
       <RecentPlays
         games={games}
         columnKey="player"
@@ -270,6 +350,6 @@ export default function Deck() {
       {actionData && (
         <NotificationSnack key={actionData.key} message={"Deck gespeichert"} />
       )}
-    </div>
+    </Box>
   );
 }
