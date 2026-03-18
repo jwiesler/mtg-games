@@ -27,7 +27,7 @@ function calculatePlayStats(
   minPlacings: number,
 ) {
   const stats = new Map<number, PlayStats>();
-  placings.forEach((placings, deck) => {
+  placings.forEach((placings, id) => {
     if (placings.length < minPlacings) {
       return;
     }
@@ -44,7 +44,7 @@ function calculatePlayStats(
     });
     const mode = modeSorted(placings);
     const median = medianSorted(placings);
-    stats.set(deck, {
+    stats.set(id, {
       games: placings.length,
       wins,
       winRate: wins / placings.length,
@@ -58,28 +58,38 @@ function calculatePlayStats(
   return stats;
 }
 
-function getPlacings(games: Game[], e: (p: Play) => number) {
+function normalizePlacing(
+  place: number,
+  players: number,
+  toPlayers: number,
+): number {
+  const relativePlace = (place - 1) / (players - 1);
+  return 1 + (toPlayers - 1) * relativePlace;
+}
+
+function getPlacings(
+  games: Game[],
+  normalizeToPlayerCount: number | null,
+  e: (p: Play) => number,
+) {
   const placings = new Map<number, number[]>();
   games.forEach(g => {
     g.plays.forEach(p => {
       const id = e(p);
       const existing = placings.get(id);
+      const place =
+        normalizeToPlayerCount === null
+          ? p.place
+          : normalizePlacing(p.place, g.plays.length, normalizeToPlayerCount);
       if (existing !== undefined) {
-        existing.push(p.place);
+        existing.push(place);
       } else {
-        placings.set(id, [p.place]);
+        placings.set(id, [place]);
       }
     });
   });
+
   return placings;
-}
-
-function deckPlacings(games: Game[]) {
-  return getPlacings(games, p => p.deck.id);
-}
-
-function playerPlacings(games: Game[]) {
-  return getPlacings(games, p => p.player.id);
 }
 
 export function filterGames<G extends Game>(games: G[], filter: Filter): G[] {
@@ -96,6 +106,7 @@ export interface Filter {
   players: number[];
   minPlaysPerDeck: number;
   minPlaysPerPlayer: number;
+  normalizeToPlayerCount: number | null;
 }
 
 export function createDefaultFilter(games: Game[]): Filter {
@@ -108,6 +119,7 @@ export function createDefaultFilter(games: Game[]): Filter {
     players: existingPlayerCounts,
     minPlaysPerDeck: 3,
     minPlaysPerPlayer: 3,
+    normalizeToPlayerCount: 4,
   };
 }
 
@@ -115,11 +127,15 @@ export function calculate(games: Game[], filter: Filter) {
   const filteredGames = filterGames(games, filter);
   return {
     decks: calculatePlayStats(
-      deckPlacings(filteredGames),
+      getPlacings(filteredGames, filter.normalizeToPlayerCount, p => p.deck.id),
       filter.minPlaysPerDeck,
     ),
     players: calculatePlayStats(
-      playerPlacings(filteredGames),
+      getPlacings(
+        filteredGames,
+        filter.normalizeToPlayerCount,
+        p => p.player.id,
+      ),
       filter.minPlaysPerPlayer,
     ),
   };
