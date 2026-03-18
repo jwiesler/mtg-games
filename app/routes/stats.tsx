@@ -102,7 +102,7 @@ function StatsTable({
 }) {
   const [order, orderBy, onRequestSort] = useSortingStates<
     "name" | keyof PlayStats
-  >("asc", "name");
+  >("desc", "games");
   const sortedValues = React.useMemo(() => {
     let extract;
     if (orderBy == "name") {
