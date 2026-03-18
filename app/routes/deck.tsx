@@ -116,24 +116,10 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   }
 };
 
-export default function Deck() {
-  const { deck, card, users, games } = useLoaderData<typeof loader>();
-  const submit = useSubmit();
-  const actionData = useActionData<typeof action>();
-  const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
-  const [deleteOpen, setDeleteOpen] = React.useState(false);
-  const [editDeck, setEditDeck] = React.useState<DeckData>(deck);
+type Deck = Awaited<ReturnType<typeof loader>>["deck"];
+type CardData = Awaited<ReturnType<typeof loader>>["card"];
 
-  const handleDeleteClose = (confirmed: boolean) => {
-    setDeleteOpen(false);
-    if (confirmed) {
-      submit({}, { method: "DELETE", replace: true });
-    }
-  };
-  const image =
-    card == null
-      ? "https://cards.scryfall.io/border_crop/front/7/0/70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b.jpg?1559591549"
-      : card.image_uris["border_crop"];
+function Properties({ deck, card }: { deck: Deck; card: CardData }) {
   const properties: Record<string, ReactElement | string> = {
     Commander:
       card == null ? (
@@ -155,68 +141,105 @@ export default function Deck() {
     );
   }
   return (
-    <div>
-      <Card>
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "1.5em",
-            }}
-          >
-            <img
-              src={image}
-              alt={deck.commander}
-              height="510px"
-              width="360px"
-            />
-            <Box sx={{ flexGrow: 1, minWidth: "350px" }}>
-              <Typography variant="h4" component="h1">
-                {deck.name}
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell sx={{ textAlign: "right" }}></TableCell>
+          <TableCell></TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {Object.entries(properties).map(([name, element], i) => (
+          <TableRow key={i}>
+            <TableCell component="th" scope="row">
+              {name}
+            </TableCell>
+            <TableCell>{element}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+function DeckCard({
+  deck,
+  card,
+  onEdit,
+}: {
+  deck: Deck;
+  card: CardData;
+  onEdit: () => void;
+}) {
+  const image =
+    card == null
+      ? "https://cards.scryfall.io/border_crop/front/7/0/70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b.jpg?1559591549"
+      : card.image_uris["border_crop"];
+  return (
+    <Card>
+      <CardContent>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "1.5em",
+          }}
+        >
+          <img src={image} alt={deck.commander} height="510px" width="360px" />
+          <Box sx={{ flexGrow: 1, minWidth: "350px" }}>
+            <Typography variant="h4" component="h1">
+              {deck.name}
+            </Typography>
+            {deck.description && (
+              <Typography sx={{ fontStyle: "italic", marginTop: 0.5 }}>
+                {deck.description}
               </Typography>
-              {deck.description && (
-                <Typography sx={{ fontStyle: "italic", marginTop: 0.5 }}>
-                  {deck.description}
-                </Typography>
-              )}
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ textAlign: "right" }}></TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Object.entries(properties).map(([name, element], i) => (
-                    <TableRow key={i}>
-                      <TableCell component="th" scope="row">
-                        {name}
-                      </TableCell>
-                      <TableCell>{element}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <Box sx={{ float: "right", mb: 1 }}>
-                <Button
-                  type="submit"
-                  color="warning"
-                  onClick={() => {
-                    setEditDeck(deck);
-                    setEditDrawerOpen(true);
-                  }}
-                  sx={{ marginTop: 1 }}
-                >
-                  Bearbeiten
-                </Button>
-              </Box>
+            )}
+            <Properties deck={deck} card={card} />
+            <Box sx={{ float: "right", mb: 1 }}>
+              <Button
+                type="submit"
+                color="warning"
+                onClick={onEdit}
+                sx={{ marginTop: 1 }}
+              >
+                Bearbeiten
+              </Button>
             </Box>
           </Box>
-        </CardContent>
-      </Card>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function Deck() {
+  const { deck, card, users, games } = useLoaderData<typeof loader>();
+  const submit = useSubmit();
+  const actionData = useActionData<typeof action>();
+  const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [editDeck, setEditDeck] = React.useState<DeckData>(deck);
+
+  const handleDeleteClose = (confirmed: boolean) => {
+    setDeleteOpen(false);
+    if (confirmed) {
+      submit({}, { method: "DELETE", replace: true });
+    }
+  };
+
+  return (
+    <div>
+      <DeckCard
+        deck={deck}
+        card={card}
+        onEdit={() => {
+          setEditDeck(deck);
+          setEditDrawerOpen(true);
+        }}
+      />
       <RecentPlays
         games={games}
         columnKey="player"
