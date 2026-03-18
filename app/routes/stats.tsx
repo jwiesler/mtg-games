@@ -110,7 +110,11 @@ function StatsTable({
     } else {
       extract = (v: Deck) => {
         const s = stats.get(v.id);
-        return s == undefined ? Number.MIN_SAFE_INTEGER : s[orderBy];
+        return s == undefined
+          ? order != "asc"
+            ? Number.MIN_SAFE_INTEGER
+            : Number.MAX_SAFE_INTEGER
+          : s[orderBy];
       };
     }
     return [...values].sort(comparingBy<Deck, number | string>(order, extract));
