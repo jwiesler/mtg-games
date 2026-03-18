@@ -5,3 +5,8 @@ export const FORMAT = new Intl.DateTimeFormat("de", {
   hour: "2-digit",
   minute: "2-digit",
 });
+
+export const PERCENTAGE = new Intl.NumberFormat("de", {
+  style: "percent",
+  maximumFractionDigits: 2,
+});

@@ -67,7 +67,7 @@ function normalizePlacing(
   return 1 + (toPlayers - 1) * relativePlace;
 }
 
-function getPlacings(
+export function getPlacings(
   games: Game[],
   normalizeToPlayerCount: number | null,
   e: (p: Play) => number,
