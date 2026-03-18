@@ -5,6 +5,8 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
@@ -243,6 +245,21 @@ function GamesFilter({
           })
         }
       />
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={filter.normalizeToPlayerCount !== null}
+            onChange={e => {
+              console.log(e.target.checked);
+              setFilter({
+                ...filter,
+                normalizeToPlayerCount: e.target.checked ? 4 : null,
+              });
+            }}
+          />
+        }
+        label="Plätze auf 4 Spieler normalisieren"
+      />
     </Stack>
   );
 }
@@ -281,33 +298,40 @@ function GeneralStats({ games, filter }: { games: Game[]; filter: Filter }) {
         gap: "1.5em",
       }}
     >
-      {stats.map(({ name, value, hint }, i) => (
-        <Paper key={i} variant="outlined" sx={{ p: "1em", width: "12em" }}>
-          <Stack spacing={2} sx={{ alignItems: "center" }}>
-            <Typography variant="h4" component="h1">
-              {value}
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexWrap: "wrap",
-                gap: "0.5em",
-              }}
-            >
-              <Typography variant="h5" component="h1">
-                {name}
+      {stats.map(({ name, value, hint }, i) => {
+        const desc = (
+          <Typography variant="h5" component="h1">
+            {name}
+          </Typography>
+        );
+        return (
+          <Paper key={i} variant="outlined" sx={{ p: "1em", width: "12em" }}>
+            <Stack spacing={2} sx={{ alignItems: "center" }}>
+              <Typography variant="h4" component="h1">
+                {value}
               </Typography>
-              {hint && (
-                <Tooltip title={hint}>
-                  <QuestionMark sx={{ fontSize: "1em" }} color="action" />
+
+              {hint ? (
+                <Tooltip title={hint} enterTouchDelay={100}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "nowrap",
+                      alignItems: "center",
+                      gap: "0.25em",
+                    }}
+                  >
+                    {desc}
+                    <QuestionMark sx={{ fontSize: "1em" }} color="action" />
+                  </Box>
                 </Tooltip>
+              ) : (
+                desc
               )}
-            </Box>
-          </Stack>
-        </Paper>
-      ))}
+            </Stack>
+          </Paper>
+        );
+      })}
     </Box>
   );
 }
@@ -320,7 +344,7 @@ export default function Stats() {
   );
   const [partialFilter, setFilter] =
     React.useState<PartialFilter>(defaultFilter);
-  const filter = { ...defaultFilter, partialFilter };
+  const filter = { ...defaultFilter, ...partialFilter };
   const stats = React.useMemo(() => calculate(games, filter), [games, filter]);
   const [expanded, setExpanded] = React.useState(false);
   return (
