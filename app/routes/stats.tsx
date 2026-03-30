@@ -118,7 +118,7 @@ function StatsTable({
       };
     }
     return [...values].sort(comparingBy<Deck, number | string>(order, extract));
-  }, [order, orderBy, values]);
+  }, [order, orderBy, stats, values]);
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
       <Table
@@ -220,7 +220,21 @@ function GamesFilter({
         setSelected={players => setFilter({ ...filter, players })}
       />
       <NumberField
-        label="Mindestens X Spiele / Spieler"
+        label="Mindestens X Spiele pro Deck"
+        value={
+          filter.minPlaysPerDeck === undefined ? null : filter.minPlaysPerDeck
+        }
+        min={0}
+        required={true}
+        onValueChange={v =>
+          setFilter({
+            ...filter,
+            minPlaysPerDeck: v == null ? undefined : v,
+          })
+        }
+      />
+      <NumberField
+        label="Mindestens X Spiele pro Spieler"
         value={
           filter.minPlaysPerPlayer === undefined
             ? null
@@ -235,26 +249,11 @@ function GamesFilter({
           })
         }
       />
-      <NumberField
-        label="Mindestens X Spiele / Deck"
-        value={
-          filter.minPlaysPerDeck === undefined ? null : filter.minPlaysPerDeck
-        }
-        min={0}
-        required={true}
-        onValueChange={v =>
-          setFilter({
-            ...filter,
-            minPlaysPerDeck: v == null ? undefined : v,
-          })
-        }
-      />
       <FormControlLabel
         control={
           <Checkbox
             checked={filter.normalizeToPlayerCount !== null}
             onChange={e => {
-              console.log(e.target.checked);
               setFilter({
                 ...filter,
                 normalizeToPlayerCount: e.target.checked ? 4 : null,
