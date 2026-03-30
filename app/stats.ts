@@ -67,6 +67,19 @@ function normalizePlacing(
   return 1 + (toPlayers - 1) * relativePlace;
 }
 
+export function distinctCounts(values: number[]): Map<number, number> {
+  const res = new Map<number, number>();
+  for (const value of values) {
+    const existing = res.get(value);
+    if (existing !== undefined) {
+      res.set(value, existing + 1);
+    } else {
+      res.set(value, 1);
+    }
+  }
+  return res;
+}
+
 export function getPlacings(
   games: Game[],
   normalizeToPlayerCount: number | null,

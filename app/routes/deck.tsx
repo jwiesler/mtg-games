@@ -9,7 +9,6 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { PieChart } from "@mui/x-charts/PieChart";
 import React, { type ReactElement } from "react";
 import {
   type ActionFunctionArgs,
@@ -25,13 +24,14 @@ import { DeckSchema, deleteDeck, parseIdParam, updateDeck } from "~/api.server";
 import DestructionDialog from "~/components/DestructionDialog";
 import { type DeckData, EditDeck } from "~/components/EditDeck";
 import EditDrawer from "~/components/EditDrawer";
+import GamesPieChart from "~/components/GamesPieChart";
 import NotificationSnack from "~/components/NotificationSnack";
+import PlayersChart from "~/components/PlayersChart";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
-import { PERCENTAGE } from "~/format";
 import { NotFound, Validated } from "~/responses.server";
 import { API as SCRYFALL } from "~/scryfall";
-import { getPlacings } from "~/stats";
+import { distinctCounts, getPlacings } from "~/stats";
 
 export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   {
@@ -223,19 +223,6 @@ function DeckCard({
   );
 }
 
-function distinctCounts(values: number[]): Map<number, number> {
-  const res = new Map<number, number>();
-  for (const value of values) {
-    const existing = res.get(value);
-    if (existing !== undefined) {
-      res.set(value, existing + 1);
-    } else {
-      res.set(value, 1);
-    }
-  }
-  return res;
-}
-
 function PlacingsChart({ deck, games }: { deck: number; games: Game[] }) {
   const series = React.useMemo(() => {
     const placings = getPlacings(games, null, p => p.deck.id).get(deck) || [];
@@ -245,30 +232,11 @@ function PlacingsChart({ deck, games }: { deck: number; games: Game[] }) {
       return {
         id: i,
         value: count,
-        place: place,
         label: `${place}. Platz`,
       };
     });
   }, [deck, games]);
-  return (
-    <PieChart
-      series={[
-        {
-          data: series,
-          valueFormatter: (item: { value: number }) =>
-            `${PERCENTAGE.format(item.value / games.length)} (${item.value} ${item.value == 1 ? "Spiel" : "Spiele"})`,
-          innerRadius: 50,
-          arcLabel: item =>
-            item.label == undefined
-              ? ""
-              : item.label.substring(0, item.label.indexOf(".")),
-        },
-      ]}
-      width={200}
-      height={200}
-      hideLegend={true}
-    />
-  );
+  return <GamesPieChart data={series} games={games.length} />;
 }
 
 function Stats({ games, placingId }: { games: Game[]; placingId: number }) {
@@ -287,6 +255,12 @@ function Stats({ games, placingId }: { games: Game[]; placingId: number }) {
             Platzierungen
           </Typography>
           <PlacingsChart deck={placingId} games={games} />
+        </Box>
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h5" gutterBottom>
+            Spieleranzahl
+          </Typography>
+          <PlayersChart games={games} />
         </Box>{" "}
       </CardContent>
       <div></div>
