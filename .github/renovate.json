@@ -22,6 +22,18 @@
     {
       "matchManagers": ["github-actions"],
       "groupName": "github-actions"
+    },
+    {
+      "matchDepNames": ["/^@mui/"],
+      "groupName": "mui"
+    },
+    {
+      "matchDepNames": ["/^@react-router/", "/^react-router/"],
+      "groupName": "react-router"
+    },
+    {
+      "matchDepNames": ["/^@prisma/"],
+      "groupName": "prisma"
     }
   ]
 }
