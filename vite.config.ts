@@ -1,10 +1,12 @@
 import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [svgr(), reactRouter(), tsconfigPaths()],
+  resolve: {
+    tsconfigPaths: true,
+  },
+  plugins: [svgr(), reactRouter()],
   ssr: {
     // Workaround for resolving dependencies in the server bundle
     // Without this, the React context will be different between direct import and transitive imports in development environment
