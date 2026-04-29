@@ -35,7 +35,7 @@ export function Header({
       <IconButton aria-label="close" onClick={onClose}>
         <CloseIcon />
       </IconButton>
-      <Typography variant="h6" component="h1" flexGrow={1}>
+      <Typography variant="h6" component="div" style={{ flexGrow: 1 }}>
         {title}
       </Typography>
       {children}
