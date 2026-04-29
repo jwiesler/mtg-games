@@ -54,8 +54,9 @@ export function IdInput<I extends Input>({
             label={label}
             required={required}
             slotProps={{
+              ...params.slotProps,
               input: {
-                ...params.InputProps,
+                ...params.slotProps.input,
                 type: "search",
               },
             }}
