@@ -53,21 +53,8 @@ export function IdInput<I extends Input>({
             name={name}
             label={label}
             required={required}
-            slotProps={{
-              ...params.slotProps,
-              input: {
-                ...params.slotProps.input,
-                type: "search",
-              },
-            }}
           />
         )}
-        onFocus={e => {
-          e.target.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }}
       />
       <input
         type="number"
