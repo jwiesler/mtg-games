@@ -104,7 +104,6 @@ export function EditDeck({
               ...params.slotProps,
               input: {
                 ...params.slotProps.input,
-                type: "search",
                 endAdornment: (
                   <React.Fragment>
                     {loading ? (

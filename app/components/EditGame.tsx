@@ -93,6 +93,7 @@ function EditPlay({
               aria-label="up"
               sx={{ visibility: up ? "visible" : "hidden" }}
               onClick={() => swap(i, "up")}
+              tabIndex={-1}
             >
               <UpIcon />
             </IconButton>
@@ -101,6 +102,7 @@ function EditPlay({
               aria-label="down"
               sx={{ visibility: down ? "visible" : "hidden" }}
               onClick={() => swap(i, "down")}
+              tabIndex={-1}
             >
               <DownIcon />
             </IconButton>
@@ -135,6 +137,7 @@ function EditPlay({
               color="error"
               disabled={disallowDelete}
               onClick={() => replacePlay(i, null)}
+              tabIndex={-1}
             >
               Mitspieler löschen
             </Button>
@@ -265,7 +268,7 @@ export default function EditGame({
         />
       ))}
       <Stack>
-        <Button color="warning" onClick={() => addPlay()}>
+        <Button color="warning" onClick={() => addPlay()} tabIndex={-1}>
           Mitspieler hinzufügen
         </Button>
       </Stack>
