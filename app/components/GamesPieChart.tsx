@@ -19,10 +19,15 @@ export default function GamesPieChart({
           valueFormatter: (item: { value: number }) =>
             `${PERCENTAGE.format(item.value / games)} (${item.value} ${item.value == 1 ? "Spiel" : "Spiele"})`,
           innerRadius: 50,
-          arcLabel: item =>
-            item.label == undefined
-              ? ""
-              : item.label.substring(0, item.label.indexOf(" ")),
+          arcLabel: item => {
+            if (item.label === undefined) {
+              return "";
+            }
+            const firstSpace = item.label.indexOf(" ");
+            return firstSpace === -1
+              ? item.label
+              : item.label.substring(0, firstSpace);
+          },
         },
       ]}
       width={200}

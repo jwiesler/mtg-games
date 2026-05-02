@@ -239,6 +239,36 @@ function PlacingsChart({ deck, games }: { deck: number; games: Game[] }) {
   return <GamesPieChart data={series} games={games.length} />;
 }
 
+function PlayerNamesChart({ deck, games }: { deck: number; games: Game[] }) {
+  const series = React.useMemo(() => {
+    const playerNames = new Map<number, string>();
+    const players = new Map<number, number>();
+    games.forEach(g => {
+      g.plays.forEach(p => {
+        if (p.deck.id === deck) {
+          const e = players.get(p.player.id);
+          if (e !== undefined) {
+            players.set(p.player.id, e + 1);
+          } else {
+            playerNames.set(p.player.id, p.player.name);
+            players.set(p.player.id, 1);
+          }
+        }
+      });
+    });
+    const counts = Array.from(players.entries());
+    counts.sort((a, b) => a[1] - b[1]);
+    return counts.map(([player, count], i) => {
+      return {
+        id: i,
+        value: count,
+        label: playerNames.get(player) || "",
+      };
+    });
+  }, [deck, games]);
+  return <GamesPieChart data={series} games={games.length} />;
+}
+
 function Stats({ games, placingId }: { games: Game[]; placingId: number }) {
   return (
     <Card>
@@ -261,6 +291,12 @@ function Stats({ games, placingId }: { games: Game[]; placingId: number }) {
             Spieleranzahl
           </Typography>
           <PlayersChart games={games} />
+        </Box>
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h5" gutterBottom>
+            Spieler
+          </Typography>
+          <PlayerNamesChart deck={placingId} games={games} />
         </Box>{" "}
       </CardContent>
       <div></div>
