@@ -36,7 +36,6 @@ async function fillEdit(
 ) {
   const players = await dialog.getByLabel("Spieler").all();
   const decks = await dialog.getByLabel("Deck").all();
-  console.log(players.length, decks.length);
   expect(players.length).toEqual(decks.length);
   expect(decks.length).toBeGreaterThan(game.plays.length);
   for (let i = decks.length; i < game.plays.length; ++i) {
