@@ -169,6 +169,7 @@ test("edit game", async ({ page }) => {
 
   const editButton = page.getByRole("button", { name: "Bearbeiten" });
   await expect(editButton).toBeVisible();
+  await editButton.click({ trial: true });
   await editButton.click();
 
   const deleteButton = page.getByRole("button", { name: "delete" });
@@ -231,6 +232,7 @@ test.describe("delete tests", () => {
 
     const editButton = page.getByRole("button", { name: "Bearbeiten" });
     await expect(editButton).toBeVisible();
+    await editButton.click({ trial: true });
     await editButton.click();
 
     const deleteButton = page.getByRole("button", { name: "delete" });
