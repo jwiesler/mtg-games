@@ -12,6 +12,10 @@
   "extends": ["config:recommended"],
   "packageRules": [
     {
+      "matchDepTypes": ["transitive"],
+      "enabled": false
+    },
+    {
       "automerge": true,
       "matchUpdateTypes": ["minor", "patch"]
     },
