@@ -33,6 +33,43 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+function SessionCheck() {
+  React.useEffect(() => {
+    const check = async () => {
+      if (document.visibilityState !== "visible") return;
+      const alive = await isSessionAlive();
+      if (!alive) window.location.reload();
+    };
+
+    // cache restore
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        check();
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+    };
+  }, []);
+
+  async function isSessionAlive() {
+    try {
+      const r = await fetch("/session", {
+        credentials: "include",
+        redirect: "manual",
+        cache: "no-store",
+      });
+      // Expired: type === 'opaqueredirect' (Caddy is sending 302 to SSO)
+      return r.type !== "opaqueredirect";
+    } catch {
+      return true;
+    }
+  }
+  return null;
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -75,6 +112,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </Container>
         <ScrollRestoration />
         <Scripts />
+        <SessionCheck />
       </body>
     </html>
   );
