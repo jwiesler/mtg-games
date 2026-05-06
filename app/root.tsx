@@ -35,10 +35,18 @@ export const links: Route.LinksFunction = () => [
 
 function SessionCheck() {
   React.useEffect(() => {
+    let last: number | null = null;
     const check = async () => {
+      const current = Date.now();
+      if (last != null && current - last < 10 * 60 * 1000) {
+        return;
+      }
+      last = current;
       if (document.visibilityState !== "visible") return;
       const alive = await isSessionAlive();
-      if (!alive) window.location.reload();
+      if (!alive) {
+        window.location.reload();
+      }
     };
 
     // cache restore
@@ -48,9 +56,16 @@ function SessionCheck() {
       }
     };
     window.addEventListener("pageshow", onPageShow);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        check();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, []);
 
