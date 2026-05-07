@@ -25,7 +25,9 @@ import DestructionDialog from "~/components/DestructionDialog";
 import { type DeckData, EditDeck } from "~/components/EditDeck";
 import EditDrawer from "~/components/EditDrawer";
 import GamesPieChart from "~/components/GamesPieChart";
+import { NamesChart } from "~/components/NamesChart";
 import NotificationSnack from "~/components/NotificationSnack";
+import { PlacingsChart } from "~/components/PlacingsChart";
 import PlayersChart from "~/components/PlayersChart";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
@@ -223,53 +225,7 @@ function DeckCard({
   );
 }
 
-function PlacingsChart({ deck, games }: { deck: number; games: Game[] }) {
-  const series = React.useMemo(() => {
-    const placings = getPlacings(games, null, p => p.deck.id).get(deck) || [];
-    const counts = Array.from(distinctCounts(placings).entries());
-    counts.sort((a, b) => a[0] - b[0]);
-    return counts.map(([place, count], i) => {
-      return {
-        id: i,
-        value: count,
-        label: `${place}. Platz`,
-      };
-    });
-  }, [deck, games]);
-  return <GamesPieChart data={series} games={games.length} />;
-}
-
-function PlayerNamesChart({ deck, games }: { deck: number; games: Game[] }) {
-  const series = React.useMemo(() => {
-    const playerNames = new Map<number, string>();
-    const players = new Map<number, number>();
-    games.forEach(g => {
-      g.plays.forEach(p => {
-        if (p.deck.id === deck) {
-          const e = players.get(p.player.id);
-          if (e !== undefined) {
-            players.set(p.player.id, e + 1);
-          } else {
-            playerNames.set(p.player.id, p.player.name);
-            players.set(p.player.id, 1);
-          }
-        }
-      });
-    });
-    const counts = Array.from(players.entries());
-    counts.sort((a, b) => a[1] - b[1]);
-    return counts.map(([player, count], i) => {
-      return {
-        id: i,
-        value: count,
-        label: playerNames.get(player) || "",
-      };
-    });
-  }, [deck, games]);
-  return <GamesPieChart data={series} games={games.length} />;
-}
-
-function Stats({ games, placingId }: { games: Game[]; placingId: number }) {
+function Stats({ games, deckId }: { games: Game[]; deckId: number }) {
   return (
     <Card>
       <CardContent
@@ -284,7 +240,7 @@ function Stats({ games, placingId }: { games: Game[]; placingId: number }) {
           <Typography variant="h5" gutterBottom>
             Platzierungen
           </Typography>
-          <PlacingsChart deck={placingId} games={games} />
+          <PlacingsChart filterBy="deck" filterById={deckId} games={games} />
         </Box>
         <Box sx={{ textAlign: "center" }}>
           <Typography variant="h5" gutterBottom>
@@ -296,7 +252,12 @@ function Stats({ games, placingId }: { games: Game[]; placingId: number }) {
           <Typography variant="h5" gutterBottom>
             Spieler
           </Typography>
-          <PlayerNamesChart deck={placingId} games={games} />
+          <NamesChart
+            filterBy="deck"
+            filterById={deckId}
+            nameKey="player"
+            games={games}
+          />
         </Box>{" "}
       </CardContent>
       <div></div>
@@ -329,7 +290,7 @@ export default function Deck() {
           setEditDrawerOpen(true);
         }}
       />
-      <Stats games={games} placingId={deck.id} />
+      <Stats games={games} deckId={deck.id} />
       <RecentPlays
         games={games}
         columnKey="player"
