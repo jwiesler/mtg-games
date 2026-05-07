@@ -49,6 +49,8 @@ function SessionCheck() {
       }
     };
 
+    check();
+
     // cache restore
     const onPageShow = (e: PageTransitionEvent) => {
       if (e.persisted) {
