@@ -7,7 +7,6 @@ export interface Play {
 }
 
 export interface Game {
-  id: number;
   plays: Play[];
 }
 
