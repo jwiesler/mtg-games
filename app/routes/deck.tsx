@@ -24,7 +24,6 @@ import { DeckSchema, deleteDeck, parseIdParam, updateDeck } from "~/api.server";
 import DestructionDialog from "~/components/DestructionDialog";
 import { type DeckData, EditDeck } from "~/components/EditDeck";
 import EditDrawer from "~/components/EditDrawer";
-import GamesPieChart from "~/components/GamesPieChart";
 import { NamesChart } from "~/components/NamesChart";
 import NotificationSnack from "~/components/NotificationSnack";
 import { PlacingsChart } from "~/components/PlacingsChart";
@@ -33,7 +32,6 @@ import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
 import { NotFound, Validated } from "~/responses.server";
 import { API as SCRYFALL } from "~/scryfall";
-import { distinctCounts, getPlacings } from "~/stats";
 
 export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   {
