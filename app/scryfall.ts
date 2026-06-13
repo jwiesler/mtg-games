@@ -35,8 +35,11 @@ export const API = {
     async (name: string): Promise<z.infer<typeof NormalCard> | null> => {
       const url = new URL("https://api.scryfall.com/cards/named");
       url.searchParams.append("exact", name);
-      const r = await fetch(url);
+      const r = await fetch(url, {
+        headers: [["User-Agent", "mtg-jwiesler-backend"]],
+      });
       if (!r.ok) {
+        console.error(`Scryfall returned an error for ${url}`, await r.json());
         return null;
       }
       const parsed = CardSchema.safeParse(await r.json());
