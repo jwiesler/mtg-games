@@ -52,10 +52,8 @@ function SessionCheck() {
     check();
 
     // cache restore
-    const onPageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) {
-        check();
-      }
+    const onPageShow = () => {
+      check();
     };
     window.addEventListener("pageshow", onPageShow);
     const onVisibilityChange = () => {
