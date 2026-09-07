@@ -49,7 +49,7 @@
     "@types/react-dom": "latest",
     "dotenv-cli": "^11.0.0",
     "eslint": "^10.0.0",
-    "prisma": "^6.19.3",
+    "prisma": "^7.0.0",
     "typescript": "^6.0.0",
     "typescript-eslint": "^8.35.1",
     "vite": "latest"
