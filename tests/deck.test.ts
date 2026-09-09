@@ -11,7 +11,7 @@ test("show deck", async ({ page }) => {
   await createUser({ name: "Alice" });
   await createDeck({
     name: "#NAME",
-    commander: "#COMMANDER",
+    commander: "Nicol Bolas, the Ravager",
     colors: "#COLORS",
     bracket: 4,
     description: "#DESCRIPTION",
@@ -26,7 +26,7 @@ test("show deck", async ({ page }) => {
 
   await expect(page.getByText("Alice")).toBeVisible();
   await expect(page.getByText("#NAME")).toBeVisible();
-  await expect(page.getByText("#COMMANDER")).toBeVisible();
+  await expect(page.getByText("Nicol Bolas, the Ravager")).toBeVisible();
   await expect(page.getByText("#COLORS")).toBeVisible();
   await expect(page.getByText("4")).toBeVisible();
   await expect(page.getByText("#DESCRIPTION")).toBeVisible();

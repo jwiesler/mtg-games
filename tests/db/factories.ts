@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import prisma from "~/db.server";
 
 export async function createUser(overrides = {}) {
   return prisma.user.create({
@@ -13,7 +13,7 @@ export async function createDeck(overrides = {}) {
   return prisma.deck.create({
     data: {
       name: "Deck",
-      commander: "Commander",
+      commander: "Nicol Bolas, the Ravager",
       description: "Description",
       colors: "esper",
       url: "https://example.com/yawgmoth",
