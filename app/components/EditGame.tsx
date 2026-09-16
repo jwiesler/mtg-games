@@ -68,7 +68,7 @@ function EditPlay({
 }) {
   const [groupBy, sortedDecks] = React.useMemo(() => {
     if (player === null) {
-      return [undefined, decks];
+      return [() => "", decks];
     }
     const copy = [...decks];
     copy.sort((a, b) =>
