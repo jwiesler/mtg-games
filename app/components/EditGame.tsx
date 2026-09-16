@@ -217,7 +217,11 @@ export default function EditGame({
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
         <DateTimePicker
           value={game.when}
-          onChange={v => v != null && setGame({ ...game, when: v })}
+          onChange={v =>
+            v != null &&
+            !Number.isNaN(v.getTime()) &&
+            setGame({ ...game, when: v })
+          }
           timezone="Europe/Berlin"
           label="Zeit"
           viewRenderers={{
