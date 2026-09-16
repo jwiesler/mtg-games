@@ -34,7 +34,7 @@ export const API = {
   card: cache(
     async (name: string): Promise<z.infer<typeof NormalCard> | null> => {
       const url = new URL("https://api.scryfall.com/cards/named");
-      url.searchParams.append("exact", name);
+      url.searchParams.append("fuzzy", name);
       const r = await fetch(url, {
         headers: [["User-Agent", "mtg-jwiesler-backend"]],
       });
