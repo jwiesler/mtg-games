@@ -21,6 +21,7 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
+    "checkJs": false,
     "strict": true
   }
 }

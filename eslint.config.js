@@ -7,6 +7,6 @@ export default tseslint.config([
   tseslint.configs.recommended,
   {
     // Note: there should be no other properties in this object
-    ignores: ["**/build/*", ".react-router"],
+    ignores: ["**/build/*", ".react-router", "server.js"],
   },
 ]);
