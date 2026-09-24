@@ -11,7 +11,10 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: `npx react-router build && npx vite preview --port ${port}`,
+    command: `npm run build && npm run start`,
+    env: {
+      PORT: String(port),
+    },
     port: port,
     reuseExistingServer: !process.env.CI,
   },
