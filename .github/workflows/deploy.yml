@@ -10,8 +10,11 @@ env:
   IMAGE_NAME: "${{ github.repository }}"
 
 jobs:
-  build_image:
+  build-image:
+    name: Build Image
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.imageid }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -33,17 +36,74 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha
       - name: Build and push Docker image
+        id: image
         uses: docker/build-push-action@v7
         with:
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: "${{ steps.meta.outputs.tags }}"
           labels: "${{ steps.meta.outputs.labels }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  smoke-test:
+    runs-on: ubuntu-latest
+    name: Smoke Test
+    needs:
+      - build-image
+    env:
+      DATABASE_PATH: ./prisma/dev.db
+      DATABASE_URL: file:./prisma/dev.db
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: "${{ env.REGISTRY }}"
+          username: "${{ github.actor }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+
+      - run: npm ci
+
+      - run: npx prisma db push
+
+      - name: Start container
+        run: |
+          podman run --rm \
+            --detach \
+            --env "DATABASE_URL=file://app/db.sqlite" \
+            --cgroups=no-conmon \
+            --sdnotify=conmon \
+            --volume $DATABASE_PATH:/app/db.sqlite:U \
+            --log-driver json-file \
+            --log-opt path=$(pwd)/mtg-games.log \
+            --publish 3000:3000 \
+            "$IMAGE"
+        env:
+          IMAGE: ghcr.io/jwiesler/mtg-games@${{ needs.build-image.outputs.image }}
+
+      - name: Smoke test
+        run: |
+          for i in {1..10}
+          do
+            curl -v --no-progress-meter localhost:3000/healthz && exit 0
+            echo "Request failed, retrying in 5s"
+            sleep 5
+          done
+          exit 1
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: logs
+          path: mtg-games.log
+          retention-days: 7
+
   deploy:
     runs-on: ubuntu-latest
+    name: Deploy
     needs:
-      - build_image
+      - smoke-test
     concurrency:
       group: deploy
       cancel-in-progress: false
