@@ -6,6 +6,15 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  environments: {
+    ssr: {
+      build: {
+        rollupOptions: {
+          input: "./server/app.ts",
+        },
+      },
+    },
+  },
   plugins: [svgr(), reactRouter()],
   ssr: {
     // Workaround for resolving dependencies in the server bundle
