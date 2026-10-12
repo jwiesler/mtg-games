@@ -2,7 +2,7 @@ import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   resolve: {
     tsconfigPaths: true,
   },
@@ -23,6 +23,11 @@ export default defineConfig({
     optimizeDeps: {
       include: ["@emotion/*", "@mui/*"],
     },
-    noExternal: ["@emotion/*", "@mui/*"],
+    // For prod builds, bundle all dependencies we can into the server build
+    noExternal: command === "build" ? true : ["@emotion/*", "@mui/*"],
+    external:
+      command === "build"
+        ? ["@prisma/client", "@prisma/adapter-better-sqlite3", "better-sqlite3"]
+        : undefined,
   },
-});
+}));
