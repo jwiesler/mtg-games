@@ -7,7 +7,7 @@ RUN npm run prisma-generate
 FROM node:25-alpine AS production-dependencies-env
 COPY ./package.json package-lock.json /app/
 WORKDIR /app
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --omit=optional
 
 FROM node:25-alpine AS build-env
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
