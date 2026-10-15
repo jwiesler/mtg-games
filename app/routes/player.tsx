@@ -69,9 +69,9 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   };
 };
 
-export const meta: MetaFunction<typeof loader> = () => [
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   {
-    title: "Spieler",
+    title: loaderData ? loaderData.user.name : "Not found",
   },
 ];
 
@@ -104,7 +104,7 @@ function Stats({ games, playerId }: { games: Game[]; playerId: number }) {
         </Box>
         <Box sx={{ textAlign: "center" }}>
           <Typography variant="h5" gutterBottom>
-            Spieler
+            Decks
           </Typography>
           <NamesChart
             filterBy="player"
