@@ -28,6 +28,7 @@
     "@emotion/react": "latest",
     "@emotion/server": "latest",
     "@emotion/styled": "latest",
+    "@fontsource/roboto": "^5.3.0",
     "@mui/icons-material": "=9.5.0",
     "@mui/material": "=9.5.0",
     "@mui/x-charts": "=9.15.0",

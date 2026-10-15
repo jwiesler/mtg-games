@@ -1,6 +1,10 @@
 /// <reference types="vite-plugin-svgr/client" />
 import * as React from "react";
 import { CacheProvider } from "@emotion/react";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -19,19 +23,6 @@ import type { Route } from "./+types/root";
 import createEmotionCache from "./createCache";
 import MtgLogo from "./mtg.svg?react";
 import AppTheme from "./theme";
-
-export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap",
-  },
-];
 
 async function isSessionAlive() {
   try {
