@@ -8,6 +8,7 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import React from "react";
+import { Link as RouterLink } from "react-router";
 
 import { SortTableHead } from "./SortTableHead";
 import type { User } from "~/generated/prisma/client";
@@ -71,7 +72,9 @@ export function DeckTable({ decks }: { decks: Deck[] }) {
                   {page * rowsPerPage + index + 1}
                 </TableCell>
                 <TableCell>
-                  <Link href={`/decks/${deck.id}`}>{deck.name}</Link>
+                  <Link component={RouterLink} to={`/decks/${deck.id}`}>
+                    {deck.name}
+                  </Link>
                 </TableCell>
                 <TableCell>{deck.owner.name}</TableCell>
               </TableRow>

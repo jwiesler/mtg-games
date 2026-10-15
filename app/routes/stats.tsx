@@ -19,7 +19,11 @@ import TableRow from "@mui/material/TableRow";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import React from "react";
-import { type MetaFunction, useLoaderData } from "react-router";
+import {
+  type MetaFunction,
+  Link as RouterLink,
+  useLoaderData,
+} from "react-router";
 
 import NumberField from "~/components/NumberField";
 import { NumberSelect } from "~/components/NumberSelect";
@@ -176,7 +180,9 @@ function StatsTable({
                   {linkPrefix === undefined ? (
                     <span>{name}</span>
                   ) : (
-                    <Link href={`${linkPrefix}${id}`}>{name}</Link>
+                    <Link component={RouterLink} to={`${linkPrefix}${id}`}>
+                      {name}
+                    </Link>
                   )}
                 </TableCell>
                 <TableCell>{numberOrDash(deck_stats.wins)}</TableCell>

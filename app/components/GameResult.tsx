@@ -8,6 +8,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { Link as RouterLink } from "react-router";
 
 import Placing from "./Placing";
 
@@ -55,12 +56,17 @@ export default function GameResult({
                   <Placing place={play.place} />
                 </TableCell>
                 <TableCell>
-                  <Link href={`/players/${play.player.id}`}>
+                  <Link
+                    component={RouterLink}
+                    to={`/players/${play.player.id}`}
+                  >
                     {play.player.name}
                   </Link>
                 </TableCell>
                 <TableCell>
-                  <Link href={`/decks/${play.deck.id}`}>{play.deck.name}</Link>
+                  <Link component={RouterLink} to={`/decks/${play.deck.id}`}>
+                    {play.deck.name}
+                  </Link>
                 </TableCell>
               </TableRow>
             ))}

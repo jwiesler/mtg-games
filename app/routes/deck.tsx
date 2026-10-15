@@ -14,6 +14,7 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
+  Link as RouterLink,
   redirect,
   useActionData,
   useLoaderData,
@@ -133,7 +134,11 @@ function Properties({ deck, card }: { deck: Deck; card: CardData }) {
           {deck.commander}
         </Link>
       ),
-    Besitzer: <Link href={`/players/${deck.owner.id}`}>{deck.owner.name}</Link>,
+    Besitzer: (
+      <Link component={RouterLink} to={`/players/${deck.owner.id}`}>
+        {deck.owner.name}
+      </Link>
+    ),
 
     Bracket: String(deck.bracket),
   };

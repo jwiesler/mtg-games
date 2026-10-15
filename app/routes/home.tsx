@@ -15,7 +15,7 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import type { SxProps } from "@mui/material/styles";
 import type { ReactElement } from "react";
-import { useLoaderData } from "react-router";
+import { Link as RouterLink, useLoaderData } from "react-router";
 
 import CollapseRow from "~/components/CollapseRow";
 import DateElement from "~/components/DateElement";
@@ -42,7 +42,7 @@ function SubpageLink({
   icon: ReactElement;
 }) {
   return (
-    <Link href={href} underline="none">
+    <Link component={RouterLink} to={href} underline="none">
       <Paper variant="outlined" sx={{ p: "1em", width: "12em" }}>
         <Stack spacing={2} sx={{ alignItems: "center" }}>
           {icon}

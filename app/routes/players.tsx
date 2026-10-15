@@ -18,6 +18,7 @@ import React from "react";
 import {
   type ActionFunctionArgs,
   type MetaFunction,
+  Link as RouterLink,
   useActionData,
   useLoaderData,
   useSubmit,
@@ -175,7 +176,9 @@ function UsersTable({
                   {page * rowsPerPage + index + 1}
                 </TableCell>
                 <TableCell>
-                  <Link href={`/players/${user.id}`}>{user.name}</Link>
+                  <Link component={RouterLink} to={`/players/${user.id}`}>
+                    {user.name}
+                  </Link>
                 </TableCell>
                 <TableCell>
                   <IconButton
