@@ -46,7 +46,7 @@ function SubpageLink({
       <Paper variant="outlined" sx={{ p: "1em", width: "12em" }}>
         <Stack spacing={2} sx={{ alignItems: "center" }}>
           {icon}
-          <Typography variant="h4" component="h1">
+          <Typography variant="h4" component="h2">
             {title}
           </Typography>
         </Stack>
@@ -271,7 +271,7 @@ export default function Home() {
               alignItems: "center",
             }}
           >
-            <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+            <Typography variant="h4" component="h2" sx={{ mb: 2 }}>
               Die letzten Spiele
             </Typography>
             <RecentGames games={games} />
