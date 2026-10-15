@@ -111,19 +111,20 @@ async function createOrEditGame(body: FormData) {
   const rawId = body.get("id");
   if (rawId !== null) {
     const id = Validated(z.coerce.number().safeParse(rawId));
-    const [, game] = await prisma.$transaction([
-      prisma.game.delete({ where: { id } }),
-      prisma.game.create({
-        data: {
-          when,
-          duration,
-          comment,
-          plays: { createMany: { data: plays } },
-        },
-        select: { id: true },
-      }),
-    ]);
-    return { type: "update", key: `update-${game.id}` };
+    const game = await prisma.game.update({
+      where: { id },
+      data: {
+        when,
+        duration,
+        comment,
+        plays: { deleteMany: {}, createMany: { data: plays } },
+      },
+      select: { id: true, updatedAt: true },
+    });
+    return {
+      type: "update",
+      key: `update-${game.id}-${game.updatedAt.toISOString()}`,
+    };
   } else {
     const game = await prisma.game.create({
       data: { when, duration, comment, plays: { createMany: { data: plays } } },
