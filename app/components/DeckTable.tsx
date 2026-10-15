@@ -59,7 +59,6 @@ export function DeckTable({ decks }: { decks: Deck[] }) {
               >
                 Besitzer
               </SortTableHead>
-              <TableCell width={"5em"}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
