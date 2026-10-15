@@ -24,6 +24,25 @@ import createEmotionCache from "./createCache";
 import MtgLogo from "./mtg.svg?react";
 import AppTheme from "./theme";
 
+export const links: Route.LinksFunction = () => [
+  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+  { rel: "icon", href: "/pwa-64x64.png", type: "image/png", size: "64x64" },
+  { rel: "icon", href: "/pwa-192x192.png", type: "image/png", size: "192x192" },
+  { rel: "icon", href: "/pwa-512x512.png", type: "image/png", size: "512x512" },
+  {
+    rel: "icon",
+    href: "/maskable-icon-512x512.png",
+    type: "image/png",
+    size: "512x512",
+    purpose: "maskable",
+  },
+  {
+    rel: "apple-touch-icon",
+    href: "/apple-touch-icon-180x180.png",
+    size: "180x180",
+  },
+];
+
 async function isSessionAlive() {
   try {
     const r = await fetch("/session", {
