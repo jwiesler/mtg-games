@@ -85,7 +85,7 @@ export const loader = async () => {
 const SCHEMA = z
   .object({
     when: z.iso.datetime(),
-    deckId: z.array(z.coerce.number().int().positive()),
+    deckId: z.array(z.coerce.number().int().positive()).min(2),
     playerId: z.array(z.coerce.number().int().positive()),
     duration: z.coerce.number(),
     comment: z.string(),
