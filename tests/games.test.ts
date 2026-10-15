@@ -192,13 +192,7 @@ test("edit game", async ({ page }) => {
 
   await expect(submit).not.toBeVisible();
   await expect(page.getByText("Spiel bearbeitet")).toBeVisible();
-  // Wait for refresh which will make the edit button invisible by collapsing the row
-  await expect(editButton).not.toBeVisible();
 
-  const row = page.locator("tr", { hasText: "2" });
-  await expect(row).toBeVisible();
-  const expand = row.getByRole("button", { name: "expand row" });
-  await expand.click();
   const resultRow = page.locator("tr", { hasText: "Ergebnis" });
 
   await expectGameResult(
