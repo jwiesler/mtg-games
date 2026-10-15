@@ -25,8 +25,19 @@ const autoCompletions = debounce(
   async (input: string, callback: (results: string[]) => void) => {
     const url = new URL("https://api.scryfall.com/cards/autocomplete");
     url.searchParams.append("q", input);
-    const result = await (await fetch(url)).json();
-    callback("data" in result ? (result.data as string[]) : []);
+    try {
+      const r = await fetch(url);
+      if (!r.ok) {
+        console.error(`Scryfall returned ${r.status} for ${url}`);
+        callback([]);
+        return;
+      }
+      const result = await r.json();
+      callback("data" in result ? (result.data as string[]) : []);
+    } catch (e) {
+      console.error("Failed to load commander completions", e);
+      callback([]);
+    }
   },
   200,
 );
@@ -57,6 +68,11 @@ export function EditDeck({
   >([]);
   const [loading, setLoading] = React.useState(false);
   React.useEffect(() => {
+    if (deck.commander.trim() === "") {
+      setLoading(false);
+      setCommanderCompletions([]);
+      return;
+    }
     let discardLoad = false;
     setLoading(true);
     autoCompletions(deck.commander, options => {
