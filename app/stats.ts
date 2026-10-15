@@ -30,7 +30,7 @@ function calculatePlayStats(
     if (placings.length < minPlacings) {
       return;
     }
-    placings.sort();
+    placings.sort((a, b) => a - b);
     let best = placings[0];
     let worst = placings[0];
     let sum = 0;
@@ -125,7 +125,7 @@ export function createDefaultFilter(games: Game[]): Filter {
   const existingPlayerCounts = Array.from(
     new Set(games.map(g => g.plays.length)),
   );
-  existingPlayerCounts.sort();
+  existingPlayerCounts.sort((a, b) => a - b);
   return {
     existingPlayerCounts,
     players: existingPlayerCounts,
