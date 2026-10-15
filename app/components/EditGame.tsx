@@ -266,7 +266,7 @@ export default function EditGame({
           swap={swap}
           users={users}
           decks={decks}
-          disallowDelete={game.plays.length <= 1}
+          disallowDelete={game.plays.length <= 2}
           up={i > 0}
           down={i < game.plays.length - 1}
         />
