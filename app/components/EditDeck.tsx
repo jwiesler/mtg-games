@@ -63,24 +63,23 @@ export function EditDeck({
   setDeck: (deck: DeckData) => void;
   users: User[];
 }) {
-  const [commanderCompletions, setCommanderCompletions] = React.useState<
-    string[]
-  >([]);
-  const [loading, setLoading] = React.useState(false);
+  const [completions, setCompletions] = React.useState<{
+    input: string;
+    options: string[];
+  }>({ input: "", options: [] });
+  const hasInput = deck.commander.trim() !== "";
+  const loading = hasInput && completions.input !== deck.commander;
+  const commanderCompletions = hasInput ? completions.options : [];
   React.useEffect(() => {
     if (deck.commander.trim() === "") {
-      setLoading(false);
-      setCommanderCompletions([]);
       return;
     }
     let discardLoad = false;
-    setLoading(true);
     autoCompletions(deck.commander, options => {
       if (discardLoad) {
         return;
       }
-      setLoading(false);
-      setCommanderCompletions(options);
+      setCompletions({ input: deck.commander, options });
     });
     return () => {
       discardLoad = true;
