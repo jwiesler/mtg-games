@@ -17,7 +17,7 @@ export const DeckSchema = z.object({
   name: z.string(),
   description: z.string(),
   commander: z.string(),
-  ownerId: z.coerce.number(),
+  ownerId: z.coerce.number().int().positive(),
   bracket: z.coerce.number(),
   colors: z.string(),
   url: z.string(),
