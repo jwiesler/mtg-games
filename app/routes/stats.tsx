@@ -347,8 +347,10 @@ export default function Stats() {
   );
   const [partialFilter, setFilter] =
     React.useState<PartialFilter>(defaultFilter);
-  const filter = { ...defaultFilter, ...partialFilter };
-  const stats = React.useMemo(() => calculate(games, filter), [games, filter]);
+  const [filter, stats] = React.useMemo(() => {
+    const filter = { ...defaultFilter, ...partialFilter };
+    return [filter, calculate(games, filter)];
+  }, [games, defaultFilter, partialFilter]);
   const [expanded, setExpanded] = React.useState(false);
   return (
     <Box

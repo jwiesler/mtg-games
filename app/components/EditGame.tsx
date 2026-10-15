@@ -77,7 +77,7 @@ function EditPlay({
     const groupBy = (deck: DeckDesc) =>
       deck.ownerId === player.id ? `Decks von ${player.name}` : "Andere Decks";
     return [groupBy, copy];
-  }, [player]);
+  }, [player, decks]);
   return (
     <Grid size={12}>
       <Paper elevation={3} sx={{ p: "0.75em" }}>
