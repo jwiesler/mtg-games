@@ -140,7 +140,7 @@ function UsersTable({
   const sortedUsers = React.useMemo(() => {
     const extract = (v: User) => v.name;
     return [...users].sort(comparingBy(order, extract));
-  }, [users, order, orderBy]);
+  }, [users, order]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const sortedUsersSlice = sortedUsers.slice(

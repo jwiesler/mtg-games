@@ -62,7 +62,7 @@ export default function RecentPlays<G extends Game>({
     return copy.sort(
       comparingBy<(typeof copy)[0], number | Date | string>(order, extract),
     );
-  }, [order, orderBy, games]);
+  }, [order, orderBy, games, columnKey, placingId, placingKey]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const sortedGamesSlice = sortedGames.slice(

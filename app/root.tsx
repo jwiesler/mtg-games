@@ -33,6 +33,20 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+async function isSessionAlive() {
+  try {
+    const r = await fetch("/session", {
+      credentials: "include",
+      redirect: "manual",
+      cache: "no-store",
+    });
+    // Expired: type === 'opaqueredirect' (Caddy is sending 302 to SSO)
+    return r.type !== "opaqueredirect";
+  } catch {
+    return true;
+  }
+}
+
 function SessionCheck() {
   React.useEffect(() => {
     let last: number | null = null;
@@ -69,19 +83,6 @@ function SessionCheck() {
     };
   }, []);
 
-  async function isSessionAlive() {
-    try {
-      const r = await fetch("/session", {
-        credentials: "include",
-        redirect: "manual",
-        cache: "no-store",
-      });
-      // Expired: type === 'opaqueredirect' (Caddy is sending 302 to SSO)
-      return r.type !== "opaqueredirect";
-    } catch {
-      return true;
-    }
-  }
   return null;
 }
 
