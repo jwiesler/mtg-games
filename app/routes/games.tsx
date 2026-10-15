@@ -82,13 +82,17 @@ export const loader = async () => {
   };
 };
 
-const SCHEMA = z.object({
-  when: z.iso.datetime(),
-  deckId: z.array(z.coerce.number()),
-  playerId: z.array(z.coerce.number()),
-  duration: z.coerce.number(),
-  comment: z.string(),
-});
+const SCHEMA = z
+  .object({
+    when: z.iso.datetime(),
+    deckId: z.array(z.coerce.number().int().positive()),
+    playerId: z.array(z.coerce.number().int().positive()),
+    duration: z.coerce.number(),
+    comment: z.string(),
+  })
+  .refine(g => g.deckId.length === g.playerId.length, {
+    message: "Every play needs a deck and a player",
+  });
 
 async function createOrEditGame(body: FormData) {
   const raw = {
