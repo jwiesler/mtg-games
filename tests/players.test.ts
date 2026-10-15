@@ -162,7 +162,7 @@ test("user has deck", async ({ page }) => {
 
   await expect(
     page.getByText(
-      "A user with decks can't be deleted, delete the user's decks first",
+      "Ein Spieler mit Decks oder Spielen kann nicht gelöscht werden.",
     ),
   ).toBeVisible();
 

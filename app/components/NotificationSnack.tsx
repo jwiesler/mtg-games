@@ -1,8 +1,14 @@
-import Alert from "@mui/material/Alert";
+import Alert, { type AlertColor } from "@mui/material/Alert";
 import Snackbar, { type SnackbarCloseReason } from "@mui/material/Snackbar";
 import React from "react";
 
-export default function NotificationSnack({ message }: { message: string }) {
+export default function NotificationSnack({
+  message,
+  severity = "success",
+}: {
+  message: string;
+  severity?: AlertColor;
+}) {
   const [open, setOpen] = React.useState(true);
   const handleClose = (
     _?: React.SyntheticEvent | Event,
@@ -29,7 +35,7 @@ export default function NotificationSnack({ message }: { message: string }) {
     >
       <Alert
         onClose={handleClose}
-        severity="success"
+        severity={severity}
         variant="filled"
         sx={{ width: "100%" }}
       >

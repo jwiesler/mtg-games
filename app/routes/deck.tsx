@@ -30,7 +30,7 @@ import { PlacingsChart } from "~/components/PlacingsChart";
 import PlayersChart from "~/components/PlayersChart";
 import RecentPlays from "~/components/RecentPlays";
 import prisma from "~/db.server";
-import { NotFound, Validated } from "~/responses.server";
+import { ActionError, NotFound, Validated } from "~/responses.server";
 import { API as SCRYFALL } from "~/scryfall";
 
 export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
@@ -109,10 +109,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       parseIdParam(params.id),
       Validated(DeckSchema.safeParse(Object.fromEntries(body))),
     );
-    return { type: "update", key: deck.updatedAt.toISOString() };
+    return { type: "update", key: deck.updatedAt.toISOString() } as const;
   } else if (request.method === "DELETE") {
     const id = parseIdParam(params.id);
-    await deleteDeck(id);
+    const deck = await deleteDeck(id);
+    if ("error" in deck) {
+      return ActionError(deck.error);
+    }
     return redirect("/decks");
   } else {
     throw NotFound();
@@ -317,7 +320,13 @@ export default function Deck() {
         title={"Möchtest du dieses Deck wirklich löschen?"}
       />
       {actionData && (
-        <NotificationSnack key={actionData.key} message={"Deck gespeichert"} />
+        <NotificationSnack
+          key={actionData.key}
+          severity={actionData.type == "error" ? "error" : "success"}
+          message={
+            actionData.type == "error" ? actionData.message : "Deck gespeichert"
+          }
+        />
       )}
     </Box>
   );

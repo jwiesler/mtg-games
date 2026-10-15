@@ -30,7 +30,7 @@ import NotificationSnack from "~/components/NotificationSnack";
 import { SortTableHead } from "~/components/SortTableHead";
 import prisma from "~/db.server";
 import { Prisma } from "~/generated/prisma/client";
-import { BadRequest, NotFound, Validated } from "~/responses.server";
+import { ActionError, NotFound, Validated } from "~/responses.server";
 import { comparingBy, useSortingStates } from "~/sort";
 
 export const meta: MetaFunction<typeof loader> = () => [
@@ -71,7 +71,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     const mode = requestedUser.id === undefined ? "create" : "update";
-    return { type: mode, key: `${mode}-${user.id}`, name: user.name };
+    return { type: mode, key: `${mode}-${user.id}`, name: user.name } as const;
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = Validated(z.coerce.number().safeParse(body.get("id")));
@@ -80,12 +80,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         select: { name: true },
         where: { id },
       });
-      return { type: "delete", key: `delete-${id}`, name: user.name };
+      return { type: "delete", key: `delete-${id}`, name: user.name } as const;
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if ((e as Prisma.PrismaClientKnownRequestError).code === "P2003") {
-          throw BadRequest(
-            "A user with decks can't be deleted, delete the user's decks first",
+          return ActionError(
+            "Ein Spieler mit Decks oder Spielen kann nicht gelöscht werden.",
           );
         }
       }
@@ -275,12 +275,15 @@ export default function Users() {
       {actionData && (
         <NotificationSnack
           key={actionData.key}
+          severity={actionData.type == "error" ? "error" : "success"}
           message={
-            actionData.type == "create"
-              ? `Spieler '${actionData.name}' angelegt`
-              : actionData.type == "update"
-                ? `Spieler '${actionData.name}' gespeichert`
-                : `Spieler '${actionData.name}' gelöscht`
+            actionData.type == "error"
+              ? actionData.message
+              : actionData.type == "create"
+                ? `Spieler '${actionData.name}' angelegt`
+                : actionData.type == "update"
+                  ? `Spieler '${actionData.name}' gespeichert`
+                  : `Spieler '${actionData.name}' gelöscht`
           }
         />
       )}

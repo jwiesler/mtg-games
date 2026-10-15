@@ -2,7 +2,7 @@ import z from "zod";
 
 import { Prisma } from "./generated/prisma/client";
 import prisma from "~/db.server";
-import { BadRequest, NotFound } from "~/responses.server";
+import { NotFound } from "~/responses.server";
 import { API } from "~/scryfall";
 
 export function parseIdParam(input: string | undefined): number {
@@ -51,9 +51,10 @@ export async function deleteDeck(id: number) {
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if ((e as Prisma.PrismaClientKnownRequestError).code === "P2003") {
-        throw BadRequest(
-          "A deck that was played can't be deleted. Delete those games first.",
-        );
+        return {
+          error:
+            "Ein gespieltes Deck kann nicht gelöscht werden. Lösche zuerst die Spiele.",
+        };
       }
     }
     throw e;

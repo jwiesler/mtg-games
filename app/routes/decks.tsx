@@ -16,7 +16,7 @@ import { type DeckData, EMPTY_DECK, EditDeck } from "~/components/EditDeck";
 import EditDrawer from "~/components/EditDrawer";
 import NotificationSnack from "~/components/NotificationSnack";
 import prisma from "~/db.server";
-import { NotFound, Validated } from "~/responses.server";
+import { ActionError, NotFound, Validated } from "~/responses.server";
 
 export const meta: MetaFunction<typeof loader> = () => [
   {
@@ -46,12 +46,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const deck = await createDeck(
       Validated(DeckSchema.safeParse(Object.fromEntries(body))),
     );
-    return { type: "create", key: `create-${deck.id}`, name: deck.name };
+    return {
+      type: "create",
+      key: `create-${deck.id}`,
+      name: deck.name,
+    } as const;
   } else if (request.method == "DELETE") {
     const body = await request.formData();
     const id = Validated(z.coerce.number().safeParse(body.get("id")));
     const deck = await deleteDeck(id);
-    return { type: "delete", key: `delete-${id}`, name: deck.name };
+    if ("error" in deck) {
+      return ActionError(deck.error);
+    }
+    return { type: "delete", key: `delete-${id}`, name: deck.name } as const;
   } else {
     throw NotFound();
   }
@@ -95,7 +102,12 @@ export default function Decks() {
       {actionData && (
         <NotificationSnack
           key={actionData.key}
-          message={`Deck '${actionData.name}' ${actionData.type == "create" ? "angelegt" : "gelöscht"}`}
+          severity={actionData.type == "error" ? "error" : "success"}
+          message={
+            actionData.type == "error"
+              ? actionData.message
+              : `Deck '${actionData.name}' ${actionData.type == "create" ? "angelegt" : "gelöscht"}`
+          }
         />
       )}
     </Box>
