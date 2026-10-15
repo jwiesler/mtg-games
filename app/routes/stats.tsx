@@ -303,14 +303,14 @@ function GeneralStats({ games, filter }: { games: Game[]; filter: Filter }) {
     >
       {stats.map(({ name, value, hint }, i) => {
         const desc = (
-          <Typography variant="h5" component="h1">
+          <Typography variant="h5" component="h2">
             {name}
           </Typography>
         );
         return (
           <Paper key={i} variant="outlined" sx={{ p: "1em", width: "12em" }}>
             <Stack spacing={2} sx={{ alignItems: "center" }}>
-              <Typography variant="h4" component="h1">
+              <Typography variant="h4" component="h2">
                 {value}
               </Typography>
 
