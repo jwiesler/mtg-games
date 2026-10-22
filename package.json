@@ -58,7 +58,7 @@
     "eslint": "^10.0.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "prisma": "^7.0.0",
-    "typescript": "^6.0.0",
+    "typescript": "^7.0.0",
     "typescript-eslint": "^8.35.1",
     "vite": "latest"
   },
